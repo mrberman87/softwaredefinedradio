@@ -1,9 +1,21 @@
 #summary One-sentence summary of this page.
-
+This wiki should serve to document our project in the UAV Software Defined Radio Project
 = Introduction =
 
-Add your content here.
-This is a test page
+The individuals that are assigned to this project are:
+
+Brian Meadows (Project Manager),
+Ryan Rawson,
+Charles Judah,
+David Alvarez,
+Derrick Jones,
+Mike Berman
+
+The advisors for this project are:
+Prof. James Flynn,
+Prof. Sharlene Katz
+
+
 
 = Details =
 
