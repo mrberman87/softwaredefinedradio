@@ -12,7 +12,7 @@ class GPS_GGA_packet:
 	t_secs=0
 	lat=0
 	lat_hemis=None
-	long=0
+	lon=0
 	long_hemis=None
 	valid_fix=0
 	num_of_sats=0
@@ -28,15 +28,15 @@ class GPS_GGA_packet:
 			t_string=gps_data_array[1]
 			#split the time string up by character
 			self.t_hours=t_string[0:2]	
-			self.t_mins=t_string[2:4]
-			self.t_secs=t_string[4:6]
+			self.t_mins=t_string[2:4]	
+			self.t_secs=t_string[4:]	#string indices 4 to last item
 		
 			#Latitiude
-			self.lat=float(gps_data_array[2])
+			self.lat=gps_data_array[2]
 			self.lat_hemis=gps_data_array[3]		#(N or S for North/South)
 			
 			#Longitude
-			self.long=float(gps_data_array[4])
+			self.lon=gps_data_array[4]
 			self.long_hemis=gps_data_array[5]		#E or W for East or West
 			
 			#-----Other info--------------------------
