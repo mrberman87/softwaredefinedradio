@@ -13,10 +13,15 @@ class UAV_Controller:
 		while True:
 			self.rx_pid = self.run_rx_module()
 			self.to_pid = self.run_to_module()
-			
+			print os.getpid()
+			print self.rx_pid
+			print self.to_pid
+			print self.pid_exists(self.to_pid)
+			os._exit(0)
 			while(time.localtime(os.path.getmtime(self.f_name_rx)) <=  self.last_mod):
 				#This handles "Go Home" situation from timeout
 				if(not self.pid_exists(self.to_pid)):
+					print "test point"
 					self.timeout = True
 					self.go_home()
 					while not self.kill_pid(self.rx_pid): pass
@@ -31,26 +36,41 @@ class UAV_Controller:
 			if(self.exec_command()):
 				#This sends down all neccessary data depending on the given command
 				self.run_tx_module()
-				
+	
 	def run_rx_module(self):
+		print "Running Rx Module..."
+		return 1
+		"""
 		self.update_rx_opts()
-		return os.spawnl(os.P_NOWAIT, self.rx_mod_name, self.rx_opts)
+		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)"""
 	
 	def run_to_module(self):
-		return os.spawnl(os.P_NOWAIT, self.to_mod_name, '-t', self.timeout_t)
+		print os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", self.timeout_t
+		return os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", self.timeout_t)
 	
 	def run_tx_module(self):
+		print "Running Tx Module..."
+		return 2
+		"""
 		self.update_tx_opts()
-		return spawnl(os.P_WAIT, self.tx_mod_name, self.tx_opts)
+		return spawnv(os.P_WAIT, 'usr/bin/python', self.tx_opts)"""
 	
 	def pid_exists(self, pid):
 		try:
+			fd = open('/proc/%d/status' % pid, 'r')
+			for l in fd:
+				if(l.startswith('State:')):
+					junk, s, text = l.split( None, 2 )
+					print s
+			fd.close()
+			if(s == "R"):
+				return True
 			os.waitpid(pid, os.WNOHANG)
-			os.kill(pid, 0)
-			return True
-		expect OSError:
-			return False
-	
+			return "False1"
+		except IOError, OSError:
+			os.waitpid(pid, os.WNOHANG)
+			return "False2"
+		
 	def go_home(self):
 		self.init_vars()
 	
@@ -97,7 +117,7 @@ class UAV_Controller:
 			temp_pid = spawnl(os.P_NOWAIT, "get_temp.py")
 			batt_pid = spawnl(os.P_NOWAIT, "get_batt.py")
 			gps_pid = spawnl(os.P_NOWAIT, "get_gps.py")
-			while(pid_exists(temp_pid) || pid_exists(batt_pid) || pid_exists(gps_pid)):
+			while(pid_exists(temp_pid) or pid_exists(batt_pid) or pid_exists(gps_pid)):
 				pass
 			self.comb_misc_data()
 			self.f_name_tx = "misc.dat"
@@ -112,14 +132,20 @@ class UAV_Controller:
 		return True
 	
 	def update_rx_opts(self):
-		self.rx_opts = ['-f', (self.freq + self.freq_offset)]
-		self.rx_opts.append(['-m', self.mod_sch])
-		self.rx_opts.append(['--file', self.f_name_rx])
+		self.rx_opts = ['python', self.rx_mod_name, '-f']
+		self.rx_opts.append(self.freq + self.freq_offset)
+		self.rx_opts.append('-m')
+		self.rx_opts.append(self.mod_sch)
+		self.rx_opts.append('--file')
+		self.rx_opts.append(self.f_name_rx)
 	
 	def update_tx_opts(self):
-		self.tx_opts = ['-f', (self.freq + self.freq_offset)]
-		self.tx_opts.append(['-m', self.mod_sch])
-		self.tx_opts.append(['--file', self.f_name_tx])
+		self.tx_opts = ['python', self.tx_mod_name, '-f']
+		self.tx_opts.append(self.freq + self.freq_offset)
+		self.tx_opts.append('-m')
+		self.tx_opts.append(self.mod_sch)
+		self.tx_opts.append('--file')
+		self.tx_opts.append(self.f_name_tx)
 	
 	def comb_misc_data(self):
 		f_out = open("misc.dat", "w")
@@ -165,7 +191,7 @@ class UAV_Controller:
 		self.to_pid = 0
 		
 		#Timeout Time (in seconds, can take parts of seconds)
-		self.timeout_t = 30
+		self.timeout_t = 5
 		
 		#Receive File
 		self.f_name_rx = "RECEIVE"
@@ -200,6 +226,8 @@ class UAV_Controller:
 			os.system("touch gps.dat")
 		if(not os.path.exists("misc.dat")):
 			os.system("touch misc.dat")
+		if(not os.path.exists("RECEIVE")):
+			os.system("touch RECEIVE")
 
 #This is the executable sections of code
 if __name__ == '__main__':
