@@ -11,7 +11,7 @@ class timeout:
 		parser = OptionParser("Useage: %prog -t arg1")
 		parser.add_option("-t", "--time", action="store", type="int", dest="time")
 		(options, args) = parser.parse_args()
-		return options.time
+		return int(options.time)
 
 if __name__ == "__main__":
 	timeout()
