@@ -81,24 +81,34 @@ class UAV_Controller:
 			self.freq = int(_file.readline().strip('\n'))
 			self.mod_sch = _file.readline().strip('\n')
 			self.timeout_t = int(_file.readline().strip('\n'))
+			_file.close()
 			return False
 		elif(command == "picture"):
 			os.system("uvccapture -v -q100 -o%s/pic.dat" % os.getcwd())
 			self.f_name_tx = "pic.dat"
+			_file.close()
 			return True
 		elif(command == "fft"):
 			spawnl(os.P_WAIT, "get_fft.py")
 			self.f_name_tx = "fft.dat"
+			_file.close()
+			return True
+		elif(command == "sensors"):
+			temp_pid = spawnl(os.P_NOWAIT, "get_temp.py")
+			batt_pid = spawnl(os.P_NOWAIT, "get_batt.py")
+			gps_pid = spawnl(os.P_NOWAIT, "get_gps.py")
+			while(pid_exists(temp_pid) || pid_exists(batt_pid) || pid_exists(gps_pid)):
+				pass
+			self.comb_misc_data()
+			self.f_name_tx = "misc.dat"
+			_file.close()
 			return True
 		
-		#this is the default send back: temp, batt, and gps
-		temp_pid = spawnl(os.P_NOWAIT, "get_temp.py")
-		batt_pid = spawnl(os.P_NOWAIT, "get_batt.py")
-		gps_pid = spawnl(os.P_NOWAIT, "get_gps.py")
-		while(pid_exists(temp_pid) || pid_exists(batt_pid) || pid_exists(gps_pid)):
-			pass
-		self.comb_misc_data()
+		fd = open("misc.dat", 'w')
+		fd.write("erroneous command")
+		fd.close()
 		self.f_name_tx = "misc.dat"
+		_file.close()
 		return True
 	
 	def update_rx_opts(self):
@@ -193,5 +203,4 @@ class UAV_Controller:
 
 #This is the executable sections of code
 if __name__ == '__main__':
-	prog = UAV_Controller()
-	prog.Run()
+	UAV_Controller()
