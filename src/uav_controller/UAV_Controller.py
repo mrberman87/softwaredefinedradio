@@ -13,18 +13,13 @@ class UAV_Controller:
 		while True:
 			self.rx_pid = self.run_rx_module()
 			self.to_pid = self.run_to_module()
-			print os.getpid()
-			print self.rx_pid
-			print self.to_pid
-			print self.pid_exists(self.to_pid)
-			os._exit(0)
 			while(time.localtime(os.path.getmtime(self.f_name_rx)) <=  self.last_mod):
 				#This handles "Go Home" situation from timeout
 				if(not self.pid_exists(self.to_pid)):
 					print "test point"
 					self.timeout = True
 					self.go_home()
-					while not self.kill_pid(self.rx_pid): pass
+					#self.kill_pid(self.rx_pid)
 					self.update_rx_opts
 					self.rx_pid = self.run_rx_module()
 					self.to_pid = self.run_to_module()
@@ -45,8 +40,7 @@ class UAV_Controller:
 		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)"""
 	
 	def run_to_module(self):
-		print os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", self.timeout_t
-		return os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", self.timeout_t)
+		return os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", "%d" % self.timeout_t)
 	
 	def run_tx_module(self):
 		print "Running Tx Module..."
@@ -61,17 +55,16 @@ class UAV_Controller:
 			for l in fd:
 				if(l.startswith('State:')):
 					junk, s, text = l.split( None, 2 )
-					print s
 			fd.close()
-			if(s == "R"):
+			if(s == "R" or s == "S" or s == "D"):
 				return True
 			os.waitpid(pid, os.WNOHANG)
-			return "False1"
+			return False
 		except IOError, OSError:
-			os.waitpid(pid, os.WNOHANG)
-			return "False2"
+			return False
 		
 	def go_home(self):
+		print "going home..."
 		self.init_vars()
 	
 	def kill_pid(self, pid):
@@ -94,26 +87,59 @@ class UAV_Controller:
 			commands, then the UAV will default to executing the 
 			"misc_data" command.
 		"""
-		_file = open(self.f_name_rx, 'r')
+		_file = open(self.f_name_rx, 'rw')
 		command = _file.readline().strip('\n')
 		
 		if(command == "settings"):
+			print "setting the settings..."
+			_file.seek(0)
+			_file.write("")
+			_file.close()
+			self.last_mod = time.localtime()
+			return False
 			self.freq = int(_file.readline().strip('\n'))
 			self.mod_sch = _file.readline().strip('\n')
 			self.timeout_t = int(_file.readline().strip('\n'))
+			_file.seek(0)
+			_file.write("")
 			_file.close()
+			self.last_mod = time.localtime()
 			return False
 		elif(command == "picture"):
+			print "taking picture..."
+			_file.seek(0)
+			_file.write("")
+			_file.close()
+			self.last_mod = time.localtime()
+			return True
 			os.system("uvccapture -v -q100 -o%s/pic.dat" % os.getcwd())
 			self.f_name_tx = "pic.dat"
+			_file.seek(0)
+			_file.write("")
 			_file.close()
+			self.last_mod = time.localtime()
 			return True
 		elif(command == "fft"):
+			print "getting fft data..."
+			_file.seek(0)
+			_file.write("")
+			_file.close()
+			self.last_mod = time.localtime()
+			return True
 			spawnl(os.P_WAIT, "get_fft.py")
 			self.f_name_tx = "fft.dat"
+			_file.seek(0)
+			_file.write("")
 			_file.close()
+			self.last_mod = time.localtime()
 			return True
 		elif(command == "sensors"):
+			print "getting sensor data..."
+			_file.seek(0)
+			_file.write("")
+			_file.close()
+			self.last_mod = time.localtime()
+			return True
 			temp_pid = spawnl(os.P_NOWAIT, "get_temp.py")
 			batt_pid = spawnl(os.P_NOWAIT, "get_batt.py")
 			gps_pid = spawnl(os.P_NOWAIT, "get_gps.py")
@@ -121,14 +147,21 @@ class UAV_Controller:
 				pass
 			self.comb_misc_data()
 			self.f_name_tx = "misc.dat"
+			_file.seek(0)
+			_file.write("")
 			_file.close()
+			self.last_mod = time.localtime()
 			return True
 		
 		fd = open("misc.dat", 'w')
 		fd.write("erroneous command")
 		fd.close()
 		self.f_name_tx = "misc.dat"
+		_file.seek(0)
+		_file.write("")
 		_file.close()
+		self.last_mod = time.localtime()
+		print "letting ground know of error getting command..."
 		return True
 	
 	def update_rx_opts(self):
@@ -191,7 +224,7 @@ class UAV_Controller:
 		self.to_pid = 0
 		
 		#Timeout Time (in seconds, can take parts of seconds)
-		self.timeout_t = 5
+		self.timeout_t = 15
 		
 		#Receive File
 		self.f_name_rx = "RECEIVE"
