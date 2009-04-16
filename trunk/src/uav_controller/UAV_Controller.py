@@ -56,7 +56,7 @@ class UAV_Controller:
 				if(l.startswith('State:')):
 					junk, s, text = l.split( None, 2 )
 			fd.close()
-			if(s == "R" or s == "S" or s == "D"):
+			if(s != "Z"):
 				return True
 			os.waitpid(pid, os.WNOHANG)
 			return False
@@ -92,51 +92,37 @@ class UAV_Controller:
 		
 		if(command == "settings"):
 			print "setting the settings..."
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return False
 			self.freq = int(_file.readline().strip('\n'))
 			self.mod_sch = _file.readline().strip('\n')
 			self.timeout_t = int(_file.readline().strip('\n'))
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return False
 		elif(command == "picture"):
 			print "taking picture..."
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
 			os.system("uvccapture -v -q100 -o%s/pic.dat" % os.getcwd())
 			self.f_name_tx = "pic.dat"
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
 		elif(command == "fft"):
 			print "getting fft data..."
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
 			spawnl(os.P_WAIT, "get_fft.py")
 			self.f_name_tx = "fft.dat"
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
 		elif(command == "sensors"):
 			print "getting sensor data..."
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
@@ -147,8 +133,6 @@ class UAV_Controller:
 				pass
 			self.comb_misc_data()
 			self.f_name_tx = "misc.dat"
-			_file.seek(0)
-			_file.write("")
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
@@ -157,8 +141,6 @@ class UAV_Controller:
 		fd.write("erroneous command")
 		fd.close()
 		self.f_name_tx = "misc.dat"
-		_file.seek(0)
-		_file.write("")
 		_file.close()
 		self.last_mod = time.localtime()
 		print "letting ground know of error getting command..."
