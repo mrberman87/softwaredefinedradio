@@ -9,8 +9,23 @@ class UAV_Controller:
 		self.init_vars()
 		self.init_files()
 		
+		#keep track of received erroneous data
+		self.e_data = 0
+		
+		#RX, TX, and Time_Out pid's
+		self.rx_pid = 0
+		self.tx_pid = 0
+		self.to_pid = 0
+		
+		#Timeout Time (in seconds, can take parts of seconds)
+		self.timeout_t = 15
+		
+		#Receive File modification Time
+		self.last_mod = time.localtime()
+		
 		#This is the main controller section of code
 		while True:
+			self.timeout = False
 			self.rx_pid = self.run_rx_module()
 			self.to_pid = self.run_to_module()
 			while(time.localtime(os.path.getmtime(self.f_name_rx)) <=  self.last_mod):
@@ -21,14 +36,15 @@ class UAV_Controller:
 					self.go_home()
 					#self.kill_pid(self.rx_pid)
 					self.update_rx_opts
-					self.rx_pid = self.run_rx_module()
-					self.to_pid = self.run_to_module()
 					break
 			
 			#This handles getting all needed sensor data and/or changing
 			#any and all settings for which file is to be transmitted
 			#returns True if there is need to send something down
-			if(self.exec_command()):
+			if(self.timeout):
+				#do nothing
+				pass
+			elif(self.exec_command()):
 				#This sends down all neccessary data depending on the given command
 				self.run_tx_module()
 	
@@ -79,15 +95,15 @@ class UAV_Controller:
 			"misc data" -> sends down GPS, Temp. and Batt level
 			"settings" + '\n' + "<frequency>" + '\n' + "<modulation scheme>"
 					+ '\n' + "<timeout time>"
-				-> This will change the frequency and modulation
-				   scheme as defined in the sent message.
-				   If a setting is not clear, or cannot be acheived,
-				   then that setting will not be modified
+				-> This will change the frequency, modulation
+				   scheme and timeout time as defined in the sent
+				   message.  If a setting is not clear, or cannot be
+				   acheived, then that setting will not be modified
 			If the sent file's first line doesnt contain one of these
 			commands, then the UAV will default to executing the 
 			"misc_data" command.
 		"""
-		_file = open(self.f_name_rx, 'rw')
+		_file = open(self.f_name_rx, 'r')
 		command = _file.readline().strip('\n')
 		
 		if(command == "settings"):
@@ -100,6 +116,7 @@ class UAV_Controller:
 			self.timeout_t = int(_file.readline().strip('\n'))
 			_file.close()
 			self.last_mod = time.localtime()
+			self.e_data = 0
 			return False
 		elif(command == "picture"):
 			print "taking picture..."
@@ -110,31 +127,34 @@ class UAV_Controller:
 			self.f_name_tx = "pic.dat"
 			_file.close()
 			self.last_mod = time.localtime()
+			self.e_data = 0
 			return True
 		elif(command == "fft"):
 			print "getting fft data..."
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
-			spawnl(os.P_WAIT, "get_fft.py")
+			spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
 			self.f_name_tx = "fft.dat"
 			_file.close()
 			self.last_mod = time.localtime()
+			self.e_data = 0
 			return True
 		elif(command == "sensors"):
 			print "getting sensor data..."
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
-			temp_pid = spawnl(os.P_NOWAIT, "get_temp.py")
-			batt_pid = spawnl(os.P_NOWAIT, "get_batt.py")
-			gps_pid = spawnl(os.P_NOWAIT, "get_gps.py")
+			temp_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_temp.py')
+			batt_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_batt.py')
+			gps_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_gps.py')
 			while(pid_exists(temp_pid) or pid_exists(batt_pid) or pid_exists(gps_pid)):
 				pass
 			self.comb_misc_data()
 			self.f_name_tx = "misc.dat"
 			_file.close()
 			self.last_mod = time.localtime()
+			self.e_data = 0
 			return True
 		
 		fd = open("misc.dat", 'w')
@@ -143,6 +163,10 @@ class UAV_Controller:
 		self.f_name_tx = "misc.dat"
 		_file.close()
 		self.last_mod = time.localtime()
+		self.e_data += 1
+		if(self.e_data > 3):
+			self.e_data = 0
+			self.go_home()
 		print "letting ground know of error getting command..."
 		return True
 	
@@ -200,14 +224,6 @@ class UAV_Controller:
 		#Timeout Module Name
 		self.to_mod_name = "./timeout_process.py"
 		
-		#RX, TX, and Time_Out pid's
-		self.rx_pid = 0
-		self.tx_pid = 0
-		self.to_pid = 0
-		
-		#Timeout Time (in seconds, can take parts of seconds)
-		self.timeout_t = 15
-		
 		#Receive File
 		self.f_name_rx = "RECEIVE"
 		
@@ -222,9 +238,6 @@ class UAV_Controller:
 		
 		#Modulation Scheme
 		self.mod_sch = "bpsk"
-		
-		#Receive File modification Time
-		self.last_mod = time.localtime()
 		
 	def init_files(self):
 		#This method makes sure that all files needed for this
