@@ -9,20 +9,6 @@ class UAV_Controller:
 		self.init_vars()
 		self.init_files()
 		
-		#keep track of received erroneous data
-		self.e_data = 0
-		
-		#RX, TX, and Time_Out pid's
-		self.rx_pid = 0
-		self.tx_pid = 0
-		self.to_pid = 0
-		
-		#Timeout Time (in seconds, can take parts of seconds)
-		self.timeout_t = 15
-		
-		#Receive File modification Time
-		self.last_mod = time.localtime()
-		
 		#This is the main controller section of code
 		while True:
 			self.timeout = False
@@ -34,7 +20,7 @@ class UAV_Controller:
 					print "test point"
 					self.timeout = True
 					self.go_home()
-					#self.kill_pid(self.rx_pid)
+					self.kill_pid(self.rx_pid)
 					self.update_rx_opts
 					break
 			
@@ -45,6 +31,8 @@ class UAV_Controller:
 				#do nothing
 				pass
 			elif(self.exec_command()):
+				#Timeout module may still be running, so make sure its dead
+				self.kill_pid(self.to_pid)
 				#This sends down all neccessary data depending on the given command
 				self.run_tx_module()
 	
@@ -81,11 +69,21 @@ class UAV_Controller:
 		
 	def go_home(self):
 		print "going home..."
-		self.init_vars()
+		#Transceiver Frequency
+		self.freq = 440000000
+		
+		#Modulation Scheme
+		self.mod_sch = "bpsk"
+		
+		#Set timeout
+		self.timeout_t = 10
 	
 	def kill_pid(self, pid):
-		os.kill(pid, 9)
-		return not pid_exists(pid)
+		try:
+			os.kill(pid, 9)
+			return not self.pid_exists(pid)
+		except OSError:
+			return True
 	
 	def exec_command(self):
 		"""
@@ -116,7 +114,7 @@ class UAV_Controller:
 			self.timeout_t = int(_file.readline().strip('\n'))
 			_file.close()
 			self.last_mod = time.localtime()
-			self.e_data = 0
+			self.err_data = 0
 			return False
 		elif(command == "picture"):
 			print "taking picture..."
@@ -127,7 +125,7 @@ class UAV_Controller:
 			self.f_name_tx = "pic.dat"
 			_file.close()
 			self.last_mod = time.localtime()
-			self.e_data = 0
+			self.err_data = 0
 			return True
 		elif(command == "fft"):
 			print "getting fft data..."
@@ -138,10 +136,11 @@ class UAV_Controller:
 			self.f_name_tx = "fft.dat"
 			_file.close()
 			self.last_mod = time.localtime()
-			self.e_data = 0
+			self.err_data = 0
 			return True
 		elif(command == "sensors"):
 			print "getting sensor data..."
+			self.comb_misc_data()
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
@@ -154,7 +153,7 @@ class UAV_Controller:
 			self.f_name_tx = "misc.dat"
 			_file.close()
 			self.last_mod = time.localtime()
-			self.e_data = 0
+			self.err_data = 0
 			return True
 		
 		fd = open("misc.dat", 'w')
@@ -163,9 +162,9 @@ class UAV_Controller:
 		self.f_name_tx = "misc.dat"
 		_file.close()
 		self.last_mod = time.localtime()
-		self.e_data += 1
-		if(self.e_data > 3):
-			self.e_data = 0
+		self.err_data += 1
+		if(self.err_data > 3):
+			self.err_data = 0
 			self.go_home()
 		print "letting ground know of error getting command..."
 		return True
@@ -192,23 +191,18 @@ class UAV_Controller:
 		f_2 = open("batt.dat", "r")
 		f_3 = open("gps.dat", "r")
 		
-		for line in f_1.readline():
-			f_out.write(line+'\n')
-		f_out.write('\n')
+		f_out.write(f_1.readline())
+		f_out.write(f_2.readline())
+		f_out.write(f_3.readline())
 		f_1.close()
-		
-		for line in f_2.readline():
-			f_out.write(line+'\n')
-		f_out.write('\n')
 		f_2.close()
-		
-		for line in f_3.readline():
-			f_out.write(line+'\n')
-		f_out.write('\n')
 		f_3.close()
-		f_out.close()
+		f_out.close
 	
 	def init_vars(self):
+		#Initialize variables that define the "Go Home" state
+		self.go_home()
+		
 		#RX Module Name
 		self.rx_mod_name = "./rx_file.py"
 		
@@ -230,15 +224,20 @@ class UAV_Controller:
 		#Transmit File
 		self.f_name_tx = "DATA"
 		
-		#Transceiver Frequency
-		self.freq = 440000000
-		
 		#Transceiver Variation
 		self.freq_offset = 0
 		
-		#Modulation Scheme
-		self.mod_sch = "bpsk"
+		#keep track of received erroneous data
+		self.err_data = 0
 		
+		#RX, TX, and Time_Out pid's
+		self.rx_pid = 0
+		self.tx_pid = 0
+		self.to_pid = 0
+		
+		#Receive File modification Time
+		self.last_mod = time.localtime()
+	
 	def init_files(self):
 		#This method makes sure that all files needed for this
 		#program are exist.
