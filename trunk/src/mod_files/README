@@ -1,0 +1,6 @@
+open a terminal window, and move into this directory, and run the following commands
+
+sudo mv /usr/local/lib/python2.5/site-packages/gnuradio/packet_utils.py /usr/local/lib/python2.5/site-packages/gnuradio/__packet_utils.py
+sudo cp ./packet_utils /usr/local/lib/python2.5/site-packages/gnuradio/packet_utils.py
+sudo mv /usr/local/lib/python2.5/site-packages/grc_gnuradio/blks2/packet.py /usr/local/lib/python2.5/site-packages/grc_gnuradio/blks2/__packet.py
+suco cp ./packet /usr/local/lib/python2.5/site-packages/grc_gnuradio/blks2/packet.py
