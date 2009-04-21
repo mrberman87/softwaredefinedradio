@@ -15,6 +15,7 @@ from grc_gnuradio import usrp as grc_usrp
 class Tx_path_UAV(gr.top_block):
 
 	def __init__(self):
+		opts = self.get_options()
 		gr.top_block.__init__(self, "Tx_path_UAV")
 
 		##################################################
@@ -57,6 +58,9 @@ class Tx_path_UAV(gr.top_block):
 
 	def set_samp_rate(self, samp_rate):
 		self.samp_rate = samp_rate
+	
+	def get_options(self):
+		
 
 	def set_freq_offset(self, freq_offset):
 		self.freq_offset = freq_offset
