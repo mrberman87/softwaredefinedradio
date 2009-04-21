@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 ##################################################
 # Gnuradio Python Flow Graph
-# Title: Tx_path_UAV
+# Title: dbpsk_Tx_path_UAV
 # Author: UAV Group 4/21/2009
 # Description: gnuradio flow graph
-# Generated: Tue Apr 21 09:14:05 2009
+# Generated: Tue Apr 21 11:17:13 2009
 ##################################################
 
 from gnuradio import blks2
@@ -12,11 +12,10 @@ from gnuradio import gr
 from grc_gnuradio import blks2 as grc_blks2
 from grc_gnuradio import usrp as grc_usrp
 
-class Tx_path_UAV(gr.top_block):
+class dbpsk_Tx_path_UAV(gr.top_block):
 
 	def __init__(self):
-		opts = self.get_options()
-		gr.top_block.__init__(self, "Tx_path_UAV")
+		gr.top_block.__init__(self, "dbpsk_Tx_path_UAV")
 
 		##################################################
 		# Variables
@@ -32,12 +31,12 @@ class Tx_path_UAV(gr.top_block):
 			excess_bw=0.35,
 			gray_code=True,
 		)
-		self.blks2_packet_encoder_0 = grc_blks2.packet_mod_b(grc_blks2.packet_encoder(
-				samples_per_symbol=8,
-				bits_per_symbol=1,
-				access_code="",
-				pad_for_usrp=True,
-			),
+		self.blks2_packet_encoder_0 = grc_blks2.packet_encoder(
+			item_size_in=gr.sizeof_char*1,
+			samples_per_symbol=8,
+			bits_per_symbol=1,
+			access_code="",
+			pad_for_usrp=True,
 			payload_length=1024,
 		)
 		self.gr_file_source_0 = gr.file_source(gr.sizeof_char*1, "insert file name here", False)
@@ -58,16 +57,13 @@ class Tx_path_UAV(gr.top_block):
 
 	def set_samp_rate(self, samp_rate):
 		self.samp_rate = samp_rate
-	
-	def get_options(self):
-		
 
 	def set_freq_offset(self, freq_offset):
 		self.freq_offset = freq_offset
 		self.usrp_simple_sink_x_0.set_frequency((440e6 + self.freq_offset))
 
 if __name__ == '__main__':
-	tb = Tx_path_UAV()
+	tb = dbpsk_Tx_path_UAV()
 	tb.start()
 	raw_input('Press Enter to quit: ')
 	tb.stop()

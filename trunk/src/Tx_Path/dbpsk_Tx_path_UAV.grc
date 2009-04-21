@@ -1,53 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Apr 21 09:14:04 2009</timestamp>
-  <block>
-    <key>options</key>
-    <param>
-      <key>id</key>
-      <value>Tx_path_UAV</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>Tx_path_UAV</value>
-    </param>
-    <param>
-      <key>author</key>
-      <value>UAV Group 4/21/2009</value>
-    </param>
-    <param>
-      <key>description</key>
-      <value>gnuradio flow graph</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>1280, 1024</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>no_gui</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 10)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
+  <timestamp>Tue Apr 21 11:15:17 2009</timestamp>
   <block>
     <key>variable</key>
     <param>
@@ -172,6 +125,10 @@
       <value>1024</value>
     </param>
     <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(372, 245)</value>
     </param>
@@ -253,6 +210,10 @@
       <value>complex</value>
     </param>
     <param>
+      <key>format</key>
+      <value></value>
+    </param>
+    <param>
       <key>which</key>
       <value>0</value>
     </param>
@@ -279,6 +240,53 @@
     <param>
       <key>_coordinate</key>
       <value>(703, 91)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>options</key>
+    <param>
+      <key>id</key>
+      <value>dbpsk_Tx_path_UAV</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>dbpsk_Tx_path_UAV</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>UAV Group 4/21/2009</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value>gnuradio flow graph</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>1280, 1024</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>no_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
