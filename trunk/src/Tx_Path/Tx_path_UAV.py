@@ -4,7 +4,7 @@
 # Title: Tx_path_UAV
 # Author: UAV Group 4/21/2009
 # Description: gnuradio flow graph
-# Generated: Tue Apr 21 08:46:23 2009
+# Generated: Tue Apr 21 09:14:05 2009
 ##################################################
 
 from gnuradio import blks2
@@ -21,6 +21,7 @@ class Tx_path_UAV(gr.top_block):
 		# Variables
 		##################################################
 		self.samp_rate = samp_rate = 32000
+		self.freq_offset = freq_offset = 0
 
 		##################################################
 		# Blocks
@@ -42,7 +43,7 @@ class Tx_path_UAV(gr.top_block):
 		self.gr_throttle_0 = gr.throttle(gr.sizeof_gr_complex*1, (8*samp_rate))
 		self.usrp_simple_sink_x_0 = grc_usrp.simple_sink_c(which=0, side='A')
 		self.usrp_simple_sink_x_0.set_interp_rate(500)
-		self.usrp_simple_sink_x_0.set_frequency(440e6, verbose=True)
+		self.usrp_simple_sink_x_0.set_frequency((440e6 + freq_offset), verbose=True)
 		self.usrp_simple_sink_x_0.set_gain(-1)
 		self.usrp_simple_sink_x_0.set_enable(True)
 
@@ -56,6 +57,10 @@ class Tx_path_UAV(gr.top_block):
 
 	def set_samp_rate(self, samp_rate):
 		self.samp_rate = samp_rate
+
+	def set_freq_offset(self, freq_offset):
+		self.freq_offset = freq_offset
+		self.usrp_simple_sink_x_0.set_frequency((440e6 + self.freq_offset))
 
 if __name__ == '__main__':
 	tb = Tx_path_UAV()
