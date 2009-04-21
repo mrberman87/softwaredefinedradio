@@ -18,7 +18,7 @@ my_file.close();    #close file handle so other proceses can access it
 for item in my_line_queue:
     my_packet=GPS_GGA_packet(item);
     print "altitude:\t", my_packet.altitude,'m'
-    print "longitude:\t", my_packet.long, my_packet.long_hemis
+    print "longitude:\t", my_packet.lon, my_packet.long_hemis
     print "latitude:\t", my_packet.lat, my_packet.lat_hemis
     print "time stamp:\t", my_packet.t_hours,":",my_packet.t_mins,":",my_packet.t_secs
     
