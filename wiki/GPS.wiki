@@ -1,2 +1,2 @@
 = Links =
-[http://gpsd.berlios.de/ gpsd homepage]
+[http://gpsd.berlios.de/ gpsd homepage] - service daemon that can interface with a GPS device and make the data available to be queried on a TCP port. 
