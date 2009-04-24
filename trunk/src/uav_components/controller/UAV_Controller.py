@@ -14,6 +14,8 @@ class UAV_Controller:
 			self.timeout = False
 			self.rx_pid = self.run_rx_module()
 			self.to_pid = self.run_to_module()
+			
+			#waits until the "RECEIVE" file has been modified from receiving data
 			while(time.localtime(os.path.getmtime(self.f_name_rx)) <=  self.last_mod):
 				#This handles "Go Home" situation from timeout
 				if(not self.pid_exists(self.to_pid)):
@@ -40,6 +42,11 @@ class UAV_Controller:
 		print "Running Rx Module..."
 		return 1
 		"""
+		#modify file to be executed based on modulation scheme
+		if(self.mod_sch == "dbpsk"):
+			self.rx_mod_name = "./dbpsk_rx.py"
+		elif(self.mod_sch == "dqpsk"):
+			self.rx_mod_name = "./dqpsk_rx.py"
 		self.update_rx_opts()
 		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)"""
 	
@@ -50,6 +57,11 @@ class UAV_Controller:
 		print "Running Tx Module..."
 		return 2
 		"""
+		#modify file to be executed based on modulation scheme
+		if(self.mod_sch == "dbpsk"):
+			self.rx_mod_name = "./dbpsk_tx.py"
+		elif(self.mod_sch == "dqpsk"):
+			self.rx_mod_name = "./dqpsk_tx.py"
 		self.update_tx_opts()
 		return spawnv(os.P_WAIT, 'usr/bin/python', self.tx_opts)"""
 	
@@ -66,17 +78,6 @@ class UAV_Controller:
 			return False
 		except IOError, OSError:
 			return False
-		
-	def go_home(self):
-		print "going home..."
-		#Transceiver Frequency
-		self.freq = 440000000
-		
-		#Modulation Scheme
-		self.mod_sch = "bpsk"
-		
-		#Set timeout
-		self.timeout_t = 10
 	
 	def kill_pid(self, pid):
 		try:
@@ -172,16 +173,12 @@ class UAV_Controller:
 	def update_rx_opts(self):
 		self.rx_opts = ['python', self.rx_mod_name, '-f']
 		self.rx_opts.append(self.freq + self.freq_offset)
-		self.rx_opts.append('-m')
-		self.rx_opts.append(self.mod_sch)
 		self.rx_opts.append('--file')
 		self.rx_opts.append(self.f_name_rx)
 	
 	def update_tx_opts(self):
 		self.tx_opts = ['python', self.tx_mod_name, '-f']
 		self.tx_opts.append(self.freq + self.freq_offset)
-		self.tx_opts.append('-m')
-		self.tx_opts.append(self.mod_sch)
 		self.tx_opts.append('--file')
 		self.tx_opts.append(self.f_name_tx)
 	
@@ -237,6 +234,17 @@ class UAV_Controller:
 		
 		#Receive File modification Time
 		self.last_mod = time.localtime()
+		
+	def go_home(self):
+		print "going home..."
+		#Transceiver Frequency
+		self.freq = 440000000
+		
+		#Modulation Scheme
+		self.mod_sch = "dbpsk"
+		
+		#Set timeout
+		self.timeout_t = 10
 	
 	def init_files(self):
 		#This method makes sure that all files needed for this
