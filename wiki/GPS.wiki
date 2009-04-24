@@ -1,2 +1,4 @@
-= Links =
+==Info==
+gpsd is available through the synaptic package manager, so there's no need to compile from source. Currently using the python-gps package for testing purposes. The gpsfake program is included, which allows you to test gpsd without a GPS device attached to your machine.
+=== Links ===
 [http://gpsd.berlios.de/ gpsd homepage] - service daemon that can interface with a GPS device and make the data available to be queried on a TCP port. 
