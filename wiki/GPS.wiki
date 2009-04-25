@@ -1,3 +1,4 @@
+#summary information related to acquiring GPS data on the PC/104
 ==Info==
 gpsd is available through the synaptic package manager, so there's no need to compile from source. 
 To test gpsd:
