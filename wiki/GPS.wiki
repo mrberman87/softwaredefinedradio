@@ -19,4 +19,5 @@ telnet localhost 2947
 2947 is the default port, and localhost is your loopback address. In most cases, you will not need to change this.
 === Links ===
 [http://gpsd.berlios.de/ gpsd homepage] - service daemon that can interface with a GPS device and make the data available to be queried on a TCP port.
+
 [http://www.emacinc.com/manuals_drivers.htm PCM-3292 resources] - Site with drivers and documentation for the PCM3292 GPS device being used.
