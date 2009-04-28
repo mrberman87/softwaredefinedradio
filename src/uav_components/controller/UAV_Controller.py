@@ -43,10 +43,12 @@ class UAV_Controller:
 		return 1
 		"""
 		#modify file to be executed based on modulation scheme
-		if(self.mod_sch == "dbpsk"):
-			self.rx_mod_name = "./dbpsk_rx.py"
-		elif(self.mod_sch == "dqpsk"):
-			self.rx_mod_name = "./dqpsk_rx.py"
+		if(self.mod_sch == "bpsk"):
+			self.rx_mod_name = "./bpsk_rx.py"
+		elif(self.mod_sch == "qpsk"):
+			self.rx_mod_name = "./qpsk_rx.py"
+		elif(self.mod_sch == "8psk"):
+			self.rx_mod_name = "./8psk_rx.py"
 		self.update_rx_opts()
 		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)"""
 	
@@ -58,10 +60,12 @@ class UAV_Controller:
 		return 2
 		"""
 		#modify file to be executed based on modulation scheme
-		if(self.mod_sch == "dbpsk"):
-			self.rx_mod_name = "./dbpsk_tx.py"
-		elif(self.mod_sch == "dqpsk"):
-			self.rx_mod_name = "./dqpsk_tx.py"
+		if(self.mod_sch == "bpsk"):
+			self.tx_mod_name = "./bpsk_tx.py"
+		elif(self.mod_sch == "qpsk"):
+			self.tx_mod_name = "./qpsk_tx.py"
+		elif(self.mod_sch == "8psk"):
+			self.tx_mod_name = "./8psk_tx.py"
 		self.update_tx_opts()
 		return spawnv(os.P_WAIT, 'usr/bin/python', self.tx_opts)"""
 	
@@ -110,19 +114,20 @@ class UAV_Controller:
 			_file.close()
 			self.last_mod = time.localtime()
 			return False
-			self.freq = int(_file.readline().strip('\n'))
-			self.mod_sch = _file.readline().strip('\n')
-			self.timeout_t = int(_file.readline().strip('\n'))
-			_file.close()
-			self.last_mod = time.localtime()
-			self.err_data = 0
-			return False
+			tmp_freq = int(_file.readline().strip('\n'))
+			tmp_mod_sch = _file.readline().strip('\n')
+			tmp_timeout_t = int(_file.readline().strip('\n'))
+			if chk_settings(tmp_freq, tmp_mod_sch, tmp_timeout_t):
+				self.last_mod = time.localtime()
+				_file.close()
+				self.err_data = 0
+				return False
 		elif(command == "picture"):
 			print "taking picture..."
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
-			os.system("uvccapture -v -q100 -o%s/pic.dat" % os.getcwd())
+			os.system("uvccapture -q100 -o%s/pic.dat" % os.getcwd())
 			self.f_name_tx = "pic.dat"
 			_file.close()
 			self.last_mod = time.localtime()
@@ -169,6 +174,11 @@ class UAV_Controller:
 			self.go_home()
 		print "letting ground know of error getting command..."
 		return True
+	
+	def chk_settings(self, f, m, t):
+		if((f > 400000000 and f < 500000000) and (m = 'bpsk' or m = 'qpsk' or m = '8psk') and (t > 10 and t < 100)):
+			return True
+		return False
 	
 	def update_rx_opts(self):
 		self.rx_opts = ['python', self.rx_mod_name, '-f']
