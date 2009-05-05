@@ -150,9 +150,9 @@ class UAV_Controller:
 			_file.close()
 			self.last_mod = time.localtime()
 			return True
+			os.system("gpsd ... > gps.dat")
 			temp_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_temp.py')
 			batt_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_batt.py')
-			gps_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_gps.py')
 			while(pid_exists(temp_pid) or pid_exists(batt_pid) or pid_exists(gps_pid)):
 				pass
 			self.comb_misc_data()
