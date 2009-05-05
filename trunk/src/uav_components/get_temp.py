@@ -17,11 +17,13 @@ def push_low():
 	s.setRTS(0)
 	s.close()
 
+def decode_data(value):
+	#...
+
 if __name__=='__main__':
 	push_low()
 	t=timeit.Timer('test()', "from __main__ import test")
-	elapsed=1000*t.timeit(number=10)/10
 	fd = open('temp.dat', "w")
-	fd.write("%f" % elapsed)
+	fd.write(decode_data(100*t.timeit(number=10)))
 	fd.close()
 
