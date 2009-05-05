@@ -3,7 +3,7 @@
 import timeit, time, serial
 
 def test():
-	s = serial.Serial(0)
+	s = serial.Serial(1)
 	#loop while control line is high
 	while(s.getCTS()):
 		pass
@@ -11,7 +11,7 @@ def test():
 
 def push_low():
 	#put output line low momentarily
-	s = serial.Serial(0)
+	s = serial.Serial(1)
 	s.setRTS(1)
 	time.sleep(.001)
 	s.setRTS(0)
