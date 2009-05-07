@@ -1,5 +1,5 @@
 #summary information related to acquiring GPS data on the PC/104
-==Testing without a GPS module==
+=Testing without a GPS module=
 gpsd is available through the synaptic package manager, so there's no need to compile from source. 
 To test gpsd:
   # make sure you have the *python-gps* and *gpsd-clients* installed.
@@ -17,7 +17,17 @@ You should see data in the window if everything is set up correctly. If so, you 
 telnet localhost 2947
 }}}
 2947 is the default port, and localhost is your loopback address. In most cases, you will not need to change this.
-=== Links ===
+=Troubleshooting=
+===Unable to telnet into localhost. Cannot even ping localhost===
+Theres a good chance that your loopback device was not enabled at startup. To check type:
+{{{
+ifconfig
+}}}
+If there is no lo device, this is your problem. Fix it by typing
+{{{
+sudo ifconfig lo up
+}}}
+=Links=
 [http://gpsd.berlios.de/ gpsd homepage] - service daemon that can interface with a GPS device and make the data available to be queried on a TCP port.
 
 [http://www.emacinc.com/manuals_drivers.htm PCM-3292 resources] - Site with drivers and documentation for the PCM3292 GPS device being used.
