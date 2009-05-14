@@ -11,7 +11,6 @@ $ gpsfake input.txt
 {{{
 $ xgps
 }}}
-
   # You should see data in the window if everything is set up correctly. If so, you can now test your own gps program. One option is to make queries via telnet. Since you are more than likely using the computer that the 'fake gps' is connected to, run the following command:
 {{{
  $ telnet localhost 2947
