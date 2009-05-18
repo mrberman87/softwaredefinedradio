@@ -65,6 +65,8 @@ class dbpsk_Tx_path_UAV(gr.top_block):
 if __name__ == '__main__':
 	tb = dbpsk_Tx_path_UAV()
 	tb.start()
-	raw_input('Press Enter to quit: ')
+	#if buffer in USRP is empty, stop
+	while(buffer not empty):
+		pass
 	tb.stop()
 
