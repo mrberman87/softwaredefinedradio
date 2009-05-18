@@ -22,6 +22,6 @@ def decode_data(value):
 if __name__=='__main__':
 	t=timeit.Timer('test()', "from __main__ import test")
 	fd = open('temp.dat', "w")
-	fd.write(decode_data(100*t.timeit(number=10)))
+	fd.write(decode_data(t.timeit(number=1)))
 	fd.close()
 

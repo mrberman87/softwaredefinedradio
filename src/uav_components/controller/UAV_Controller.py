@@ -39,10 +39,6 @@ class UAV_Controller:
 				self.run_tx_module()
 	
 	def run_rx_module(self):
-		print "Running Rx Module..."
-		return 1
-		"""
-		#modify file to be executed based on modulation scheme
 		if(self.mod_sch == "bpsk"):
 			self.rx_mod_name = "./bpsk_rx.py"
 		elif(self.mod_sch == "qpsk"):
@@ -50,16 +46,12 @@ class UAV_Controller:
 		elif(self.mod_sch == "8psk"):
 			self.rx_mod_name = "./8psk_rx.py"
 		self.update_rx_opts()
-		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)"""
+		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)
 	
 	def run_to_module(self):
 		return os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", "%d" % self.timeout_t)
 	
 	def run_tx_module(self):
-		print "Running Tx Module..."
-		return 2
-		"""
-		#modify file to be executed based on modulation scheme
 		if(self.mod_sch == "bpsk"):
 			self.tx_mod_name = "./bpsk_tx.py"
 		elif(self.mod_sch == "qpsk"):
@@ -67,7 +59,7 @@ class UAV_Controller:
 		elif(self.mod_sch == "8psk"):
 			self.tx_mod_name = "./8psk_tx.py"
 		self.update_tx_opts()
-		return spawnv(os.P_WAIT, 'usr/bin/python', self.tx_opts)"""
+		return spawnv(os.P_WAIT, 'usr/bin/python', self.tx_opts)
 	
 	def pid_exists(self, pid):
 		try:
@@ -110,10 +102,6 @@ class UAV_Controller:
 		command = _file.readline().strip('\n')
 		
 		if(command == "settings"):
-			print "setting the settings..."
-			_file.close()
-			self.last_mod = time.localtime()
-			return False
 			tmp_freq = int(_file.readline().strip('\n'))
 			tmp_mod_sch = _file.readline().strip('\n')
 			tmp_timeout_t = int(_file.readline().strip('\n'))
@@ -123,10 +111,6 @@ class UAV_Controller:
 				self.err_data = 0
 				return False
 		elif(command == "picture"):
-			print "taking picture..."
-			_file.close()
-			self.last_mod = time.localtime()
-			return True
 			os.system("uvccapture -q100 -o%s/pic.dat" % os.getcwd())
 			self.f_name_tx = "pic.dat"
 			_file.close()
@@ -134,10 +118,6 @@ class UAV_Controller:
 			self.err_data = 0
 			return True
 		elif(command == "fft"):
-			print "getting fft data..."
-			_file.close()
-			self.last_mod = time.localtime()
-			return True
 			spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
 			self.f_name_tx = "fft.dat"
 			_file.close()
@@ -145,12 +125,8 @@ class UAV_Controller:
 			self.err_data = 0
 			return True
 		elif(command == "sensors"):
-			print "getting sensor data..."
-			self.comb_misc_data()
-			_file.close()
-			self.last_mod = time.localtime()
-			return True
-			os.system("gpsd ... > gps.dat")
+			#make telnet call to get NMEA string
+			#...
 			temp_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_temp.py')
 			batt_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_batt.py')
 			while(pid_exists(temp_pid) or pid_exists(batt_pid)):
@@ -176,7 +152,7 @@ class UAV_Controller:
 		return True
 	
 	def chk_settings(self, f, m, t):
-		if((f > 400000000 and f < 500000000) and (m = 'bpsk' or m = 'qpsk' or m = '8psk') and (t > 10 and t < 100)):
+		if((f > 400000000 and f < 500000000) and (m == 'bpsk' or m == 'qpsk' or m == '8psk') and (t > 10 and t < 100)):
 			return True
 		return False
 	
