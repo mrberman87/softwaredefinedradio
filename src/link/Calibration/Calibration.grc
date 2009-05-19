@@ -1,29 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Fri May 15 11:53:00 2009</timestamp>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32000</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 170)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
+  <timestamp>Mon May 18 12:18:40 2009</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -72,10 +49,200 @@
     </param>
   </block>
   <block>
-    <key>gr_sig_source_x</key>
+    <key>variable</key>
     <param>
       <key>id</key>
-      <value>gr_sig_source_x_0</value>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>32000</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 170)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_add_xx</key>
+    <param>
+      <key>id</key>
+      <value>gr_add_xx_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(467, 191)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>const_source_x</key>
+    <param>
+      <key>id</key>
+      <value>const_source_x_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(183, 221)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_null_source</key>
+    <param>
+      <key>id</key>
+      <value>gr_null_source_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(308, 191)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>usrp_simple_sink_x</key>
+    <param>
+      <key>id</key>
+      <value>usrp_simple_sink_x_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>format</key>
+      <value></value>
+    </param>
+    <param>
+      <key>which</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>interpolation</key>
+      <value>500</value>
+    </param>
+    <param>
+      <key>frequency</key>
+      <value>(440009220)</value>
+    </param>
+    <param>
+      <key>gain</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>side</key>
+      <value>A</value>
+    </param>
+    <param>
+      <key>transmit</key>
+      <value>tx_enb</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(799, 164)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_multiply_const_vxx</key>
+    <param>
+      <key>id</key>
+      <value>gr_multiply_const_vxx_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>8000</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(591, 204)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_multiply_const_vxx</key>
+    <param>
+      <key>id</key>
+      <value>gr_multiply_const_vxx_1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -86,28 +253,195 @@
       <value>complex</value>
     </param>
     <param>
-      <key>samp_rate</key>
-      <value>samp_rate</value>
+      <key>const</key>
+      <value>7000</value>
     </param>
     <param>
-      <key>waveform</key>
-      <value>gr.GR_COS_WAVE</value>
-    </param>
-    <param>
-      <key>freq</key>
-      <value>1e3</value>
-    </param>
-    <param>
-      <key>amp</key>
+      <key>vlen</key>
       <value>1</value>
     </param>
     <param>
-      <key>offset</key>
+      <key>_coordinate</key>
+      <value>(809, 350)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_throttle</key>
+    <param>
+      <key>id</key>
+      <value>gr_throttle_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>samples_per_second</key>
+      <value>256e3</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(187, 174)</value>
+      <value>(626, 505)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>usrp_simple_sink_x</key>
+    <param>
+      <key>id</key>
+      <value>usrp_simple_sink_x_1_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>format</key>
+      <value></value>
+    </param>
+    <param>
+      <key>which</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>interpolation</key>
+      <value>500</value>
+    </param>
+    <param>
+      <key>frequency</key>
+      <value>440009220</value>
+    </param>
+    <param>
+      <key>gain</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>side</key>
+      <value>A</value>
+    </param>
+    <param>
+      <key>transmit</key>
+      <value>tx_enb</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1001, 465)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_vector_source_x</key>
+    <param>
+      <key>id</key>
+      <value>gr_vector_source_x_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>vector</key>
+      <value>0, 1, 0, 1</value>
+    </param>
+    <param>
+      <key>repeat</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(241, 497)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_multiply_const_vxx</key>
+    <param>
+      <key>id</key>
+      <value>gr_multiply_const_vxx_1_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>7000</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(811, 505)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blks2_qamx_mod</key>
+    <param>
+      <key>id</key>
+      <value>blks2_qamx_mod_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>qam16</value>
+    </param>
+    <param>
+      <key>samples_per_symbol</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>excess_bw</key>
+      <value>0.35</value>
+    </param>
+    <param>
+      <key>gray_code</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(429, 481)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -130,7 +464,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>(8*samp_rate)</value>
+      <value>256e3</value>
     </param>
     <param>
       <key>vlen</key>
@@ -138,7 +472,93 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(402, 206)</value>
+      <value>(624, 350)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blks2_dxpsk_mod</key>
+    <param>
+      <key>id</key>
+      <value>blks2_dxpsk_mod_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>dqpsk</value>
+    </param>
+    <param>
+      <key>samples_per_symbol</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>excess_bw</key>
+      <value>0.35</value>
+    </param>
+    <param>
+      <key>gray_code</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(424, 326)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_slider</key>
+    <param>
+      <key>id</key>
+      <value>freq_offset</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>min</key>
+      <value>-10000</value>
+    </param>
+    <param>
+      <key>max</key>
+      <value>10000</value>
+    </param>
+    <param>
+      <key>num_steps</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>slider_length</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>slider_type</key>
+      <value>horizontal</value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(13, 245)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -149,7 +569,7 @@
     <key>usrp_simple_sink_x</key>
     <param>
       <key>id</key>
-      <value>usrp_simple_sink_x_0</value>
+      <value>usrp_simple_sink_x_1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -181,7 +601,7 @@
     </param>
     <param>
       <key>side</key>
-      <value>A</value>
+      <value>B</value>
     </param>
     <param>
       <key>transmit</key>
@@ -189,7 +609,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(775, 166)</value>
+      <value>(999, 310)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -197,10 +617,10 @@
     </param>
   </block>
   <block>
-    <key>gr_multiply_const_vxx</key>
+    <key>gr_vector_source_x</key>
     <param>
       <key>id</key>
-      <value>gr_multiply_const_vxx_0</value>
+      <value>gr_vector_source_x_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -208,82 +628,25 @@
     </param>
     <param>
       <key>type</key>
-      <value>complex</value>
+      <value>byte</value>
     </param>
     <param>
-      <key>const</key>
-      <value>8000</value>
+      <key>vector</key>
+      <value>0, 0, 0, 1, 1, 0, 1, 1</value>
     </param>
     <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(592, 208)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_slider</key>
-    <param>
-      <key>id</key>
-      <value>freq_offset</value>
-    </param>
-    <param>
-      <key>_enabled</key>
+      <key>repeat</key>
       <value>True</value>
     </param>
     <param>
-      <key>label</key>
-      <value></value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>min</key>
-      <value>-10000</value>
-    </param>
-    <param>
-      <key>max</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_steps</key>
-      <value>200</value>
-    </param>
-    <param>
-      <key>slider_length</key>
-      <value>200</value>
-    </param>
-    <param>
-      <key>slider_type</key>
-      <value>horizontal</value>
-    </param>
-    <param>
-      <key>grid_pos</key>
-      <value></value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(13, 245)</value>
+      <value>(239, 342)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
   </block>
-  <connection>
-    <source_block_id>gr_sig_source_x_0</source_block_id>
-    <sink_block_id>gr_throttle_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
   <connection>
     <source_block_id>gr_multiply_const_vxx_0</source_block_id>
     <sink_block_id>usrp_simple_sink_x_0</sink_block_id>
@@ -291,8 +654,68 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>gr_throttle_0</source_block_id>
+    <source_block_id>gr_add_xx_0</source_block_id>
     <sink_block_id>gr_multiply_const_vxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_null_source_0</source_block_id>
+    <sink_block_id>gr_add_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>const_source_x_0</source_block_id>
+    <sink_block_id>gr_add_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_throttle_0</source_block_id>
+    <sink_block_id>gr_multiply_const_vxx_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_multiply_const_vxx_1</source_block_id>
+    <sink_block_id>usrp_simple_sink_x_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blks2_qamx_mod_0_0</source_block_id>
+    <sink_block_id>gr_throttle_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_throttle_0_0</source_block_id>
+    <sink_block_id>gr_multiply_const_vxx_1_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_multiply_const_vxx_1_0</source_block_id>
+    <sink_block_id>usrp_simple_sink_x_1_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_vector_source_x_0_0</source_block_id>
+    <sink_block_id>blks2_qamx_mod_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blks2_dxpsk_mod_0</source_block_id>
+    <sink_block_id>gr_throttle_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_vector_source_x_0</source_block_id>
+    <sink_block_id>blks2_dxpsk_mod_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
