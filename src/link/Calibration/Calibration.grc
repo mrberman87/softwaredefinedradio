@@ -1,53 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Mon May 18 12:18:40 2009</timestamp>
-  <block>
-    <key>options</key>
-    <param>
-      <key>id</key>
-      <value>Calibration</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>Calibration</value>
-    </param>
-    <param>
-      <key>author</key>
-      <value>Charles</value>
-    </param>
-    <param>
-      <key>description</key>
-      <value>gnuradio flow graph</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>1280, 1024</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>wx_gui</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 10)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
+  <timestamp>Tue May 19 16:51:37 2009</timestamp>
   <block>
     <key>variable</key>
     <param>
@@ -232,37 +185,6 @@
     <param>
       <key>_coordinate</key>
       <value>(591, 204)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gr_multiply_const_vxx</key>
-    <param>
-      <key>id</key>
-      <value>gr_multiply_const_vxx_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>const</key>
-      <value>7000</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(809, 350)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -480,41 +402,6 @@
     </param>
   </block>
   <block>
-    <key>blks2_dxpsk_mod</key>
-    <param>
-      <key>id</key>
-      <value>blks2_dxpsk_mod_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>dqpsk</value>
-    </param>
-    <param>
-      <key>samples_per_symbol</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>excess_bw</key>
-      <value>0.35</value>
-    </param>
-    <param>
-      <key>gray_code</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(424, 326)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>variable_slider</key>
     <param>
       <key>id</key>
@@ -566,6 +453,37 @@
     </param>
   </block>
   <block>
+    <key>gr_multiply_const_vxx</key>
+    <param>
+      <key>id</key>
+      <value>gr_multiply_const_vxx_1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>variable_chooser_0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(809, 350)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>usrp_simple_sink_x</key>
     <param>
       <key>id</key>
@@ -601,7 +519,7 @@
     </param>
     <param>
       <key>side</key>
-      <value>B</value>
+      <value>A</value>
     </param>
     <param>
       <key>transmit</key>
@@ -617,10 +535,45 @@
     </param>
   </block>
   <block>
-    <key>gr_vector_source_x</key>
+    <key>blks2_dxpsk_mod</key>
     <param>
       <key>id</key>
-      <value>gr_vector_source_x_0</value>
+      <value>blks2_dxpsk_mod_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>dqpsk</value>
+    </param>
+    <param>
+      <key>samples_per_symbol</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>excess_bw</key>
+      <value>0.35</value>
+    </param>
+    <param>
+      <key>gray_code</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(424, 326)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>random_source_x</key>
+    <param>
+      <key>id</key>
+      <value>random_source_x_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -631,8 +584,16 @@
       <value>byte</value>
     </param>
     <param>
-      <key>vector</key>
-      <value>0, 0, 0, 1, 1, 0, 1, 1</value>
+      <key>min</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>max</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>num_samps</key>
+      <value>1000</value>
     </param>
     <param>
       <key>repeat</key>
@@ -640,7 +601,97 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(239, 342)</value>
+      <value>(221, 326)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_chooser</key>
+    <param>
+      <key>id</key>
+      <value>variable_chooser_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value_index</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>choices</key>
+      <value>[8000, 0]</value>
+    </param>
+    <param>
+      <key>labels</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>chooser_type</key>
+      <value>radio_buttons_horizontal</value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(961, 137)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>options</key>
+    <param>
+      <key>id</key>
+      <value>Calibration</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>Calibration</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>Charles</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value>gnuradio flow graph</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>1280, 1024</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>wx_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -714,7 +765,7 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>gr_vector_source_x_0</source_block_id>
+    <source_block_id>random_source_x_0</source_block_id>
     <sink_block_id>blks2_dxpsk_mod_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
