@@ -1,0 +1,54 @@
+
+**** 05/19/09 11:44:00 ****** PSpice 16.0.0 (August 2007) ***** ID# 1656184 **
+
+ ** Profile: "SCHEMATIC1-bias"  [ Z:\sdr\sdroffset-pspicefiles\schematic1\bias.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "bias.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+* From [PSPICE NETLIST] section of C:\Cadence\SPB_16.01\tools\PSpice\PSpice.ini file:
+.lib "nom.lib" 
+
+*Analysis directives: 
+.TRAN  0 10 0 
+.STEP PARAM {ts} LIST .8,.94 
+------------$
+ERROR -- Invalid global param name
+.PROBE V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source SDROFFSET
+R_R5         N25012 N26084  1e6 TC=0,0 
+R_R3         N42219 N43933  470k TC=0,0 
+R_R2         0 N44707  2.2k TC=0,0 
+C_C1         0 N25012  .5u  TC=0,0 
+R_R7         N24028 N26084  10000 TC=0,0 
+X_U3         0 N24028 N26956 N26084 N43933 N25012 N25012 N26084 555C
+R_R9         N26084 N44707  6.8k TC=0,0 
+V_V1         N26084 0 9Vdc
+R_R6         N26956 0  50 TC=0,0 
+X_U4         N44707 N42219 N26084 0 N43933 uA741
+V_V4         N46811 0 {ts}
+R_R11         N42219 N46811  470k TC=0,0 
+V_V3         N24028 0  
++PULSE 0 5 0 1e-9 1e-9 .95 1
+.PARAM  ts=0
+
+**** RESUMING bias.cir ****
+.END
+
