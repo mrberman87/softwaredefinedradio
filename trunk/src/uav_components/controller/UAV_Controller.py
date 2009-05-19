@@ -125,11 +125,10 @@ class UAV_Controller:
 			self.err_data = 0
 			return True
 		elif(command == "sensors"):
-			#make telnet call to get NMEA string
-			#...
+			gps_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_gps.py')
 			temp_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_temp.py')
 			batt_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_batt.py')
-			while(pid_exists(temp_pid) or pid_exists(batt_pid)):
+			while(pid_exists(temp_pid) or pid_exists(batt_pid) or pid_exists(gps_pid)):
 				pass
 			self.comb_misc_data()
 			self.f_name_tx = "misc.dat"
