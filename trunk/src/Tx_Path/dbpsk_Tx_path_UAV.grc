@@ -1,6 +1,53 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Apr 21 11:15:17 2009</timestamp>
+  <timestamp>Tue May 19 16:42:38 2009</timestamp>
+  <block>
+    <key>options</key>
+    <param>
+      <key>id</key>
+      <value>dbpsk_Tx_path_UAV</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>dbpsk_Tx_path_UAV</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>UAV Group 4/21/2009</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value>gnuradio flow graph</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>1280, 1024</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>no_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <block>
     <key>variable</key>
     <param>
@@ -18,6 +65,64 @@
     <param>
       <key>_coordinate</key>
       <value>(10, 170)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blks2_dxpsk_mod</key>
+    <param>
+      <key>id</key>
+      <value>blks2_dxpsk_mod_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>dbpsk</value>
+    </param>
+    <param>
+      <key>samples_per_symbol</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>excess_bw</key>
+      <value>0.35</value>
+    </param>
+    <param>
+      <key>gray_code</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(294, 107)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>freq_offset</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>-3100</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 236)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -67,7 +172,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>insert file name here</value>
+      <value>/home/sab/softwaredefinedradio/src/Tx_Path/Command</value>
     </param>
     <param>
       <key>type</key>
@@ -75,7 +180,7 @@
     </param>
     <param>
       <key>repeat</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>vlen</key>
@@ -118,15 +223,11 @@
     </param>
     <param>
       <key>pad_for_usrp</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>payload_length</key>
       <value>1024</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -135,64 +236,6 @@
     <param>
       <key>_rotation</key>
       <value>180</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>freq_offset</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 236)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blks2_dxpsk_mod</key>
-    <param>
-      <key>id</key>
-      <value>blks2_dxpsk_mod_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>dbpsk</value>
-    </param>
-    <param>
-      <key>samples_per_symbol</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>excess_bw</key>
-      <value>0.35</value>
-    </param>
-    <param>
-      <key>gray_code</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(294, 107)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
     </param>
   </block>
   <block>
@@ -223,7 +266,7 @@
     </param>
     <param>
       <key>frequency</key>
-      <value>(440e6 + freq_offset)</value>
+      <value>439997900</value>
     </param>
     <param>
       <key>gain</key>
@@ -239,7 +282,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(703, 91)</value>
+      <value>(961, 83)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -247,58 +290,79 @@
     </param>
   </block>
   <block>
-    <key>options</key>
+    <key>gr_multiply_const_vxx</key>
     <param>
       <key>id</key>
-      <value>dbpsk_Tx_path_UAV</value>
+      <value>gr_multiply_const_vxx_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>title</key>
-      <value>dbpsk_Tx_path_UAV</value>
+      <key>type</key>
+      <value>complex</value>
     </param>
     <param>
-      <key>author</key>
-      <value>UAV Group 4/21/2009</value>
+      <key>const</key>
+      <value>variable_chooser_0</value>
     </param>
     <param>
-      <key>description</key>
-      <value>gnuradio flow graph</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>1280, 1024</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>no_gui</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value></value>
+      <key>vlen</key>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 10)</value>
+      <value>(744, 124)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
   </block>
-  <connection>
-    <source_block_id>gr_throttle_0</source_block_id>
-    <sink_block_id>usrp_simple_sink_x_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
+  <block>
+    <key>variable_chooser</key>
+    <param>
+      <key>id</key>
+      <value>variable_chooser_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value_index</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>choices</key>
+      <value>[8000, 0]</value>
+    </param>
+    <param>
+      <key>labels</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>chooser_type</key>
+      <value>drop_down</value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(892, 249)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>blks2_dxpsk_mod_0</source_block_id>
     <sink_block_id>gr_throttle_0</sink_block_id>
@@ -314,6 +378,18 @@
   <connection>
     <source_block_id>gr_file_source_0</source_block_id>
     <sink_block_id>blks2_packet_encoder_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_throttle_0</source_block_id>
+    <sink_block_id>gr_multiply_const_vxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_multiply_const_vxx_0</source_block_id>
+    <sink_block_id>usrp_simple_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
