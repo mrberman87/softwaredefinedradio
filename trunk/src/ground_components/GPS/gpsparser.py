@@ -13,25 +13,11 @@ class gpsparser:
 	log_file=None
 	
 	def __init__(self,log_file_name):
-		try:
-			self.log_file=open(log_file_name,'a')
-			self.log_file.write("\n")
-		except IOError:
-			'''will more than likely add a prompt to ask user to try again. Will depend on
-			GUI integration'''
-			pass
+		pass
 
-	def update_packet(self,nmea_string):
-		self.update_log(nmea_string)	#write input of parser to the specified log file
-		self.nmea_array=nmea_string.split(',')
-		self.previous_packet=self.current_packet #save the current packet in case the new packet is invalid
-		if self.nmea_array[0] == '$GPRMC':
-			self.current_packet=GPS_RMC_packet(nmea_string)
-		elif self.nmea_array[0] == '$GPGGA':
-			self.current_packet=GPS_GGA_packet(nmea_string)
-		else:
-			#will silently restore the previous packet if given a string that is not RMC or GGA format
-			self.current_packet=self.previous_packet
+	def update_packet(self,gpsd_string):
+		#accepts a string from gpsd. Only expects one type of string.
+		pass
 			
 	def update_log(self,message):
 		#time stamps the given message and writes it at the end of the object's log file

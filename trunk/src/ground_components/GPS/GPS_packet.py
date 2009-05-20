@@ -1,12 +1,6 @@
-#Derrick Jones
-#Class represents: GGA - Global Positioning System Fix Data
-#Time, position and fix related data for a GPS reciever.
+#!/usr/bin/env python
 
-#This NMEA sentence comes in the form:
-#$GPGGA,hhmmss.dd,xxmm.dddd,<N|S>,yyymm.dddd,<E|W>,v,ss,d.d,h.h,M,g.g,M,a.a,xxxx*hh<CR><LF>
-
-
-class GPS_GGA_packet:
+class GPS_packet:
 	t_hours=0
 	t_mins=0
 	t_secs=0
@@ -48,6 +42,3 @@ class GPS_GGA_packet:
 		except:
 			print "invalid NMEA string: ", input_string
 
-
-	
-	
