@@ -111,8 +111,8 @@ class UAV_Controller:
 				self.err_data = 0
 				return False
 		elif(command == "picture"):
-			os.system("uvccapture -q100 -o%s/pic.dat" % os.getcwd())
-			self.f_name_tx = "pic.dat"
+			os.system("uvccapture -q100 -o%s/pic.jpg" % os.getcwd())
+			self.f_name_tx = "pic.jpg"
 			_file.close()
 			self.last_mod = time.localtime()
 			self.err_data = 0
@@ -156,13 +156,13 @@ class UAV_Controller:
 		return False
 	
 	def update_rx_opts(self):
-		self.rx_opts = ['python', self.rx_mod_name, '-f']
+		self.rx_opts = ['python', self.rx_mod_name, '--freq']
 		self.rx_opts.append(self.freq + self.freq_offset)
 		self.rx_opts.append('--file')
 		self.rx_opts.append(self.f_name_rx)
 	
 	def update_tx_opts(self):
-		self.tx_opts = ['python', self.tx_mod_name, '-f']
+		self.tx_opts = ['python', self.tx_mod_name, '--freq']
 		self.tx_opts.append(self.freq + self.freq_offset)
 		self.tx_opts.append('--file')
 		self.tx_opts.append(self.f_name_tx)
@@ -236,8 +236,8 @@ class UAV_Controller:
 		#program are exist.
 		if(not os.path.exists("fft.dat")):
 			os.system("touch fft.dat")
-		if(not os.path.exists("pic.dat")):
-			os.system("touch pic.dat")
+		if(not os.path.exists("pic.jpg")):
+			os.system("touch pic.jpg")
 		if(not os.path.exists("temp.dat")):
 			os.system("touch temp.dat")
 		if(not os.path.exists("batt.dat")):
