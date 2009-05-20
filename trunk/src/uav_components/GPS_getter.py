@@ -22,13 +22,15 @@ class GPS_getter:
 		self.tn.write("p\n")
 		self.tn.read_until("\n")
 
-	def get_gps(self):
+	def get_gps(self, write_opt = 'w'):
+		#this method writes asks gpsd for info, then writes that info
+		#to a specified file. 'w' overwrites the file, and 'a' appends to it.
 		#issue the single letter queries for data to gpsd
 		self.tn.write("pave\n")
 		#read gpsd's response to queries
 		loc_data = self.tn.read_until("\n")
-		#(intentionally) overwrite file
-		gps_file = open('gps.dat','w')
+		#default is to (intentionally) overwrite file
+		gps_file = open('gps.dat',write_opt)
 		#save the information returned from gpsd
 		gps_file.write(loc_data)
 		gps_file.close()

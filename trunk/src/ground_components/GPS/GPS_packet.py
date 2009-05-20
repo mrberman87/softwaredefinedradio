@@ -33,5 +33,5 @@ class GPS_packet:
 			self.lon = abs(float(lon))	#don't want negative signs
 			self.lon_hemis = ('N' if self.lon == lon else 'S')
 
-			self.sog = sog_str
-			self.alt = alt_str
+			self.sog = sog_str[2:]
+			self.alt = alt_str[2:]
