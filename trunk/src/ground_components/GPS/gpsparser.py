@@ -9,7 +9,7 @@ from time import strftime,gmtime
 class gpsparser:
 	current_packet=None
 	previous_packet=None
-	log_file_name="log.txt"                     #defualt filename for log
+	log_file_name="log.txt"                     #default filename for log
 	log_file=None
 	
 	def __init__(self,log_file_name):

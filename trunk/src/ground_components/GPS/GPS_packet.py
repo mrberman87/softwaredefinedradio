@@ -1,44 +1,37 @@
 #!/usr/bin/env python
-
+############################################################################
+############################################################################
 class GPS_packet:
-	t_hours=0
-	t_mins=0
-	t_secs=0
-	lat=0
-	lat_hemis=None
-	lon=0
-	long_hemis=None
-	valid_fix=0
-	num_of_sats=0
-	hdop=0
-	altitude=0
-	wgs84_diff=0
-	
-	def __init__(self, input_string):
-		#Parse comma delimited input string
-		gps_data_array=input_string.split(',')
-		try:	#assign values to class attributes in a usable format
-			#UTC TIme
-			t_string=gps_data_array[1]
-			#split the time string up by character
-			self.t_hours=t_string[0:2]	
-			self.t_mins=t_string[2:4]	
-			self.t_secs=t_string[4:]	#string indices 4 to last item
-		
-			#Latitiude
-			self.lat=gps_data_array[2]
-			self.lat_hemis=gps_data_array[3]		#(N or S for North/South)
-			
-			#Longitude
-			self.lon=gps_data_array[4]
-			self.long_hemis=gps_data_array[5]		#E or W for East or West
-			
-			#-----Other info--------------------------
-			self.valid_fix=gps_data_array[6]		#1 if valid, 0 if not
-			self.num_of_sats=int(gps_data_array[7])	#number of satellites used in position fix (ss)
-			self.hdop=gps_data_array[8]				#Horizontal Dilution of Position (d.d)
-			self.altitude=gps_data_array[9]		#mean sea level(h.h)
-			self.wgs84_diff=gps_data_array[10]	#difference between WGS-84 reference ellipsoid surface and mean sea level alt
-		except:
-			print "invalid NMEA string: ", input_string
+	t_hours = None
+	t_mins = None
+	t_secs = None
+	lat = 0
+	lat_hemis = None
+	lon_hemis = None
+	lon = 0
+	sog = 0		#speed over ground
+	alt = 0
 
+	def __init__(self, input_string):
+			#expects a string based on gpsd repsonse given 'pave' single
+			# letter commands
+			gps = input_string.split(',')
+			pos_str = gps[1]	#position(lat and lon) "$P=lat lon"
+			alt_str = gps[2]	#altitude
+			sog_str = gps[3]	#speed over ground
+			err_str = gps[4]	#estimated error string
+
+			#Position
+			pos = pos_str.split(' ') #split by spaces
+			#latitude is first
+			lat = pos[0][2:] #skip the 'P='
+			lon = pos[1]
+			
+			self.lat = abs(float(lat))	#don't want negative signs
+			self.lat_hemis = ('W' if self.lat == lat else 'E')
+
+			self.lon = abs(float(lon))	#don't want negative signs
+			self.lon_hemis = ('N' if self.lon == lon else 'S')
+
+			self.sog = sog_str
+			self.alt = alt_str
