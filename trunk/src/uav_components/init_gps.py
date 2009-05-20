@@ -10,7 +10,7 @@ PORT = '2947'
 #SYS_CALL_SUCCESS = '0'
 
 os.system(command + str(dev_num) + " -S " + PORT)
-
+	
 #gpsd does not start polling until it has at least one request
 #so request once, then clean up
 os.system("./get_gps.py")
