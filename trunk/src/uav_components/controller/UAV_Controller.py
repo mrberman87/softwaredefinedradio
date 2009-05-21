@@ -7,7 +7,7 @@ class UAV_Controller:
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
 		self.init_vars()
-		self.init_files()
+		#self.init_files()
 		
 		#This is the main controller section of code
 		while True:
@@ -27,7 +27,7 @@ class UAV_Controller:
 					self.update_rx_opts
 					break
 			
-			time.sleep(20)
+			time.sleep(10)
 			
 			#This handles getting all needed sensor data and/or changing
 			#any and all settings for which file is to be transmitted
@@ -64,8 +64,8 @@ class UAV_Controller:
 	
 	def run_tx_module(self):
 		if(self.mod_sch == "dbpsk"):
-			self.tx_mod_name = "./tx.py"
-			#self.tx_mod_name = "./dbpsk_Tx_path_UAV.py"
+			#self.tx_mod_name = "./tx.py"
+			self.tx_mod_name = "./dbpsk_Tx_path_UAV.py"
 		elif(self.mod_sch == "qpsk"):
 			self.tx_mod_name = "./qpsk_tx.py"
 		elif(self.mod_sch == "8psk"):
