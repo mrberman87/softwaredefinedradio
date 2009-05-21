@@ -6,7 +6,9 @@ takes response strings from gpsd to populate the members of the structure.
 Members can be used to populate the fields in the GUI.
 '''
 ############################################################################
+from time import strftime,gmtime
 import sys
+
 
 class GPS_packet:
 	t_hours = None
@@ -58,4 +60,4 @@ class GPS_packet:
 
 	def write_parse_error(self):
 		time_stamp=strftime("%d %b %Y %H:%M:%S\t", gmtime())
-		sys.stderr.write(time_stamp + "\terror: lat and lon not available")
+		sys.stderr.write(time_stamp + "error: lat and lon not available\n")
