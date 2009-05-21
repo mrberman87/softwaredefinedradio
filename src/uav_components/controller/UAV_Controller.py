@@ -17,6 +17,7 @@ class UAV_Controller:
 			
 			#waits until the "RECEIVE" file has been modified from receiving data
 			while(time.localtime(os.path.getmtime(self.f_name_rx)) <=  self.last_mod):
+			#while(not self.check_rx_file('RECEIVE')):
 				#This handles "Go Home" situation from timeout
 				if(not self.pid_exists(self.to_pid)):
 					print "test point"
@@ -25,6 +26,8 @@ class UAV_Controller:
 					self.kill_pid(self.rx_pid)
 					self.update_rx_opts
 					break
+			
+			time.sleep(20)
 			
 			#This handles getting all needed sensor data and/or changing
 			#any and all settings for which file is to be transmitted
@@ -35,31 +38,40 @@ class UAV_Controller:
 			elif(self.exec_command()):
 				#Timeout module may still be running, so make sure its dead
 				self.kill_pid(self.to_pid)
+				self.kill_pid(self.rx_pid)
 				#This sends down all neccessary data depending on the given command
 				self.run_tx_module()
 	
+	def check_rx_file(self, f_name):
+		fd = open(f_name, "r")
+		if len(fd.readline()) > 0:
+			return True
+		return False
+	
 	def run_rx_module(self):
-		if(self.mod_sch == "bpsk"):
-			self.rx_mod_name = "./bpsk_rx.py"
+		if(self.mod_sch == "dbpsk"):
+			#self.rx_mod_name = "./rx.py"
+			self.rx_mod_name = "./dbpsk_Rx_path_UAV.py"
 		elif(self.mod_sch == "qpsk"):
 			self.rx_mod_name = "./qpsk_rx.py"
 		elif(self.mod_sch == "8psk"):
 			self.rx_mod_name = "./8psk_rx.py"
 		self.update_rx_opts()
-		return os.spawnv(os.P_NOWAIT, 'usr/bin/python', self.rx_opts)
+		return os.spawnv(os.P_NOWAIT, '/usr/bin/python', self.rx_opts)
 	
 	def run_to_module(self):
 		return os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", "%d" % self.timeout_t)
 	
 	def run_tx_module(self):
-		if(self.mod_sch == "bpsk"):
-			self.tx_mod_name = "./bpsk_tx.py"
+		if(self.mod_sch == "dbpsk"):
+			self.tx_mod_name = "./tx.py"
+			#self.tx_mod_name = "./dbpsk_Tx_path_UAV.py"
 		elif(self.mod_sch == "qpsk"):
 			self.tx_mod_name = "./qpsk_tx.py"
 		elif(self.mod_sch == "8psk"):
 			self.tx_mod_name = "./8psk_tx.py"
 		self.update_tx_opts()
-		return spawnv(os.P_WAIT, 'usr/bin/python', self.tx_opts)
+		return os.spawnv(os.P_WAIT, '/usr/bin/python', self.tx_opts)
 	
 	def pid_exists(self, pid):
 		try:
@@ -99,7 +111,7 @@ class UAV_Controller:
 			"misc_data" command.
 		"""
 		_file = open(self.f_name_rx, 'r')
-		command = _file.readline().strip('\n')
+		command = _file.readline().strip('\n').rstrip()
 		
 		if(command == "settings"):
 			tmp_freq = int(_file.readline().strip('\n'))
@@ -111,7 +123,8 @@ class UAV_Controller:
 				self.err_data = 0
 				return False
 		elif(command == "picture"):
-			os.system("uvccapture -q100 -o%s/pic.jpg" % os.getcwd())
+			print "taking picture..."
+			os.system("uvccapture -q100 -o%s%s" % (os.getcwd(), "/pic.jpg"))
 			self.f_name_tx = "pic.jpg"
 			_file.close()
 			self.last_mod = time.localtime()
@@ -156,10 +169,9 @@ class UAV_Controller:
 		return False
 	
 	def update_rx_opts(self):
-		self.rx_opts = ['python', self.rx_mod_name, '--freq']
-		self.rx_opts.append(self.freq + self.freq_offset)
-		self.rx_opts.append('--file')
-		self.rx_opts.append(self.f_name_rx)
+		self.rx_opts = ['python', self.rx_mod_name,]
+		self.rx_opts.append("--freq=%d" % (self.freq + self.freq_offset))
+		self.rx_opts.append('--file=%s' % self.f_name_rx)
 	
 	def update_tx_opts(self):
 		self.tx_opts = ['python', self.tx_mod_name, '--freq']
@@ -229,7 +241,7 @@ class UAV_Controller:
 		self.mod_sch = "dbpsk"
 		
 		#Set timeout
-		self.timeout_t = 10
+		self.timeout_t = 120
 	
 	def init_files(self):
 		#This method makes sure that all files needed for this
@@ -248,6 +260,11 @@ class UAV_Controller:
 			os.system("touch misc.dat")
 		if(not os.path.exists("RECEIVE")):
 			os.system("touch RECEIVE")
+	
+	def __del__(self):
+		self.kill_pid(self.tx_pid)
+		self.kill_pid(self.rx_pid)
+		self.kill_pid(self.to_pid)
 
 #This is the executable sections of code
 if __name__ == '__main__':

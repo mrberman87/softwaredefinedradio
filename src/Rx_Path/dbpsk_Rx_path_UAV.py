@@ -42,10 +42,10 @@ class dbpsk_Rx_path_UAV(gr.top_block):
 		)
 		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_char*1, "insert file name here")
 		self.gr_throttle_0 = gr.throttle(gr.sizeof_gr_complex*1, (8*samp_rate))
-		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side='A', rx_ant='TX/RX')
+		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side='B', rx_ant='TX/RX')
 		self.usrp_simple_source_x_0.set_decim_rate(250)
 		self.usrp_simple_source_x_0.set_frequency((440e6 + freq_offset), verbose=True)
-		self.usrp_simple_source_x_0.set_gain(-1)
+		self.usrp_simple_source_x_0.set_gain(0)
 
 		##################################################
 		# Connections
@@ -63,8 +63,9 @@ class dbpsk_Rx_path_UAV(gr.top_block):
 		self.usrp_simple_source_x_0.set_frequency((440e6 + self.freq_offset))
 
 if __name__ == '__main__':
+	print "Running Rx module..."
 	tb = dbpsk_Rx_path_UAV()
 	tb.start()
-	raw_input('Press Enter to quit: ')
+	#raw_input('Press Enter to quit: ')
 	tb.stop()
 
