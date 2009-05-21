@@ -1,5 +1,5 @@
 ############################################################################
-#GPS packet object to be used by ground station GUI to display GPS data.
+#gpsparser object to be used by ground station GUI to display GPS data.
 ############################################################################
 from GPS_packet import GPS_packet
 from time import strftime,gmtime

@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 ############################################################################
+'''
+The Data structure is to be used by a gpsparser object. the init method
+takes response strings from gpsd to populate the members of the structure.
+Members can be used to populate the fields in the GUI.
+'''
 ############################################################################
 import sys
 
@@ -30,7 +35,12 @@ class GPS_packet:
 			try:
 				lon = pos[1]
 			except IndexError:
-				sys.stderr.write("lat and lon not available")
+				'''
+				IndexError exception should only occur if there are is
+				no ' ' in the position field. Usually means we got a
+				'P=?' for a string.
+				'''
+				self.write_parse_error()
 				lat = None
 				lon = None
 
@@ -41,7 +51,11 @@ class GPS_packet:
 				self.lon = abs(float(lon))	#don't want negative signs
 				self.lon_hemis = ('E' if self.lon == lon else 'W')
 			except TypeError:
-				sys.stderr.write("lat and lon not available")
+				self.write_parse_error()
 
 			self.sog = sog_str[2:]
 			self.alt = alt_str[2:]
+
+	def write_parse_error(self):
+		time_stamp=strftime("%d %b %Y %H:%M:%S\t", gmtime())
+		sys.stderr.write(time_stamp + "\terror: lat and lon not available")
