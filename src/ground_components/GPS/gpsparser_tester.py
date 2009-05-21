@@ -5,7 +5,7 @@
 from gpsparser import gpsparser
 
 
-my_file=open('gpsd_strings.txt','r');  #open file for reading
+my_file=open('gps.dat','r');  #open file for reading
 my_line_queue=list()    
 for line in my_file.readlines():
     my_line_queue.append(line)
