@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 ############################################################################
 ############################################################################
+import sys
+
 class GPS_packet:
 	t_hours = None
 	t_mins = None
@@ -25,13 +27,21 @@ class GPS_packet:
 			pos = pos_str.split(' ') #split by spaces
 			#latitude is first
 			lat = pos[0][2:] #skip the 'P='
-			lon = pos[1]
-			
-			self.lat = abs(float(lat))	#don't want negative signs
-			self.lat_hemis = ('W' if self.lat == lat else 'E')
+			try:
+				lon = pos[1]
+			except IndexError:
+				sys.stderr.write("lat and lon not available")
+				lat = None
+				lon = None
 
-			self.lon = abs(float(lon))	#don't want negative signs
-			self.lon_hemis = ('N' if self.lon == lon else 'S')
+			try:
+				self.lat = abs(float(lat))	#don't want negative signs
+				self.lat_hemis = ('S' if self.lat == lat else 'N')
+
+				self.lon = abs(float(lon))	#don't want negative signs
+				self.lon_hemis = ('E' if self.lon == lon else 'W')
+			except TypeError:
+				sys.stderr.write("lat and lon not available")
 
 			self.sog = sog_str[2:]
 			self.alt = alt_str[2:]
