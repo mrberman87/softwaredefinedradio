@@ -1,0 +1,5 @@
+include the import call from file.
+put included function into the grc generated class.
+put "self.options = self.optparse()" after the parents __init__ call.
+replace all 440e6 with "int(options.freq)".
+replace all "insert file name here" with "options.file".
