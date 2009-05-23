@@ -1,7 +1,14 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
+<<<<<<< .mine
+  <timestamp>Thu May 21 15:55:16 2009</timestamp>
+=======
   <timestamp>Tue May 19 16:42:38 2009</timestamp>
+>>>>>>> .r77
   <block>
+<<<<<<< .mine
+    <key>blks2_dxpsk_mod</key>
+=======
     <key>options</key>
     <param>
       <key>id</key>
@@ -50,26 +57,29 @@
   </block>
   <block>
     <key>variable</key>
+>>>>>>> .r77
     <param>
       <key>id</key>
-      <value>samp_rate</value>
+      <value>blks2_dxpsk_mod_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>value</key>
-      <value>32000</value>
+      <key>type</key>
+      <value>dbpsk</value>
     </param>
     <param>
-      <key>_coordinate</key>
-      <value>(10, 170)</value>
+      <key>samples_per_symbol</key>
+      <value>8</value>
     </param>
     <param>
-      <key>_rotation</key>
-      <value>0</value>
+      <key>excess_bw</key>
+      <value>0.35</value>
     </param>
+<<<<<<< .mine
+=======
   </block>
   <block>
     <key>blks2_dxpsk_mod</key>
@@ -131,29 +141,14 @@
   </block>
   <block>
     <key>gr_throttle</key>
+>>>>>>> .r77
     <param>
-      <key>id</key>
-      <value>gr_throttle_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
+      <key>gray_code</key>
       <value>True</value>
     </param>
     <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>samples_per_second</key>
-      <value>(8*samp_rate)</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(496, 131)</value>
+      <value>(294, 107)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -172,7 +167,11 @@
     </param>
     <param>
       <key>file</key>
+<<<<<<< .mine
+      <value>/home/michael/softwaredefinedradio/src/uav_components/controller/padded_dbpsk_Tx_path_UAV.py</value>
+=======
       <value>/home/sab/softwaredefinedradio/src/Tx_Path/Command</value>
+>>>>>>> .r77
     </param>
     <param>
       <key>type</key>
@@ -227,7 +226,7 @@
     </param>
     <param>
       <key>payload_length</key>
-      <value>1024</value>
+      <value>64</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -239,10 +238,18 @@
     </param>
   </block>
   <block>
+<<<<<<< .mine
+    <key>gr_multiply_const_vxx</key>
+=======
     <key>usrp_simple_sink_x</key>
+>>>>>>> .r77
     <param>
       <key>id</key>
+<<<<<<< .mine
+      <value>gr_multiply_const_vxx_0</value>
+=======
       <value>usrp_simple_sink_x_0</value>
+>>>>>>> .r77
     </param>
     <param>
       <key>_enabled</key>
@@ -253,36 +260,79 @@
       <value>complex</value>
     </param>
     <param>
+<<<<<<< .mine
+      <key>const</key>
+      <value>8000</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(697, 128)</value>
+=======
       <key>format</key>
       <value></value>
+>>>>>>> .r77
     </param>
     <param>
       <key>which</key>
       <value>0</value>
     </param>
+<<<<<<< .mine
+  </block>
+  <block>
+    <key>gr_throttle</key>
+=======
+>>>>>>> .r77
     <param>
+<<<<<<< .mine
+      <key>id</key>
+      <value>gr_throttle_0</value>
+=======
       <key>interpolation</key>
       <value>500</value>
+>>>>>>> .r77
     </param>
     <param>
       <key>frequency</key>
       <value>439997900</value>
     </param>
     <param>
+<<<<<<< .mine
+      <key>type</key>
+      <value>complex</value>
+=======
       <key>gain</key>
       <value>-1</value>
+>>>>>>> .r77
     </param>
     <param>
+<<<<<<< .mine
+      <key>samples_per_second</key>
+      <value>256e3</value>
+=======
       <key>side</key>
       <value>A</value>
+>>>>>>> .r77
     </param>
     <param>
+<<<<<<< .mine
+      <key>vlen</key>
+      <value>1</value>
+=======
       <key>transmit</key>
       <value>tx_enb</value>
+>>>>>>> .r77
     </param>
     <param>
       <key>_coordinate</key>
+<<<<<<< .mine
+      <value>(496, 131)</value>
+=======
       <value>(961, 83)</value>
+>>>>>>> .r77
     </param>
     <param>
       <key>_rotation</key>
@@ -304,16 +354,50 @@
       <value>complex</value>
     </param>
     <param>
+<<<<<<< .mine
+=======
       <key>const</key>
       <value>variable_chooser_0</value>
     </param>
     <param>
+>>>>>>> .r77
       <key>vlen</key>
       <value>1</value>
     </param>
     <param>
+<<<<<<< .mine
+      <key>interpolation</key>
+      <value>500</value>
+    </param>
+    <param>
+      <key>frequency</key>
+      <value>440000800</value>
+    </param>
+    <param>
+      <key>lo_offset</key>
+      <value>float('inf')</value>
+    </param>
+    <param>
+      <key>gain</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>side</key>
+      <value>B</value>
+    </param>
+    <param>
+      <key>transmit</key>
+      <value>tx_enb</value>
+    </param>
+    <param>
+=======
+>>>>>>> .r77
       <key>_coordinate</key>
+<<<<<<< .mine
+      <value>(878, 93)</value>
+=======
       <value>(744, 124)</value>
+>>>>>>> .r77
     </param>
     <param>
       <key>_rotation</key>

@@ -4,24 +4,30 @@
 # Title: dbpsk_Rx_path_UAV
 # Author: UAV Group
 # Description: gnuradio flow graph
-# Generated: Tue Apr 21 11:41:18 2009
+# Generated: Thu May 21 15:40:07 2009
 ##################################################
 
 from gnuradio import blks2
 from gnuradio import gr
+from gnuradio.eng_option import eng_option
 from grc_gnuradio import blks2 as grc_blks2
 from grc_gnuradio import usrp as grc_usrp
+from grc_gnuradio import wxgui as grc_wxgui
+from optparse import OptionParser
+import wx
 
-class dbpsk_Rx_path_UAV(gr.top_block):
+class dbpsk_Rx_path_UAV(grc_wxgui.top_block_gui):
 
-	def __init__(self):
-		gr.top_block.__init__(self, "dbpsk_Rx_path_UAV")
+	def __init__(self, options):
+		grc_wxgui.top_block_gui.__init__(
+			self,
+			title="GRC - Executing: dbpsk_Rx_path_UAV",
+		)
 
 		##################################################
 		# Variables
 		##################################################
 		self.samp_rate = samp_rate = 32000
-		self.freq_offset = freq_offset = 0
 
 		##################################################
 		# Blocks
@@ -35,16 +41,17 @@ class dbpsk_Rx_path_UAV(gr.top_block):
 			omega_relative_limit=0.005,
 			gray_code=True,
 		)
-		self.blks2_packet_decoder_0 = grc_blks2.packet_decoder(
-			item_size_out=gr.sizeof_char*1,
-			access_code="",
-			threshold=-1,
+		self.blks2_packet_decoder_0 = grc_blks2.packet_demod_b(grc_blks2.packet_decoder(
+				access_code="",
+				threshold=-1,
+				callback=lambda ok, payload: self.blks2_packet_decoder_0.recv_pkt(ok, payload),
+			),
 		)
-		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_char*1, "insert file name here")
+		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_char*1, "/home/michael/Desktop/gay_studd")
 		self.gr_throttle_0 = gr.throttle(gr.sizeof_gr_complex*1, (8*samp_rate))
-		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side='B', rx_ant='TX/RX')
+		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side="B", rx_ant="TX/RX")
 		self.usrp_simple_source_x_0.set_decim_rate(250)
-		self.usrp_simple_source_x_0.set_frequency((440e6 + freq_offset), verbose=True)
+		self.usrp_simple_source_x_0.set_frequency(440e6, verbose=True)
 		self.usrp_simple_source_x_0.set_gain(0)
 
 		##################################################
@@ -58,14 +65,9 @@ class dbpsk_Rx_path_UAV(gr.top_block):
 	def set_samp_rate(self, samp_rate):
 		self.samp_rate = samp_rate
 
-	def set_freq_offset(self, freq_offset):
-		self.freq_offset = freq_offset
-		self.usrp_simple_source_x_0.set_frequency((440e6 + self.freq_offset))
-
 if __name__ == '__main__':
-	print "Running Rx module..."
-	tb = dbpsk_Rx_path_UAV()
-	tb.start()
-	#raw_input('Press Enter to quit: ')
-	tb.stop()
+	parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
+	(options, args) = parser.parse_args()
+	tb = dbpsk_Rx_path_UAV(options)
+	tb.Run()
 

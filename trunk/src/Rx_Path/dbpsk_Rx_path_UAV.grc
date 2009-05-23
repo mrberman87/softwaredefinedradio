@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Apr 21 11:41:05 2009</timestamp>
+  <timestamp>Thu May 21 14:34:17 2009</timestamp>
   <block>
     <key>variable</key>
     <param>
@@ -22,37 +22,6 @@
     <param>
       <key>_rotation</key>
       <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gr_file_sink</key>
-    <param>
-      <key>id</key>
-      <value>gr_file_sink_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>insert file name here</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>byte</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(279, 286)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
     </param>
   </block>
   <block>
@@ -122,84 +91,6 @@
     </param>
   </block>
   <block>
-    <key>usrp_simple_source_x</key>
-    <param>
-      <key>id</key>
-      <value>usrp_simple_source_x_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>format</key>
-      <value></value>
-    </param>
-    <param>
-      <key>which</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>decimation</key>
-      <value>250</value>
-    </param>
-    <param>
-      <key>frequency</key>
-      <value>(440e6 + freq_offset)</value>
-    </param>
-    <param>
-      <key>gain</key>
-      <value>-1</value>
-    </param>
-    <param>
-      <key>side</key>
-      <value>A</value>
-    </param>
-    <param>
-      <key>rx_ant</key>
-      <value>TX/RX</value>
-    </param>
-    <param>
-      <key>hb_filters</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(215, 105)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>freq_offset</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 235)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blks2_dxpsk_demod</key>
     <param>
       <key>id</key>
@@ -251,6 +142,92 @@
     </param>
   </block>
   <block>
+    <key>usrp_simple_source_x</key>
+    <param>
+      <key>id</key>
+      <value>usrp_simple_source_x_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>format</key>
+      <value></value>
+    </param>
+    <param>
+      <key>which</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>decimation</key>
+      <value>250</value>
+    </param>
+    <param>
+      <key>frequency</key>
+      <value>440e6</value>
+    </param>
+    <param>
+      <key>gain</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>side</key>
+      <value>B</value>
+    </param>
+    <param>
+      <key>rx_ant</key>
+      <value>TX/RX</value>
+    </param>
+    <param>
+      <key>hb_filters</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(215, 105)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_file_sink</key>
+    <param>
+      <key>id</key>
+      <value>gr_file_sink_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>/home/michael/Desktop/gay_studd</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(279, 286)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
     <key>options</key>
     <param>
       <key>id</key>
@@ -278,7 +255,7 @@
     </param>
     <param>
       <key>generate_options</key>
-      <value>no_gui</value>
+      <value>wx_gui</value>
     </param>
     <param>
       <key>category</key>
