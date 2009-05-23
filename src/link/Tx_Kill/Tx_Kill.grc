@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
+<<<<<<< .mine
+  <timestamp>Thu May 21 16:23:41 2009</timestamp>
+=======
   <timestamp>Tue May 19 15:00:04 2009</timestamp>
+>>>>>>> .r77
   <block>
     <key>options</key>
     <param>
@@ -64,42 +68,11 @@
     </param>
     <param>
       <key>const</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
       <value>(29, 200)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gr_throttle</key>
-    <param>
-      <key>id</key>
-      <value>gr_throttle_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>samples_per_second</key>
-      <value>256e3</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(228, 200)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -121,10 +94,6 @@
       <value>complex</value>
     </param>
     <param>
-      <key>format</key>
-      <value></value>
-    </param>
-    <param>
       <key>which</key>
       <value>0</value>
     </param>
@@ -137,12 +106,16 @@
       <value>(440009220)</value>
     </param>
     <param>
+      <key>lo_offset</key>
+      <value>float('inf')</value>
+    </param>
+    <param>
       <key>gain</key>
       <value>0</value>
     </param>
     <param>
       <key>side</key>
-      <value>A</value>
+      <value>B</value>
     </param>
     <param>
       <key>transmit</key>
@@ -157,6 +130,8 @@
       <value>0</value>
     </param>
   </block>
+<<<<<<< .mine
+=======
   <block>
     <key>usrp_simple_sink_x</key>
     <param>
@@ -355,6 +330,7 @@
       <value>0</value>
     </param>
   </block>
+>>>>>>> .r77
   <block>
     <key>gr_multiply_const_vxx</key>
     <param>
@@ -473,20 +449,8 @@
     </param>
   </block>
   <connection>
-    <source_block_id>gr_multiply_const_vxx_0</source_block_id>
-    <sink_block_id>usrp_simple_sink_x_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>gr_throttle_0</source_block_id>
-    <sink_block_id>gr_multiply_const_vxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>const_source_x_0</source_block_id>
-    <sink_block_id>gr_throttle_0</sink_block_id>
+    <sink_block_id>usrp_simple_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
