@@ -1,0 +1,12 @@
+A little explanation of the files in this folder:
+
+1. packet.py: in this file is the update to make sure all packets are sent regardless of their size and type. If the data to be sent is smaller than the given payload length set by the group, then the data is padded with white space and pushed through. If the data is larger then the payload length then the data is not padded at all and is just sent as is. It is important to note, that any data less than the payload length is assumed to be text and white space will not have an adverse effect on it, while images are much larger than the maximum payload length and are never padded.
+
+2. packet.pyc: is the compiled version of the packet.py in the folder.
+
+3. command: this is a possible file for the commands that will be sent to the plane to be executed. It can consist of any combination of words, commands, text ... etc.
+
+4. image: this is a possible image file for transmission. it is only a placeholder for when we have actual images that will be sent. It is for testing purposes only.
+
+5. fptf.py: This is the transmit and receive file with no USRP. It opens the command or image file (the user must edit the python file for whichever is wanted, and also change the path to the correct directory) and sends it through the motions any transmit and receive end would see. This is strictly baseband, but that should have no bearing on the USRPs other than center frequency. Having the USRPs not in the flow graph should not change the results of receiving all of the data other than BER.
+	Note: This file emulates all of the values as used for the demo and 		only doesn't have the USRP.
