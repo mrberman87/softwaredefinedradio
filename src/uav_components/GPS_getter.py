@@ -6,19 +6,25 @@ GPS data into a file. currently, assumes gpsd is not running. could operate
 unexpectedly if gpsd is already running.
 '''
 ##############################################################################
-import os,telnetlib, time
+import os,telnetlib, time,subprocess
 
 class GPS_getter:
 	def __init__(self, HOST = 'localhost', PORT = '2947'):
+		#attempts to start gpsd are silently ignored it is already running
+		#so we need to kill it if already being started
+		self.kill_gpsd()
+
 		#open gpsd to and prepare to read GPS device
 		os.system("gpsd /dev/ttyUSB0" + " -S " + PORT)
-
-		#os.system("gpsfake dl_gps.txt")
+		#os.system("gpsfake dl_gps.txt") #uncomment gpsfake call if testing
+		
+		#delay opening a telnet session to give gpsd time to set GPS device
+		time.sleep(2)
 
 		#open a telnet session to talk to gpsd
 		self.tn = telnetlib.Telnet(HOST, PORT)
 		#immediately query gpsd, because it will not bind to a GPS until
-		#it receive's its first query.
+		#it has received its first query.
 		self.tn.write("p\n")
 		self.tn.read_until("\n")
 
@@ -34,4 +40,19 @@ class GPS_getter:
 		#save the information returned from gpsd
 		gps_file.write(loc_data)
 		gps_file.close()
+
+	def kill_gpsd(self):
+		#this method will kill any currently running instances of gpsd.
+		bufsize = 256
+		cmd = "pidof gpsd\n"
+		pipe = subprocess.Popen(cmd, shell = True,
+								bufsize = bufsize,
+								stderr = subprocess.PIPE,
+								stdout = subprocess.PIPE)
+
+		[pid,errors] = pipe.communicate() #read from pipe
+		if pipe.returncode == 0:
+			kill_cmd = "kill -KILL " + pid
+			pipe2 = subprocess.Popen(kill_cmd, shell = True, bufsize = bufsize)
+
 
