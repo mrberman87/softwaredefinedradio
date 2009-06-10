@@ -1,0 +1,14 @@
+#summary Information Related to the Model-View-Controller pattern
+
+= Introduction =
+
+Model-View-Controller is an architectural pattern that separates core program logic from presentation logic.
+
+
+= Details =
+
+= Links =
+
+http://java.sun.com/blueprints/patterns/MVC.html
+
+http://java.sun.com/blueprints/patterns/MVC-detailed.html
