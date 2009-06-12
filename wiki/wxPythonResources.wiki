@@ -1,0 +1,6 @@
+#summary Resources for GUI programming in wxPython
+
+= Links =
+[http://zetcode.com/wxpython/ wxPython Tutorial]
+
+[http://wxpython.org/docs/api/ wxPython API]
