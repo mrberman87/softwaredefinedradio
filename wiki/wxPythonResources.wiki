@@ -4,3 +4,5 @@
 [http://zetcode.com/wxpython/ wxPython Tutorial]
 
 [http://wxpython.org/docs/api/ wxPython API]
+
+[http://www.manning.com/rappin/ wxPython in Action]
