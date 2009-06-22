@@ -1,4 +1,4 @@
-#!usr/lib/python
+#!/usr/bin/env python
 
 #Ground_Station.py
 
