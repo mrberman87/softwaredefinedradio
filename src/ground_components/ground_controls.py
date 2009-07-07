@@ -6,8 +6,9 @@ then restart the reciever, and return the new reciever's pid.
 """
 
 import os
+import abstractmodel
 
-class ground_controls:
+class ground_controls(abstractmodel.AbstractModel):
 	def get_pic(self, freq, mod_sch, rx_pid):
 		tx_file(rx_pid, "picture")
 		run_tx(freq, mod_sch)
