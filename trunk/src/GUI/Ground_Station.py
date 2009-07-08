@@ -37,8 +37,34 @@ class View(wx.Frame):
 		panel1.SetSizer(vbox)
 		
 		#panel2
+		vbox1 =wx.BoxSizer(wx.VERTICAL)
 		sizer2 = wx.StaticBoxSizer(wx.StaticBox(panel2, -1, 'Image Viewer'), orient=wx.VERTICAL)
-		panel2.SetSizer(sizer2)
+		sizer2a = wx.StaticBoxSizer(wx.StaticBox(panel2, -1, 'Current Data Viewer'), orient=wx.VERTICAL)
+		data_grid= wx.GridSizer(5,4,2,2)
+		data_grid.Add(wx.StaticText(panel2,-1,'LAT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'LONG'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'ALT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'TEMP'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'BATT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'SIG POWER'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'FREQ'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'MOD'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'TIMEOUT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(panel2,-1,'GND SPEED'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(panel2,-1),wx.EXPAND|wx.ALL,20)
+		sizer2a.Add(data_grid,1,wx.EXPAND)
+		vbox1.Add(sizer2,1,wx.EXPAND)
+		vbox1.Add(sizer2a,1,wx.EXPAND)
+		panel2.SetSizer(vbox1)
 		
 		#panel1_1
 		hbox1 =wx.BoxSizer(wx.HORIZONTAL)
@@ -75,7 +101,10 @@ class View(wx.Frame):
 		panel1_2.SetSizer(hbox2)
 		
 		#panel1_3
-		
+		hbox3 =wx.BoxSizer(wx.HORIZONTAL)
+		sizer7=  wx.StaticBoxSizer(wx.StaticBox(panel1_3, -1, 'FFT Viewer'),orient=wx.HORIZONTAL)
+		hbox3.Add(sizer7,1,wx.EXPAND)
+		panel1_3.SetSizer(hbox3)
 		panel.SetSizer(hbox_top)
 class Controller:
 	def __init__(self, app):
