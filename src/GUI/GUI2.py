@@ -98,11 +98,42 @@ class View(wx.Frame):
 		
 	
 	def makeRightPanel(self, parent):
-	 	'''right panel holds the image'''
+	 	'''right panel holds the image, and current data viewer'''
 		rightPanel = wx.Panel(parent,-1)
 		rightPanel.SetBackgroundColour("Blue")
 		sizer2 = wx.StaticBoxSizer(wx.StaticBox(rightPanel, -1, 'Image Viewer'), orient=wx.VERTICAL)
-		rightPanel.SetSizer(sizer2)
+		
+		
+		"""Make current data grid sizer and add to this panel"""
+		
+		sizer2a = wx.StaticBoxSizer(wx.StaticBox(rightPanel, -1, 'Current Data Viewer'), orient=wx.VERTICAL)
+		data_grid= wx.GridSizer(5,4,2,2)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'LAT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'LONG'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'ALT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'TEMP'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'BATT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'SIG POWER'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'FREQ'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'MOD'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'TIMEOUT'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.StaticText(rightPanel,-1,'GND SPEED'),wx.RIGHT,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		sizer2a.Add(data_grid,1,wx.EXPAND)
+		
+		vbox1 =wx.BoxSizer(wx.VERTICAL)
+		vbox1.Add(sizer2,1,wx.EXPAND)
+		vbox1.Add(sizer2a,1,wx.EXPAND)
+		rightPanel.SetSizer(vbox1)
 		return rightPanel
 
 
