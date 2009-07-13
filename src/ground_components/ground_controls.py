@@ -7,8 +7,14 @@ then restart the reciever, and return the new reciever's pid.
 
 import os
 import abstractmodel
+import sys
+sys.path.append("GPS")
+from GPS_packet import GPS_packet
 
 class ground_controls(abstractmodel.AbstractModel):
+	def __init__(self):
+		self.gps = GPS_packet.GPS_packet("")	
+	
 	def get_pic(self, freq, mod_sch, rx_pid):
 		tx_file(rx_pid, "picture")
 		run_tx(freq, mod_sch)
