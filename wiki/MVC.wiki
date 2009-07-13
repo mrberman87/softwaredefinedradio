@@ -7,8 +7,12 @@ Model-View-Controller is an architectural pattern that separates core program lo
 
 = Details =
 
+Traditionally, the Model, View and Controller are completely separate entities. For this project, a modified pattern is being used, where the Model is isolated, but the View/Controller are closely linked. This structure appears to be more suited to the application at hand, as well as the [http://code.google.com/p/softwaredefinedradio/wiki/wxPythonResources GUI toolkit] being used, in terms of scale and complexity.
+
 = Links =
 
 http://java.sun.com/blueprints/patterns/MVC.html
 
 http://java.sun.com/blueprints/patterns/MVC-detailed.html
+
+[http://stackoverflow.com/questions/1120334/java-mvc-doesnt-feel-like-i-get-it StackOverflow question on MVC]
