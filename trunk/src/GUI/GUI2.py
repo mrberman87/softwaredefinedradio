@@ -5,9 +5,10 @@
 import wx
 
 class View(wx.Frame):
-	def __init__(self,parent):
+	def __init__(self,parent,controller):
 		wx.Frame.__init__(self,parent, -1, 'Ground Control',size=(1000,700))
 		
+		self.controller = controller
 		#main panel, where everything else lays on
 		panel = wx.Panel(self,-1) 
 		panel.SetBackgroundColour("Green")
@@ -45,12 +46,12 @@ class View(wx.Frame):
 	def makeUAVGrid(self, parent):
 		'''Contains buttons for some UAV controls'''
 		uav_grid= wx.GridSizer(3,2,2,2)
-		uav_grid.Add(self.buildOneButton(parent,'Get Image',self.onImageButtonClicked))
-		uav_grid.Add(wx.Button(parent, -1, 'Get GPS'))
-		uav_grid.Add(wx.Button(parent, -1, 'Get FFT'))
-		uav_grid.Add(wx.Button(parent, -1, 'Get Batt.'))
-		uav_grid.Add(wx.Button(parent, -1, 'Get Temp.'))
-		uav_grid.Add(wx.Button(parent, -1, 'Get All'))
+		uav_grid.Add(self.buildOneButton(parent, 'Get Image', self.controller.onImageClicked))
+		uav_grid.Add(self.buildOneButton(parent, 'Get GPS', self.controller.onGPSClicked))
+		uav_grid.Add(self.buildOneButton(parent, 'Get FFT', self.controller.onFFTClicked))
+		uav_grid.Add(self.buildOneButton(parent, 'Get Batt.', self.controller.onBattClicked))
+		uav_grid.Add(self.buildOneButton(parent, 'Get Temp.', self.controller.onTempClicked))
+		uav_grid.Add(self.buildOneButton(parent, 'Get All', self.controller.onAllClicked))
 		return uav_grid
 		
 		
@@ -74,6 +75,8 @@ class View(wx.Frame):
 		
 		
 	def makeCmdPanel(self,parent):
+		"""CmdPanel in the upper left corner that has buttons for UAV controls
+		as well as the Raw Data Viewer"""
 		cmd_panel =wx.Panel(parent,-1)
 		cmd_panel.SetBackgroundColour("Orange")
 		uav_grid = self.makeUAVGrid(cmd_panel)
@@ -152,16 +155,39 @@ class View(wx.Frame):
 		leftPanel.SetSizer(vbox)
 		return leftPanel
 		
-	def onImageButtonClicked(self):
-		pass	
+
 		
 		
 class Controller(wx.App):
 	def __init__(self):
 		wx.App.__init__(self)
-		self.view = View(None)
+		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
+
+	def onImageClicked(self, event):
+		print "image Clicked"
+		
+	def onGPSClicked(self, event):
+		pass
 	
+	def onSettingsChange(self, event):
+		pass
+	
+	def onTimeOut(self, event):
+		pass
+	
+	def onFFTClicked(self, event):
+		pass
+	
+	def onBattClicked(self, event):
+		pass
+	
+	def onTempClicked(self, event):
+		pass
+	
+	def onAllClicked(self, event):
+		pass
+		
 if __name__ =="__main__":
 	app = Controller()
 	app.MainLoop()
