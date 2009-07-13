@@ -32,6 +32,7 @@ class GPS_getter:
 		#this method writes asks gpsd for info, then writes that info
 		#to a specified file. 'w' overwrites the file, and 'a' appends to it.
 		#issue the single letter queries for data to gpsd
+		#p = pos, a = alt, v = velocity, e = error
 		self.tn.write("pave\n")
 		#read gpsd's response to queries
 		loc_data = self.tn.read_until("\n")
@@ -45,13 +46,16 @@ class GPS_getter:
 		#this method will kill any currently running instances of gpsd.
 		bufsize = 256
 		cmd = "pidof gpsd\n"
+		#pidof prints the pid of the given program to the stdout
 		pipe = subprocess.Popen(cmd, shell = True,
 								bufsize = bufsize,
 								stderr = subprocess.PIPE,
 								stdout = subprocess.PIPE)
 
-		[pid,errors] = pipe.communicate() #read from pipe
-		if pipe.returncode == 0:
+		[pid,errors] = pipe.communicate() #read the stdout and stderr of pidof
+		if pipe.returncode == 0: 
+			"""a return code of 0 means no errors occured, so there IS
+			 an instance of gpsd running"""
 			kill_cmd = "kill -KILL " + pid
 			pipe2 = subprocess.Popen(kill_cmd, shell = True, bufsize = bufsize)
 
