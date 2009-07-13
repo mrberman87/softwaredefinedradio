@@ -27,12 +27,16 @@ class View(wx.Frame):
 
 
 	def buildOneButton(self, parent, label, handler):
+		"""Creates a button, binds it to the given event handler, and returns
+		the button"""
 		button = wx.Button(parent, -1, label)
 		self.Bind(wx.EVT_BUTTON, handler, button)
 		return button
 		
 		
 	def makeParamGrid(self,parent):
+		"""parameter grid provides controls to the user to change
+		Frequency, Modulation scheme, and timeout length"""
 		param_grid= wx.GridSizer(3,2,2,2)
 		param_grid.Add(wx.StaticText(parent,-1,'New Frequency'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
@@ -56,6 +60,8 @@ class View(wx.Frame):
 		
 		
 	def makeParamDataPanel(self,parent):
+		"""Provides user with controls and views to the paramaters being 
+		used to communicate with the UAV as well as the Commands waiting to be executed."""
 		param_data_panel = wx.Panel(parent,-1)
 		param_data_panel.SetBackgroundColour("Purple")
 		param_sizer = wx.StaticBoxSizer(wx.StaticBox(param_data_panel, -1, 'Parameter Update'),orient=wx.HORIZONTAL)
@@ -95,13 +101,14 @@ class View(wx.Frame):
 	
 	
 	def makeFFTPanel(self, parent):
+		"""panel where FFT will reside"""
 		fft_panel = wx.Panel(parent,-1)
 		fft_panel.SetBackgroundColour("Yellow")
 		return fft_panel
 		
 	
 	def makeRightPanel(self, parent):
-	 	'''right panel holds the image, and current data viewer'''
+	 	"""right panel holds the image, and current data viewer"""
 		rightPanel = wx.Panel(parent,-1)
 		rightPanel.SetBackgroundColour("Blue")
 		sizer2 = wx.StaticBoxSizer(wx.StaticBox(rightPanel, -1, 'Image Viewer'), orient=wx.VERTICAL)
@@ -133,7 +140,7 @@ class View(wx.Frame):
 		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
 		sizer2a.Add(data_grid,1,wx.EXPAND)
 		
-		vbox1 =wx.BoxSizer(wx.VERTICAL)
+		vbox1 = wx.BoxSizer(wx.VERTICAL)
 		vbox1.Add(sizer2,1,wx.EXPAND)
 		vbox1.Add(sizer2a,1,wx.EXPAND)
 		rightPanel.SetSizer(vbox1)
@@ -141,6 +148,7 @@ class View(wx.Frame):
 
 
 	def makeLeftPanel(self, parent):
+		"""Left panel contains all the control elements in the GUI."""
 		leftPanel = wx.Panel(parent,-1)
 		leftPanel.SetBackgroundColour("Red")		
 		cmd_panel = self.makeCmdPanel(parent = parent)
@@ -160,9 +168,13 @@ class View(wx.Frame):
 		
 class Controller(wx.App):
 	def __init__(self):
+		"""Controller instance creates a View (GUI) and model(ground controls) and acts as
+		an mediator between them"""
+		
 		wx.App.__init__(self)
 		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
+		#need to create model in this __init__ method as well
 
 	def onImageClicked(self, event):
 		print "image Clicked"
