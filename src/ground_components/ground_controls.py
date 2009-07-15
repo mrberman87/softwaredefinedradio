@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 """
-Each of these are going to kill the receiver, run the transmitter,
-then restart the reciever, and return the new reciever's pid.
+ground_controls.py is the Model in the MVC architecture. It stores the application
+specific (in this case a ground station) data and logic. The data stored includes
+GPS data, modulation scheme, image, and other telemetry data. This provides 
+various functions to request data from the UAV.
 """
-
 import os
 import abstractmodel
 import sys
@@ -14,6 +15,12 @@ from GPS_packet import GPS_packet
 class ground_controls(abstractmodel.AbstractModel):
 	def __init__(self):
 		self.gps = GPS_packet.GPS_packet("")	
+
+
+	"""
+	Each of these functions are going to kill the receiver, run the transmitter,
+	then restart the reciever, and return the new reciever's pid.
+	"""
 	
 	def get_pic(self, freq, mod_sch, rx_pid):
 		tx_file(rx_pid, "picture")
@@ -64,7 +71,8 @@ class ground_controls(abstractmodel.AbstractModel):
 			os.system("touch transmit.txt")
 			_file = open("transmit.txt", "w")
 		_file.write("%s" % command)
-		_file.close()	
+		_file.close()
+	
 	def run_tx(self, freq, mod_sch):
 		if(mod_sch == "bpsk"):
 			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', "./bpsk_tx.py", "-f", "%d" % freq)
