@@ -48,7 +48,8 @@ class View(wx.Frame):
 		
 		
 	def makeUAVGrid(self, parent):
-		'''Contains buttons for some UAV controls'''
+		'''Contains buttons for the UAV Interrogation controls. builds and binds the buttons
+		to the parent given, then returns the gridsizer with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
 		uav_grid.Add(self.buildOneButton(parent, 'Get Image', self.controller.onImageClicked))
 		uav_grid.Add(self.buildOneButton(parent, 'Get GPS', self.controller.onGPSClicked))
