@@ -17,8 +17,8 @@ def push_low(s):
 	s.setRTS(0)
 
 def decode_data(value):
-	out = -60.732*value*value*value + 345.5*value*value - 836.16*value + 526.07
-	print "%f     %f" % (value, out)
+	out = -60.732*value*value*value + 345.5*value*value - 836.16*value + 380
+	print "%d degrees" % out
 
 if __name__ == '__main__':
 	t=timeit.Timer('test()', "from __main__ import test")
