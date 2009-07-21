@@ -178,12 +178,15 @@ class Controller(wx.App):
 		self.view.Show(True)
 		#need to create model in this __init__ method as well
 		self.model = ground_controls.ground_controls()
-
+		#add listeners to model that need to be updated.
+		self.model.addListener(self.imageListener)
+		
 		"""on____ methods are event handlers, which are called whenever a button
 		is clicked in the GUI."""
 
 	def onImageClicked(self, event):
 		print "image Clicked"
+		self.model.countImageClicks()
 		
 	def onGPSClicked(self, event):
 		pass
@@ -211,7 +214,7 @@ class Controller(wx.App):
 	The model should call update whenever data in the model has changed."""
 
 	def imageListener(self):
-		pass
+		print "image ClickedTimes: ",self.model.imageClickedTimes
 		
 	def frequencyListener(self):
 		pass

@@ -11,5 +11,5 @@ class AbstractModel(object):
 
     def update(self):
         for eachFunc in self.listeners:
-            eachFunc(self)
+            eachFunc()
 
