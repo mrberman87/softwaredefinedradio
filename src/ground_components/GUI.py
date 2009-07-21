@@ -3,6 +3,7 @@
 #Ground_Station.py
 
 import wx
+import ground_controls
 
 class View(wx.Frame):
 	def __init__(self,parent,controller):
@@ -176,6 +177,10 @@ class Controller(wx.App):
 		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
 		#need to create model in this __init__ method as well
+		self.model = ground_controls.ground_controls()
+
+		"""on____ methods are event handlers, which are called whenever a button
+		is clicked in the GUI."""
 
 	def onImageClicked(self, event):
 		print "image Clicked"
@@ -200,6 +205,17 @@ class Controller(wx.App):
 	
 	def onAllClicked(self, event):
 		pass
+		
+	"""______Listener methods update data in the view. They are all ran 
+	whenever the model (ground_controls.py) calls the it's update() method.
+	The model should call update whenever data in the model has changed."""
+
+	def imageListener(self):
+		pass
+		
+	def frequencyListener(self):
+		pass
+		
 		
 if __name__ =="__main__":
 	app = Controller()
