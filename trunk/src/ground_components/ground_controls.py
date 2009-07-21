@@ -14,6 +14,7 @@ from GPS_packet import GPS_packet
 
 class ground_controls(abstractmodel.AbstractModel):
 	def __init__(self):
+		abstractmodel.AbstractModel.__init__(self)
 		self.gps = GPS_packet("GPSD,P=0 0,A=0,V=0,E=0")
 		self.temp = 0
 		self.batt = 0
@@ -21,8 +22,11 @@ class ground_controls(abstractmodel.AbstractModel):
 		self.modulation = None
 		self.timeout = 10 #(in seconds)
 		self.sigPower = 0
-		
-
+		self.imageClickedTimes = 0 #test var to test relaying information to view
+	
+	def countImageClicks(self):
+		self.imageClickedTimes = self.imageClickedTimes + 1
+		self.update()
 
 
 	"""
