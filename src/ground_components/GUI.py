@@ -42,9 +42,9 @@ class View(wx.Frame):
 		param_grid.Add(wx.StaticText(parent,-1,'New Frequency'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
-		modChoices = wx.Choice(parent,-1,choices=['BPSK','QPSK','8PSK'])
-		self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, modChoices)
-		param_grid.Add(modChoices, wx.EXPAND|wx.ALL,20)
+		self.modChoices = wx.Choice(parent,-1,choices=['BPSK','QPSK','8PSK'])
+		self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, self.modChoices)
+		param_grid.Add(self.modChoices, wx.EXPAND|wx.ALL,20)
 		param_grid.Add(wx.StaticText(parent,-1,'New Timeout'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
 		return param_grid
@@ -187,8 +187,10 @@ class Controller(wx.App):
 		#add listeners to model that need to be updated.
 		self.model.addListener(self.imageListener)
 		return True
+		
 	def onModSelect(self, event):
-		print "mode changed"
+		newMode = self.view.modChoices.GetStringSelection()
+		print "mode changed: ", newMode
 		pass
 	
 	def onImageClicked(self, event):
