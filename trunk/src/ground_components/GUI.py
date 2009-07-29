@@ -42,7 +42,9 @@ class View(wx.Frame):
 		param_grid.Add(wx.StaticText(parent,-1,'New Frequency'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
-		param_grid.Add(wx.Choice(parent,-1,choices=['BPSK','QPSK','8PSK']),wx.EXPAND|wx.ALL,20)
+		modChoices = wx.Choice(parent,-1,choices=['BPSK','QPSK','8PSK'])
+		self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, modChoices)
+		param_grid.Add(modChoices, wx.EXPAND|wx.ALL,20)
 		param_grid.Add(wx.StaticText(parent,-1,'New Timeout'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
 		return param_grid
@@ -173,17 +175,22 @@ class Controller(wx.App):
 		"""Controller instance creates a View (GUI) and model(ground controls) and acts as
 		an mediator between them"""
 		
-		wx.App.__init__(self)
+		wx.App.__init__(self,redirect=False)
+		"""on____ methods are event handlers, which are called whenever a button
+		is clicked in the GUI."""
+		
+	def OnInit(self):
 		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
 		#need to create model in this __init__ method as well
 		self.model = ground_controls.ground_controls()
 		#add listeners to model that need to be updated.
 		self.model.addListener(self.imageListener)
-		
-		"""on____ methods are event handlers, which are called whenever a button
-		is clicked in the GUI."""
-
+		return True
+	def onModSelect(self, event):
+		print "mode changed"
+		pass
+	
 	def onImageClicked(self, event):
 		print "image Clicked"
 		self.model.countImageClicks()
