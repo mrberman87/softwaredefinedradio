@@ -20,6 +20,9 @@ The Controller acts as mediator between the model and view. The event handler fu
 === Updating Information in the View ===
 While MVC provides a great benefit in forcing modular coding practices, it introduces obstacles in updating data between the model and view. The solution to this is using the simple abstractmodel superclass to get the job done. The class consists of three functions: `addListener(listenerFunc)`, `removeListener(listenerFunc)` and `update()`. By making the model a subclass of abstractmodel, the model can remain relatively unchanged. The `update()` function executes all the listener functions that have been added to the model. Functions can be implemented in the controller to get data from the model and relay to the view. These functions can be passed to the `addListener()` function. Having the model call the `update()` function when necessary is the only modification necessary in the model.
 
+= Diagrams =
+http://softwaredefinedradio.googlecode.com/files/MVC-Structure.JPG
+
 = Links =
 
 http://java.sun.com/blueprints/patterns/MVC.html
