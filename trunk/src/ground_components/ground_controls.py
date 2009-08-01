@@ -27,7 +27,10 @@ class ground_controls(abstractmodel.AbstractModel):
 	def countImageClicks(self):
 		self.imageClickedTimes = self.imageClickedTimes + 1
 		self.update()
-
+	
+	def changeModScheme(self, mod):
+		self.modulation = mod
+		self.update()
 
 	"""
 	Each of these functions are going to kill the receiver, run the transmitter,
