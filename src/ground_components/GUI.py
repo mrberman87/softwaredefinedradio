@@ -137,7 +137,7 @@ class View(wx.Frame):
 		data_grid.Add(wx.StaticText(rightPanel,-1,'FREQ'),wx.RIGHT,20)
 		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
 		data_grid.Add(wx.StaticText(rightPanel,-1,'MOD'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		data_grid.Add(wx.TextCtrl(rightPanel,-1,name = "modTextBox"),wx.EXPAND|wx.ALL,20)
 		data_grid.Add(wx.StaticText(rightPanel,-1,'TIMEOUT'),wx.RIGHT,20)
 		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
 		data_grid.Add(wx.StaticText(rightPanel,-1,'GND SPEED'),wx.RIGHT,20)
@@ -186,11 +186,13 @@ class Controller(wx.App):
 		self.model = ground_controls.ground_controls()
 		#add listeners to model that need to be updated.
 		self.model.addListener(self.imageListener)
+		self.model.addListener(self.modSchemeListener)
 		return True
 		
 	def onModSelect(self, event):
-		newMode = self.view.modChoices.GetStringSelection()
-		print "mode changed: ", newMode
+		newMod = self.view.modChoices.GetStringSelection()
+		self.model.changeModScheme(newMod)
+		self.model.update()
 		pass
 	
 	def onImageClicked(self, event):
@@ -223,11 +225,16 @@ class Controller(wx.App):
 	The model should call update whenever data in the model has changed."""
 
 	def imageListener(self):
-		print "image ClickedTimes: ",self.model.imageClickedTimes
-		
+		pass
+				
 	def frequencyListener(self):
 		pass
 		
+	def modSchemeListener(self):
+		"""Set the text box for modulation scheme to the same value as the
+		model."""
+		modTextBox = self.view.FindWindowByName("modTextBox")
+		modTextBox.SetValue(self.model.modulation)
 		
 if __name__ =="__main__":
 	app = Controller()
