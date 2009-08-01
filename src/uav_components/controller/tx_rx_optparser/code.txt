@@ -1,7 +1,0 @@
-from optparse import OptionParser
-
-	def optparse(self):
-		parser = OptionParser("Useage: %prog -t arg1")
-		parser.add_option("--freq", action="store", type="int", dest="freq")
-		parser.add_option("--file", action="store", type="string", dest="file")
-		return parser.parse_args()
