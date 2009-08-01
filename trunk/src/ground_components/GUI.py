@@ -122,26 +122,21 @@ class View(wx.Frame):
 		
 		sizer2a = wx.StaticBoxSizer(wx.StaticBox(rightPanel, -1, 'Current Data Viewer'), orient=wx.VERTICAL)
 		data_grid= wx.GridSizer(5,4,2,2)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'LAT'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'LONG'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'ALT'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'TEMP'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'BATT'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'SIG POWER'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'FREQ'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'MOD'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1,name = "modTextBox"),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'TIMEOUT'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
-		data_grid.Add(wx.StaticText(rightPanel,-1,'GND SPEED'),wx.RIGHT,20)
-		data_grid.Add(wx.TextCtrl(rightPanel,-1),wx.EXPAND|wx.ALL,20)
+		
+		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP', 'BATT', 'SIG POWER','FREQ',
+			'MOD', 'TIMEOUT', 'GND SPEED']
+		txtBoxNames = ['lat', 'long','alt','temp','batt', 'sigPower','freq','mod',
+			'timeout', 'gndSpeed']
+		"""add text boxes and labels to data grid. Text boxes can be referenced
+		 by name. ex: latTextBox would be the name to reference for controlling the 
+		 latitude TextCntrl"""
+		for i in range(len(txtLabels)):
+			label = txtLabels[i]
+			boxName = txtBoxNames[i] + "TextBox"
+			data_grid.Add(wx.StaticText(rightPanel,-1,label),wx.RIGHT,20)
+			myTxtCtrl = wx.TextCtrl(rightPanel,-1, name = boxName)		
+			data_grid.Add(myTxtCtrl,wx.EXPAND|wx.ALL,20)
+		
 		sizer2a.Add(data_grid,1,wx.EXPAND)
 		
 		vbox1 = wx.BoxSizer(wx.VERTICAL)
