@@ -10,7 +10,7 @@
 #	     	  pushing everything at and after move_to to the right one  #
 #		  index.						    #
 #def size  	: returns the length of the current queue                   #
-#def delete_head: deletes and returns the first item in the list.           #
+#def return_head: deletes and returns the first item in the list.           #
 #############################################################################
 
 class queue():
@@ -33,7 +33,7 @@ class queue():
 	def print_q(self):
 		print self.queue_store
 
-	def delete_head(self):
+	def return_head(self):
 		return self.queue_store.pop(0)
 
 	def size(self):
