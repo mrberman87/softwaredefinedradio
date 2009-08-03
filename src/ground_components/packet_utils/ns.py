@@ -41,6 +41,6 @@ def conv_packed_binary_integer_to_1_0_string(passed_payload_count):
 		passed_payload_count = conv_packed_binary_string_to_1_0_string(passed_payload_count)
 	for ch in passed_payload_count:
 		if ch == '1':
-			payload_count =	payload_count + bin_count[index]
+			payload_count += bin_count[index]
 		index += 1
 	return int(payload_count)
