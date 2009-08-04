@@ -141,16 +141,17 @@ def make_packet(payload, payload_count, samples_per_symbol=8, bits_per_symbol=1,
 
 	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(access_code)
 	(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble)
-	(packed_payload_count, ignore) = conv_1_0_string_to_packed_binary_string(conv_integer_to_1_0_string(payload_count))
-    
+
+    	payload = str(payload_count) + payload
+	print "Payload with count attached: ", payload
 	payload_with_crc = gru.gen_and_append_crc32(payload)
 
 	L = len(payload_with_crc)
 
-	pkt = ''.join((syncer, packed_preamble, packed_access_code, packed_payload_count , 
-			make_header(L, whitener_offset), whiten(payload_with_crc, whitener_offset), '\x55'))
+	pkt = ''.join((syncer, packed_preamble, packed_access_code, make_header(L, whitener_offset), \
+			whiten(payload_with_crc, whitener_offset), '\x55'))
 
-	pkt = pkt + (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55')
+	pkt = (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55') + pkt 
 
 	print len(pkt)
 	return pkt
