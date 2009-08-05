@@ -1,0 +1,7 @@
+tester.py is currently for the packetizer.py and tx_rx_path.py
+
+What I am doing with this is testing the packet structuring routines and making sure that what I put in gets pulled back out. Also we are going to utilize a packet decoder in the flow graph and not make our own.
+
+The only packet handling we will be doing in python is the transmit path packets. Otherwise the base gnuradio will take care of it for us.
+
+I have been using ps.txt as my source file.

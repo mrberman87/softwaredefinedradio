@@ -142,8 +142,8 @@ def make_packet(payload, payload_count, samples_per_symbol=8, bits_per_symbol=1,
 	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(access_code)
 	(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble)
 
-    	payload = str(payload_count) + payload
-	print "Payload with count attached: ", payload
+    	payload = str(payload_count) + ":" + payload
+
 	payload_with_crc = gru.gen_and_append_crc32(payload)
 
 	L = len(payload_with_crc)
@@ -153,7 +153,6 @@ def make_packet(payload, payload_count, samples_per_symbol=8, bits_per_symbol=1,
 
 	pkt = (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55') + pkt 
 
-	print len(pkt)
 	return pkt
 
 def _npadding_bytes(pkt_byte_len, samples_per_symbol, bits_per_symbol):
@@ -180,7 +179,7 @@ def _npadding_bytes(pkt_byte_len, samples_per_symbol, bits_per_symbol):
     return byte_modulus - r
     
 
-def unmake_packet(whitened_payload_with_crc, whitener_offset=0, dewhitening=True):
+def unmake_packet(whitened_payload_with_crc, whitener_offset=0):
     """
     Return (ok, payload)
 
