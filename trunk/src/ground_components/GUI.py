@@ -51,8 +51,9 @@ class View(wx.Frame):
 		
 		
 	def makeUAVGrid(self, parent):
-		'''Contains buttons for the UAV Interrogation controls. builds and binds the buttons
-		to the parent given, then returns the gridsizer with buttons.'''
+		'''Contains buttons for the UAV Interrogation controls. builds and
+		binds the buttons to the parent given, then returns the gridsizer 
+		with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
 		uav_grid.Add(self.buildOneButton(parent, 'Get Image', self.controller.onImageClicked))
 		uav_grid.Add(self.buildOneButton(parent, 'Get GPS', self.controller.onGPSClicked))
@@ -64,16 +65,20 @@ class View(wx.Frame):
 		
 		
 	def makeParamDataPanel(self,parent):
-		"""Provides user with controls and views to the paramaters being 
-		used to communicate with the UAV as well as the Commands waiting to be executed."""
+		"""Provides user with controls and views to the paramaters being
+		used to communicate with the UAV as well as the Commands waiting
+		to be executed."""
 		param_data_panel = wx.Panel(parent,-1)
 		param_data_panel.SetBackgroundColour("Purple")
-		param_sizer = wx.StaticBoxSizer(wx.StaticBox(param_data_panel, -1, 'Parameter Update'),orient=wx.HORIZONTAL)
+		param_border = wx.StaticBox(param_data_panel, -1, 'Parameter Update')
+		param_sizer = wx.StaticBoxSizer(param_border,orient=wx.HORIZONTAL)
 		param_grid = self.makeParamGrid(parent = param_data_panel)
 		param_sizer.Add(param_grid,1,wx.EXPAND)
 
-		cmd_queue_sizer =  wx.StaticBoxSizer(wx.StaticBox(param_data_panel, -1, 'Command Queue'),orient=wx.HORIZONTAL)
-		cmd_queue_sizer.Add(wx.TextCtrl(param_data_panel, -1, style=wx.TE_MULTILINE),1,wx.EXPAND)
+		cmd_border= wx.StaticBox(param_data_panel, -1, 'Command Queue')
+		cmd_queue_sizer = wx.StaticBoxSizer(cmd_border,orient=wx.HORIZONTAL)
+		p_txt = wx.TextCtrl(param_data_panel, -1, style=wx.TE_MULTILINE)
+		cmd_queue_sizer.Add(p_txt,1,wx.EXPAND)
 
 		hbox2 =wx.BoxSizer(wx.HORIZONTAL)
 		hbox2.Add(param_sizer,1,wx.EXPAND)
@@ -85,17 +90,20 @@ class View(wx.Frame):
 		
 		
 	def makeCmdPanel(self,parent):
-		"""CmdPanel in the upper left corner that has buttons for UAV controls
-		as well as the Raw Data Viewer"""
+		"""CmdPanel in the upper left corner that has buttons for UAV
+		controls as well as the Raw Data Viewer"""
 		cmd_panel =wx.Panel(parent,-1)
 		cmd_panel.SetBackgroundColour("Orange")
 		uav_grid = self.makeUAVGrid(cmd_panel)
 		
-		uav_sizer =  wx.StaticBoxSizer(wx.StaticBox(cmd_panel, -1, 'UAV Commands'),orient=wx.HORIZONTAL)
+		uav_border = wx.StaticBox(cmd_panel, -1, 'UAV Commands')
+		uav_sizer =  wx.StaticBoxSizer(uav_border,orient=wx.HORIZONTAL)
 		uav_sizer.Add(uav_grid,1,wx.EXPAND)
 		
-		data_view_sizer =  wx.StaticBoxSizer(wx.StaticBox(cmd_panel, -1, 'Data Viewer'),orient=wx.HORIZONTAL)
-		data_view_sizer.Add(wx.TextCtrl(cmd_panel, -1, style=wx.TE_MULTILINE),1,wx.EXPAND)
+		dv_border = wx.StaticBox(cmd_panel, -1, 'Data Viewer')
+		data_view_sizer =  wx.StaticBoxSizer(dv_border, orient=wx.HORIZONTAL)
+		dv_txt = wx.TextCtrl(cmd_panel, -1, style=wx.TE_MULTILINE)
+		data_view_sizer.Add(dv_txt,1,wx.EXPAND)
 
 		hbox1 = wx.BoxSizer(wx.HORIZONTAL)
 		hbox1.Add(uav_sizer,1,wx.EXPAND)
@@ -115,21 +123,24 @@ class View(wx.Frame):
 	 	"""right panel holds the image, and current data viewer"""
 		rightPanel = wx.Panel(parent,-1)
 		rightPanel.SetBackgroundColour("Blue")
-		sizer2 = wx.StaticBoxSizer(wx.StaticBox(rightPanel, -1, 'Image Viewer'), orient=wx.VERTICAL)
+		img_border = wx.StaticBox(rightPanel, -1, 'Image Viewer')
+		sizer2 = wx.StaticBoxSizer(img_border, orient=wx.VERTICAL)
 		
 		
 		"""Make current data grid sizer and add to this panel"""
-		
-		sizer2a = wx.StaticBoxSizer(wx.StaticBox(rightPanel, -1, 'Current Data Viewer'), orient=wx.VERTICAL)
+		cdv_border = wx.StaticBox(rightPanel, -1, 'Current Data Viewer')
+		sizer2a = wx.StaticBoxSizer(cdv_border, orient=wx.VERTICAL)
 		data_grid= wx.GridSizer(5,4,2,2)
 		
-		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP', 'BATT', 'SIG POWER','FREQ',
-			'MOD', 'TIMEOUT', 'GND SPEED']
-		txtBoxNames = ['lat', 'long','alt','temp','batt', 'sigPower','freq','mod',
-			'timeout', 'gndSpeed']
-		"""add text boxes and labels to data grid. Text boxes can be referenced
-		 by name. ex: latTextBox would be the name to reference for controlling the 
-		 latitude TextCntrl"""
+		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP', 'BATT',
+					'SIG POWER','FREQ','MOD', 'TIMEOUT', 'GND SPEED']
+		txtBoxNames = ['lat', 'long','alt','temp','batt',
+						'sigPower','freq','mod','timeout', 'gndSpeed']
+						
+		"""add text boxes and labels to data grid. Text boxes can be
+		referenced by name. ex: latTextBox would be the name to reference
+		for controlling the latitude TextCntrl"""
+
 		for i in range(len(txtLabels)):
 			label = txtLabels[i]
 			boxName = txtBoxNames[i] + "TextBox"
@@ -167,19 +178,21 @@ class View(wx.Frame):
 		
 class Controller(wx.App):
 	def __init__(self):
-		"""Controller instance creates a View (GUI) and model(ground controls) and acts as
-		an mediator between them"""
-		
 		wx.App.__init__(self,redirect=False)
-		"""on____ methods are event handlers, which are called whenever a button
-		is clicked in the GUI."""
+		
+		
+	"""on____ methods are event handlers, which are called whenever a button
+	is clicked in the GUI."""
 		
 	def OnInit(self):
+		"""Controller instance creates a View (GUI) and model
+		(ground_controls) and acts as a mediator between them"""
+		
 		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
-		#need to create model in this __init__ method as well
 		self.model = ground_controls.ground_controls()
-		#add listeners to model that need to be updated.
+		
+		#add listeners to model that are responsible for updating the view
 		self.model.addListener(self.imageListener)
 		self.model.addListener(self.modSchemeListener)
 		return True
