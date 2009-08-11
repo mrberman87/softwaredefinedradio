@@ -11,18 +11,20 @@ msgs.msgq().insert_tail(gr.message_from_string(test))
 print msgs.msgq().delete_head().to_string()
 """
 
-file_name = '/home/sab/Desktop/payload_transmit_path.py'
+file_name = '/home/charles/softwaredefinedradio/src/ground_components/packet_utils/ps.txt'
 fd = open(file_name, 'r')
 file_length = len(fd.read())
 fd.close()
 fd = open(file_name, 'r')
+payload_length = 128
 payload_count = 0
 byte_count = 0
-for i in range(0, int(file_length/1024) + 1):
-	payload=fd.read(1024)
-	packetizer.make_packet(payload, payload_count=i)
+for i in range(0, int(file_length/payload_length) + 1):
+	payload=fd.read(payload_length)
+	packetizer.make_packet(payload, i)
 	byte_count += len(payload)
-	print "Byte Count: ", byte_count, " Payload Count: ", i
+	print "Length of Payload: ", len(payload), "Byte Count: ", byte_count, " Payload Count: ", i
+	print payload
 fd.close()
 
 """
