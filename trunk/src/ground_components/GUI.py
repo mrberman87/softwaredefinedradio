@@ -55,12 +55,11 @@ class View(wx.Frame):
 		binds the buttons to the parent given, then returns the gridsizer 
 		with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
-		uav_grid.Add(self.buildOneButton(parent, 'Get Image', self.controller.onImageClicked))
-		uav_grid.Add(self.buildOneButton(parent, 'Get GPS', self.controller.onGPSClicked))
-		uav_grid.Add(self.buildOneButton(parent, 'Get FFT', self.controller.onFFTClicked))
-		uav_grid.Add(self.buildOneButton(parent, 'Get Batt.', self.controller.onBattClicked))
-		uav_grid.Add(self.buildOneButton(parent, 'Get Temp.', self.controller.onTempClicked))
-		uav_grid.Add(self.buildOneButton(parent, 'Get All', self.controller.onAllClicked))
+		labels = ['Image', 'GPS', 'FFT', 'Batt.', 'Temp.', 'All']
+		for label in labels:
+			b = self.buildOneButton(parent, label, self.controller.onButton)
+			uav_grid.Add(b)
+
 		return uav_grid
 		
 		
@@ -201,32 +200,16 @@ class Controller(wx.App):
 		newMod = self.view.modChoices.GetStringSelection()
 		self.model.changeModScheme(newMod)
 		self.model.update()
-		pass
-	
-	def onImageClicked(self, event):
-		print "image Clicked"
-		self.model.countImageClicks()
 		
-	def onGPSClicked(self, event):
-		pass
+	def onSettingsChange(self, event): pass
 	
-	def onSettingsChange(self, event):
-		pass
+	def onTimeOut(self, event): pass
 	
-	def onTimeOut(self, event):
-		pass
-	
-	def onFFTClicked(self, event):
-		pass
-	
-	def onBattClicked(self, event):
-		pass
-	
-	def onTempClicked(self, event):
-		pass
-	
-	def onAllClicked(self, event):
-		pass
+	def onButton(self, event):
+		"""Find out which button was clicked, and add to the command queue
+		inside the model."""
+		print event.GetEventObject().GetLabel()
+		
 		
 	"""______Listener methods update data in the view. They are all ran 
 	whenever the model (ground_controls.py) calls the it's update() method.
