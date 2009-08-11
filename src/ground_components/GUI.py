@@ -133,7 +133,7 @@ class View(wx.Frame):
 		
 		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP', 'BATT',
 					'SIG POWER','FREQ','MOD', 'TIMEOUT', 'GND SPEED']
-		txtBoxNames = ['lat', 'long','alt','temp','batt',
+		txtBoxNames = ['lat', 'lon','alt','temp','batt',
 						'sigPower','freq','mod','timeout', 'gndSpeed']
 						
 		"""add text boxes and labels to data grid. Text boxes can be
@@ -194,6 +194,8 @@ class Controller(wx.App):
 		#add listeners to model that are responsible for updating the view
 		self.model.addListener(self.imageListener)
 		self.model.addListener(self.modSchemeListener)
+		self.model.addListener(self.gpsListener)
+		self.model.addListener(self.sensorListener)
 		return True
 		
 	def onModSelect(self, event):
@@ -226,6 +228,22 @@ class Controller(wx.App):
 		model."""
 		modTextBox = self.view.FindWindowByName("modTextBox")
 		modTextBox.SetValue(self.model.modulation)
+
+	def gpsListener(self):
+		"""update gps data in the view"""
+		lat_txt = self.view.FindWindowByName('latTextBox')
+		lat_txt.SetValue(self.model.gps.lat)
+		lon_txt = self.view.FindWindowByName('lonTextBox')
+		lon_txt.SetValue(self.model.gps.lon)
+		alt_txt = self.view.FindWindowByName('altTextBox')
+		alt_txt.SetValue(self.model.gps.alt)
+		
+	def sensorListener(self):
+		"""update sensor data in the view"""
+		temp_txt = self.view.FindWindowByName('tempTextBox')
+		temp_txt.SetValue(self.model.temperature)
+		batt_txt = self.view.FindWindowByName('battTextBox')
+		batt_txt.SetValue(self.model.batt)
 		
 if __name__ =="__main__":
 	app = Controller()
