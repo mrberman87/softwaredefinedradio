@@ -48,15 +48,17 @@ class GPS_packet:
 
 			try:
 				self.lat = abs(float(lat))	#don't want negative signs
-				self.lat_hemis = ('S' if self.lat == lat else 'N')
+				lat_hemis = ('S' if self.lat == lat else 'N')
+				self.lat = str(self.lat) + " " + lat_hemis
 
 				self.lon = abs(float(lon))	#don't want negative signs
-				self.lon_hemis = ('E' if self.lon == lon else 'W')
+				lon_hemis = ('E' if self.lon == lon else 'W')
+				self.lon = str(self.lon) + " " + lon_hemis
 			except TypeError:
 				self.write_parse_error()
 
 			self.sog = sog_str[2:]
-			self.alt = alt_str[2:]
+			self.alt = alt_str[2:] + " m" #meters above sea level
 
 	def write_parse_error(self):
 		time_stamp=strftime("%d %b %Y %H:%M:%S\t", gmtime())
