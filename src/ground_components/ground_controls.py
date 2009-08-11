@@ -11,7 +11,18 @@ import abstractmodel
 import sys
 sys.path.append("GPS") #includes GPS/ directory to use GPS_packet.py
 from GPS_packet import GPS_packet
+<<<<<<< .mine
 
+"""
+Why did you put the gps packeting info in here?
+Were we not going to do all of that on the UAV?
+This is on the ground.  I thought we were going to get, and decode
+the GPS packet on the UAV, and just send down the parts that we need.
+"""
+
+=======
+
+>>>>>>> .r111
 class ground_controls(abstractmodel.AbstractModel):
 	def __init__(self):
 		abstractmodel.AbstractModel.__init__(self)
