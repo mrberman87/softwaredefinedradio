@@ -1,0 +1,5 @@
+As of right now, i am thinking of setting up a script to handle the sending and receiving of things from the message queue, and another to deal with executing commands and handling the logic.
+
+transeiver.py will be the transmission controller, handling input and output from files, packetizing/unpacketizing and input and output from the message queue's.
+
+uav_controller.py will handle the execution of commands, and all of the logic therein lies.
