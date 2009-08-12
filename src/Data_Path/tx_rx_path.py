@@ -48,7 +48,7 @@ class tx_rx_path(gr.top_block):
 		)
 		self.gr_multiply_const_vxx_0 = gr.multiply_const_vcc((8000, ))
 		self.msg_queue_out = gr.msg_queue()
-		self.gr_message_sink_0 = gr.message_sink(gr.sizeof_char*1, self.msg_queue_0, False)
+		self.gr_message_sink_0 = gr.message_sink(gr.sizeof_char*1, self.msg_queue_out, False)
 		self.gr_message_source_0 = gr.message_source(gr.sizeof_char*1)
 		self.msg_queue_in = self.gr_message_source_0.msgq()
 		self.low_pass_filter_0 = gr.fir_filter_ccf(1, firdes.low_pass(
