@@ -9,8 +9,10 @@ various functions to request data from the UAV.
 import os
 import abstractmodel
 import sys
+import Queue
 sys.path.append("GPS") #includes GPS/ directory to use GPS_packet.py
 from GPS_packet import GPS_packet
+
 
 class ground_controls(abstractmodel.AbstractModel):
 	def __init__(self):
@@ -22,6 +24,7 @@ class ground_controls(abstractmodel.AbstractModel):
 		self.modulation = ''
 		self.timeout = '10' #(in seconds)
 		self.sigPower = '0'
+		self.cmd_list = []
 		self.imageClickedTimes = 0 #test var to test relaying information to view
 	
 	def countImageClicks(self):
@@ -30,6 +33,10 @@ class ground_controls(abstractmodel.AbstractModel):
 	
 	def changeModScheme(self, mod):
 		self.modulation = mod
+		self.update()
+	
+	def addToQueue(self, cmd):
+		self.cmd_list.append(cmd)
 		self.update()
 
 	"""

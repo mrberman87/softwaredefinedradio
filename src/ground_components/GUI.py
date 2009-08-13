@@ -76,7 +76,8 @@ class View(wx.Frame):
 
 		cmd_border= wx.StaticBox(param_data_panel, -1, 'Command Queue')
 		cmd_queue_sizer = wx.StaticBoxSizer(cmd_border,orient=wx.HORIZONTAL)
-		p_txt = wx.TextCtrl(param_data_panel, -1, style=wx.TE_MULTILINE)
+		p_txt = wx.TextCtrl(param_data_panel, -1,
+							name = 'cmdTextBox', style=wx.TE_MULTILINE)
 		cmd_queue_sizer.Add(p_txt,1,wx.EXPAND)
 
 		hbox2 =wx.BoxSizer(wx.HORIZONTAL)
@@ -192,10 +193,16 @@ class Controller(wx.App):
 		self.model = ground_controls.ground_controls()
 		
 		#add listeners to model that are responsible for updating the view
-		self.model.addListener(self.imageListener)
+		listeners = [self.imageListener, self.modSchemeListener,
+					self.gpsListener, self.sensorListener,
+					self.sensorListener, self.queueListener]
+		for l in listeners:
+			self.model.addListener(l)
+		
+		"""self.model.addListener(self.imageListener)
 		self.model.addListener(self.modSchemeListener)
 		self.model.addListener(self.gpsListener)
-		self.model.addListener(self.sensorListener)
+		self.model.addListener(self.sensorListener)"""
 		return True
 		
 	def onModSelect(self, event):
@@ -210,12 +217,23 @@ class Controller(wx.App):
 	def onButton(self, event):
 		"""Find out which button was clicked, and add to the command queue
 		inside the model."""
-		print event.GetEventObject().GetLabel()
+		cmd = event.GetEventObject().GetLabel()
+		self.model.addToQueue(cmd)
+		
 		
 		
 	"""______Listener methods update data in the view. They are all ran 
 	whenever the model (ground_controls.py) calls the it's update() method.
 	The model should call update whenever data in the model has changed."""
+	def queueListener(self):
+		"""update command queue in gui"""
+		cmdTextBox = self.view.FindWindowByName("cmdTextBox")
+		
+		cmdString = ''
+		for command in self.model.cmd_list:
+			cmdString = cmdString + command + "\n"
+			
+		cmdTextBox.SetValue(cmdString)
 
 	def imageListener(self):
 		pass
