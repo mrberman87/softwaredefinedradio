@@ -198,11 +198,7 @@ class Controller(wx.App):
 					self.sensorListener, self.queueListener]
 		for l in listeners:
 			self.model.addListener(l)
-		
-		"""self.model.addListener(self.imageListener)
-		self.model.addListener(self.modSchemeListener)
-		self.model.addListener(self.gpsListener)
-		self.model.addListener(self.sensorListener)"""
+
 		return True
 		
 	def onModSelect(self, event):
