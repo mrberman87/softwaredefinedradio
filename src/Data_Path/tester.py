@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-def main(data):
-	while True:
-		if data != "":
-			print data
-		
-def
+def main():
+	data = raw_input("Asking for input: ")
+	if data == '1':
+		return True
+	else:
+		data2 = data
 
 """
 def spc(data):
