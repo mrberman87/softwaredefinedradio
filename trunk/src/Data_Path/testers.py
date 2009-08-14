@@ -1,5 +1,45 @@
 #!/usr/bin/env python
 
+data = ['', 'a', '', 'b']
+pkt_count = 6
+total_pkts = 7
+payload = 'Next Test'
+while len(data) < pkt_count:
+	data.append('')
+
+data.append(payload)
+print data
+print len(data)
+if len(data) == total_pkts:
+	print "Got last Packet"
+
+
+"""
+data_temp = list()
+for i in range(len(data)):
+	data_temp.append(data[i])
+
+print "DATA: ",data
+print "data_temp: ",data_temp
+data_temp.pop(0)
+print "DATA: ",data
+print "data_temp: ",data_temp
+"""
+
+"""
+temp = data
+bad_packet_indexes = list()
+index = 0
+n_index = 0
+while len(bad_packet_indexes) < data.count(''):
+	index = data.index('', n_index)
+	n_index = index + 1
+	bad_packet_indexes.append(str(index))
+print bad_packet_indexes
+print ':'.join(bad_packet_indexes)
+"""
+
+"""
 data = ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b']
 bad_packet_indexes = list()
 index = 0
@@ -9,6 +49,8 @@ while len(bad_packet_indexes) < data.count('b'):
 print bad_packet_indexes
 for i in bad_packet_indexes:
 	print data[int(i)] + i
+"""
+
 """
 from gnuradio import gr
 

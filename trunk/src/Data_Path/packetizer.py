@@ -77,7 +77,7 @@ def make_header(payload_len, whitener_offset=0):
     #print "offset =", whitener_offset, " len =", payload_len, " val=", val
     return struct.pack('!HH', val, val)
 
-def make_packet(payload, payload_count, samples_per_symbol=8, bits_per_symbol=1,
+def make_packet(payload, payload_count, total_pkts, samples_per_symbol=8, bits_per_symbol=1,
                 access_code=default_access_code, whitener_offset=0):
 	"""
 	Build a packet, given access code, payload, and whitener offset
@@ -97,7 +97,7 @@ def make_packet(payload, payload_count, samples_per_symbol=8, bits_per_symbol=1,
 	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(access_code)
 	(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble)
 
-    	payload = str(payload_count) + ":" + payload
+    	payload = str(total_pkts) + ":" + str(payload_count) + ":" + payload
 
 	payload_with_crc = gru.gen_and_append_crc32(payload)
 
