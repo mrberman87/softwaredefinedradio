@@ -198,7 +198,8 @@ class Controller(wx.App):
 					self.sensorListener, self.queueListener]
 		for l in listeners:
 			self.model.addListener(l)
-
+		
+		self.model.start()
 		return True
 		
 	def onModSelect(self, event):
