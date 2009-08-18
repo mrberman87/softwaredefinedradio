@@ -8,7 +8,6 @@ class txrx_controller():
 
 	def __init__(self):
 		self.event_list = ['EW', 'IN', 'PR', 'TC']
-		self.tx = True
 		self.bad_pkt_indices = list()
 		self.data = list()
 		self.data_temp = list()
@@ -22,25 +21,30 @@ class txrx_controller():
 		self.txrx_path.start()
 
 ########################################################################################
-#					TRANSMITTER
+#					TRANSMITTER				       #
 ########################################################################################
-	def transmit(self, data):
-		#Untested: requires USRP and outside source giving data
-		if self.tx is True:
-			cleanup(self)
+	def transmit(self, data_source):
+		#Tested
+		#Untested: receiving packets to verify they are correct
+		home_path = '/home/charles/softwaredefinedradio/src/'
+		self.data = ''
+		if data_source.count('/') > 0:
+			fo = file(home_path + data_source, 'r')
+			data = fo.read()
+			fo.close()
 			self.data = data
-			make_pkts(self)
-			transmit_pkts(self)
-			return True
 		else:
-			return False
+			self.data = data_source	
+		make_pkts(self)
+		transmit_pkts(self)
+		return True
 
 
 ########################################################################################
-#					RECEIVER
+#					RECEIVER				       #
 ########################################################################################
 	def receive(self):
-		self.tx = False
+		#Tested: w/ USRP, need to confirm logic
 		self.data = list()
 		self.data_temp = list()
 		temp_event = ''
@@ -57,24 +61,33 @@ class txrx_controller():
 					for i in range(len(self.data_temp)):
 						self.data.append(self.data_temp.pop(0))
 				else:
-					slice_total_count_pkt_count_payload(self.data_temp[0])
-					temp_event = self.payload
-				if temp_event == event_list[2]: #Received Packet Resend
+					temp_event = self.data_temp[0]
+				if temp_event == '':
+					self.data_temp = list()
+					break
+				if temp_event == event_list[2]:
 					insert_missing_pkts(self)
-					frame_check(self)
-				elif self.data[0] == event_list[1]: #Received Incomplete Transmission with 2nd packet of Indexes
-					#Tested split
-					self.bad_pkt_indices = self.data.pop(1).split(':')
-					handshaking_transmit(2)
-				elif self.data[0] == event_list[0]: #Received New Transmission
 					if frame_check(self) is True:
-						return self.data
-				elif self.data[0] == event_list[3]: #Received Transmission Complete
+						self.data.pop(0)
+						return ''.join(self.data)
+				elif temp_event == event_list[1]:
+					self.bad_pkt_indices = self.data_temp[1].split(':')
+					handshaking_transmit(2)
+					self.data_temp = list()	
+				elif (self.data[0] == event_list[3] and temp_event == '') or temp_event == event_list[3]:
 					cleanup(self)
 					return True
+				elif self.data[0] == event_list[1]:
+					self.bad_pkt_indices = self.data[1].split(':')
+					handshaking_transmit(2)
+					self.data_temp = list()
+				elif self.data[0] == event_list[0] or self.data[0] == '':
+					if frame_check(self) is True:
+						self.data.pop(0)
+						return ''.join(self.data)				
 
 ########################################################################################
-#				RECEIVER TOOLS
+#				RECEIVER TOOLS					       #
 ########################################################################################
 
 def frame_check(self):
@@ -97,6 +110,7 @@ def insert_missing_pkts(self):
 
 def msgq_in(self):
 	#Untested: msgq retrieval
+	temp = ''
 	temp = self.txrx_path.msg_queue_out.delete_head_nowait().to_string()
 	slice_total_count_pkt_count_payload(temp)
 
@@ -136,7 +150,7 @@ def slice_total_count_pkt_count_payload(self, temp):
 	self.payload = temp[temp.index(":") + 1:]
 
 ########################################################################################
-#				TRANSMITTER PACKET MAKER ONLY
+#				TRANSMITTER TOOLS				       #
 ########################################################################################
 
 def make_pkts(self):
@@ -153,7 +167,7 @@ def make_pkts(self):
 		self.pkts_temp.append(self.pkts[i])
 
 ########################################################################################
-#				COMMON OPERATIONS
+#				COMMON OPERATIONS				       #
 ########################################################################################
 def transmit_pkts(self):
 	#Tested: Loop length correct
@@ -164,7 +178,6 @@ def transmit_pkts(self):
 
 def cleanup(self):
 	#No Testing needed
-	self.tx = True
 	self.bad_pkt_indices = list()
 	self.pkts = list()
 	self.pkts_temp = list()
