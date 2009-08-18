@@ -1,3 +1,35 @@
+How to use the txrx_controller.py
+
+import txrx_controller
+tb = txrx_controller.txrx_controller()
+
+*To transmit a new Frame:
+	
+	tb.transmit( DATA )
+
+	DATA can be a passed variable or a file location inside /softwaredefinedradio/src
+	Need to always have / in the beginning of the user input path so the controller will
+	recognize you are passing a file that needs to be opened. The path is also set in a
+	variable and needs to be updated for each login it is used on.
+
+*To receive
+
+	tb.receive()
+
+	This will return something when it is done. If you are receiving a new frame, then it will
+	return the data that was received. If you transmitted a new frame and are awaiting confirmation
+	that the handshaking is complete, then once that occurs it will return True.
+
+
+
+
+
+
+
+
+
+
+
 How to use tx_rx_path.py
 
 import tx_rx_path

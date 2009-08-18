@@ -19,7 +19,6 @@ class txrx_controller():
 		#PR - Packet Resend: Sending the packets that were dropped in last tx.
 		#TC - Transmission Complete: Original receive side has all data.
 		self.event_list = ['EW', 'IN', 'PR', 'TC']
-		self.tx = True
 		self.bad_pkt_indices = list()
 		self.data = list()
 		self.data_temp = list()
@@ -30,15 +29,35 @@ class txrx_controller():
 		self.total_pkts = None
 		self.payload = ''
 		self.txrx_path = tx_rx_path.tx_rx_path()
-		self.txrx_path.Start()
+		self.txrx_path.start()
 			
+########################################################################################
+#					TRANSMITTER
+########################################################################################
+	def transmit(self, data):
+		#to set the home directory for file input, need to edit for other login/UAV
+		home_path = '/home/charles/softwaredefinedradio/src/'
+		#Ensure self.data is empty, in case multiple user transmits are called
+		self.data = ''
+		#This is for accepting files as well as direct data via function call
+		if data_source.count('/') > 0:
+			fo = file(home_path + data_source, 'r')
+			data = fo.read()
+			fo.close()
+			self.data = data
+		else:
+			self.data = data_source
+		#Packetize all data for transmission
+		make_pkts(self)
+		#Transmit the packets through the USRP
+		transmit_pkts(self)
+		#Return true to signify operation of packetization and queueing is complete
+		return True
 
 ########################################################################################
 #					RECEIVER
 ########################################################################################
 	def receive(self):
-		#Block transmit from outside while receiving/handshaking.
-		self.tx = False
 		#Ensure self.data is an empty list.
 		self.data = list()
 		#Ensure self.data_temp is an empty list.
@@ -80,66 +99,71 @@ class txrx_controller():
 				#2nd time receiving and need to know event for how to handle
 				#the information that is coming in.
 				else:
-					#Separate the total count, packet count, and payload
-					slice_total_count_pkt_count_payload(self.data_temp[0])
-					#The payload here is the event of the frame just received
-					temp_event = self.payload
-				#Received Packet Resend from original New Transmission source.
-				if temp_event == event_list[2]: #Received Packet Resend
-					#Insert these re-transmitted packets into the list of original packets received
-					insert_missing_packets()
-					#
-					frame_check()
-				elif self.data[0] == event_list[1]: #Received Incomplete Transmission with 2nd packet of Indexes
-					#Tested split
-					self.bad_pkt_indices = self.data.pop(1).split(':')
+					temp_event = self.data_temp[0] #To ensure the back and forth happens more than once
+				#Unknown event: clear temporary rcvd data. This is to ensure that if we don't know
+				#what the data is, we don't do anything.
+				if temp_event == '': 
+					self.data_temp = list()
+					break
+				#Received Packet Resend as 2nd received frame. Have to insert packets into the original frame.
+				if temp_event == event_list[2]:
+					insert_missing_pkts(self)
+					#Check to see if the original frame is complete
+					if frame_check(self) is True:
+						#If the frame has all packets delete the event identifier in self.data and 
+						#return the payloads that contain the original data to be sent.
+						self.data.pop(0)
+						return ''.join(self.data)
+				#Received Incomplete Transmission as 2nd received frame or later. 2nd packet will always contain
+				#a list of indices of the missing packets. Split them between colons and put them into the list.
+				#Transmit the missing packets along with a frame packet. Clear self.data_temp for next rcv
+				elif temp_event == event_list[1]:
+					self.bad_pkt_indices = self.data_temp[1].split(':')
 					handshaking_transmit(2)
-				elif self.data[0] == event_list[0]: #Received New Transmission
-					if frame_check() is True:
-						return self.data
-				elif self.data[0] == event_list[3]: #Received Transmission Complete
-					cleanup()
+					self.data_temp = list()
+				#Newest event is Transmission Complete, cleanup variables and return True to the overall controller
+				elif temp_event == event_list[3]:
+					cleanup(self)
 					return True
+				#If newest frame event unknown, default to original self.data issue	
+				#Check to see if rcvd Transmission Complete
+				elif (self.data[0] == event_list[3] and temp_event == '') or temp_event == event_list[3]:
+					cleanup(self)
+					return True
+				#Initially rcvd Incomplete Transmission. Split the missing packet indices and re-transmit them.
+				elif self.data[0] == event_list[1]:
+					self.bad_pkt_indices = self.data[1].split(':')
+					handshaking_transmit(2)
+					self.data_temp = list()
+				#Initially rcvd New Transmission or the Frame packet was lost. Check the frame and proceed
+				#with frame check logic. If frame check returns true, then return the new frame minus the event.
+				elif self.data[0] == event_list[0] or self.data[0] == '':
+					if frame_check(self) is True:
+						self.data.pop(0)
+						return ''.join(self.data)
 
 ########################################################################################
-#					TRANSMITTER
+#				RECEIVER TOOLS					       #
 ########################################################################################
-	def transmit(self, data):
-		#if statment used to block transmitting while handshaking/receiving is 
-		#occuring. Don't want to transmit while in receive mode unless expressly
-		#for the handshaking process.
-		if self.tx is True:
-			#Clear the variables in the init method that are commonly used.
-			cleanup()
-			#Block self.data from the outside
-			self.data = data
-			#Make the frame packet, and packets of the data. 
-			make_pkts()
-			#Transmit the frame through the transmit path and the USRP.
-			transmit_pkts()
-			#Return True to signify transmit occured and is complete.
-			return True
-		#Not supposed to be transmitting will drop the request to transmit down 
-		#to this else statement.
-		else:
-			#Return False is the outside tries to transmit while in receive
-			#mode. This signifies that there is currently a handshaking 
-			#process going on.
-			return False
 
 def frame_check(self):
+	#Count the number of missing packets, if zero then respond with Transmission Complete and clean up. Also, return true
 	if self.data.count('') == 0:
 		handshaking_transmit(3)
-		cleanup()
+		cleanup(self)
 		return True
+	#Frame has missing packets, determine those indices that refer to the missing packets and make a payload out of them.
+	#Transmit the frame event Incomplete Transmission and a single packet with the indices of missing packets. Return
+	#false to show all of the data is unnacounted for.
 	else:
-		bad_pkt_indexes()
+		bad_pkt_indexes(self)
 		handshaking_transmit(1)
 		self.data_temp = list()
 		return False
 
 def insert_missing_pkts(self):
-	#Tested
+	#Takes a rcvd frame of re-transmitted packets and inserts them into the original data rcvd variable at the locations
+	#determined by each packet's packet number. 
 	for i in range(1, len(self.data_temp)):
 		slice_total_count_pkt_count_payload(self.data_temp.pop(1))
 		self.data.pop(self.pkt_count)
@@ -149,6 +173,7 @@ def msgq_in(self):
 	#Untested: msgq retrieval
 	#Queue no longer empty, get first item in the queue
 	#Slice Total packet count, individual packet count, payload
+	temp = ''
 	temp = self.txrx_path.msg_queue_out.delete_head_nowait().to_string()
 	slice_total_count_pkt_count_payload(temp)	
 
@@ -159,13 +184,21 @@ def handshaking_transmit(self, event_index):
 
 def handshaking_make_pkts(event_index):
 	#This is only for the receive path during handshaking and should not be called
-	#by an outside source. Make the frame packet for this event.
-	self.pckts_copy.append(packetizer.make_packet(self.event_list[event_index], 0))
-	#Loop over the pkts which still holds the original frame. Use the indexes from
-	#the bad_pkt_indexes method to copy these packets again into self.pkts_copy to
-	#be sent again.
-	for i in self.bad_packet_indexes:
-		self.pkts_copy.append(self.pkts[int(i)])
+	#by an outside source.
+	#Transmitting Incomplete Transmission event w/ 2nd packet having missing pkt numbers from self.data
+	if event_index == 1:
+		self.pkts_temp.append(packetizer.make_packet(self.event_list[event_index], 0, 2))
+		self.pkts_temp.append(packetizer.make_packet(':'.join(self.bad_pkt_indices), 1, 2))
+	#Transmitting Packet Resend event, w/ missing pkts from rcvd incoming transmission pkt list
+	elif event_index == 2:
+		#Total pkts in response is the number of missing packets plus the frame pckt
+		total_pkts = len(self.bad_pkt_indices) + 1
+		self.pkts_temp.append(packetizer.make_packet(self.event_list[event_index], 0, total_pkts))
+		for i in range(len(self.bad_pkt_indices)):
+			self.pkts_temp.append(self.pkts[int(self.bad_pkt_indices[i])])
+	#Transmitting Transmission Complete
+	elif event_index == 3:
+		self.pkts_temp.append(packetizer.make_packet(self.event_list[event_index], 0, 1))
 
 def bad_pkt_indexes(self):
 	#Tested
@@ -189,7 +222,6 @@ def bad_pkt_indexes(self):
 		n_index = index + 1
 
 def strip_totalcount_pktcount_payload(self, temp):
-	#Tested
 	#This strips out the total packet count, individual payload count,
 	#and the payload for this packet from the message sink queue.
 	#The total packet count is always first and is delimited with a colon.
@@ -203,7 +235,9 @@ def strip_totalcount_pktcount_payload(self, temp):
 	#packet process. Save the payload which is after the second colon always.
 	self.payload = temp[temp.index(":") + 1:]
 
-
+########################################################################################
+#				TRANSMITTER TOOLS				       #
+########################################################################################
 
 def make_pkts(self):
 	#Needs Test to make sure the data_pkts is long enough,loop is correct.
@@ -214,6 +248,10 @@ def make_pkts(self):
 	#round down operation and also the framer packet which is not
 	#initially contained in the data given by the outside.
 	self.total_pkts = len(self.data)/self.payload_length + 2
+	#This if statement is to protect against extra packets when the integer division
+	#is a whole number.
+	if len(self.data)%2 == 0:
+		total_pkts -= 1
 	#Create the first packet which will contain the framer information.
 	#This will contain the total number of packets, the packet number,
 	#and the payload with the event information. 
@@ -238,28 +276,24 @@ def make_pkts(self):
 	#This is for retention of fully made packets that may need to be sent
 	#back to the other device in the event of lost packets.
 	for i in range(len(self.pkts))
-		self.pkts_copy.append(self.pkts[i])
+		self.pkts_temp.append(self.pkts[i])
 
 ########################################################################################
-#				MISCELLANEOUS OPERATIONS
+#					COMMON OPERATIONS
 ########################################################################################
 def transmit_pkts(self):
-	#Actually sends self.pkts_copy starting with the head down the transmit
+	#Actually sends self.pkts_temp starting with the head down the transmit
 	#path to the USRP. It always move along the entire length of pkts_copy.
-	while len(self.pkts_copy) != 0:
-		tb.msg_queue_in.insert_tail(gr.message_from_string(self.pkts_copy.pop(0)))
+	for i in range(len(self.pkts_temp)):
+		msg = gr.message_from_string(self.pkts_temp.pop(0))
+		self.txrx_path.msg_queue_in.insert_tail(msg)
 
 def cleanup(self):
 	#This is to cleanup between new transmissions and handshaking processes.
 	#Don't want residules to be haging around inside variables.
-	self.event = ''
-	self.tx = True
-	self.bad_pkt_indexes = list()
-	self.data = ''
-	self.data_temp = list()
+	self.bad_pkt_indices = list()
 	self.pkts = list()
-		self.pkts_copy = list()
-		self.payload_length = 1024
-		self.pkt_count = None
-		self.total_pkts = None
-		self.payload = ''
+	self.pkts_temp = list()
+	self.pkt_count = None
+	self.total_pkts = None
+	self.payload = ''
