@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import os
+import os, time
+from deamon import Deamon
 
-class overview:
+class overview(Deamon):
 	def __init__(self):
 		
