@@ -142,6 +142,35 @@ class txrx_controller():
 						self.data.pop(0)
 						return ''.join(self.data)
 
+	def set_freq(self, tx_rx='', new_freq):
+		#This is to change the frequency of the USRP on the fly as needed. If tx_rx is 'tx'
+		#then we are changing the frequency we will be transmitting on. If tx_rx is 'rx' then
+		#we will be changing the frequency we are receiving on.
+		if tx_rx == 'tx':
+			self.txrx_path.usrp_simple_sink_x_0.set_frequency(new_freq, verbose=True)
+		elif tx_rx == 'rx':
+			self.txrx_path.usrp_simple_source_x_0.set_frequency(new_freq, verbose=True)
+
+	def time_out_pad(self):
+		#This is for when a timeout occurs between link transmissions. This is optional and 
+		#other solutions might be more attractive than this. This is to attempt to complete
+		#the handshaking process as intended. If this fails to re-establish the link
+		#another alternative may need to be implemented. This function just adds empty
+		#strings to the incoming data stream to force the handshaking process.
+		while len(self.data_temp) < self.total_pkts:
+			self.data_temp.append('')
+
+	def stop_trans(self):
+		#This is for the daemon to stop the USRP flowgraph so a data acquisition flowgraph
+		#can be started to obtain FFT information.
+		self.txrx_path.msg_queue_in.insert_tail(gr.message(1))
+		self.txrx_path.stop()
+		self.txrx_path.wait()
+
+	def start_trans(self):
+		#This starts the USRP flowgraph again for transmitting and receiving
+		self.txrx_path.start()		
+
 ########################################################################################
 #				RECEIVER TOOLS					       #
 ########################################################################################

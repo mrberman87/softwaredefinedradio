@@ -84,7 +84,31 @@ class txrx_controller():
 				elif self.data[0] == event_list[0] or self.data[0] == '':
 					if frame_check(self) is True:
 						self.data.pop(0)
-						return ''.join(self.data)				
+						return ''.join(self.data)
+
+	def set_freq(self, new_freq, tx_rx=''):
+		#Tested
+		if tx_rx == 'tx':
+			self.txrx_path.usrp_simple_sink_x_0.set_frequency(new_freq, verbose=True)
+		elif tx_rx == 'rx':
+			self.txrx_path.usrp_simple_source_x_0.set_frequency(new_freq, verbose=True)
+
+	def time_out_pad(self):
+		#Tested
+		while len(self.data_temp) < self.total_pkts:
+			self.data_temp.append('')
+
+	def stop_trans(self):
+		#Tested: Does not free up resource
+		#Acts like a pause
+		#Need to either kill process altogether, or determine how this actually works
+		self.txrx_path.stop()
+		self.txrx_path.wait()
+
+	def start_trans(self):
+		#Tested: need to confirm restart, no verbose at restart
+		#Acts like a resume
+		self.txrx_path.start()			
 
 ########################################################################################
 #				RECEIVER TOOLS					       #
@@ -167,7 +191,7 @@ def make_pkts(self):
 		self.pkts_temp.append(self.pkts[i])
 
 ########################################################################################
-#				COMMON OPERATIONS				       #
+#				COMMON TOOLS					       #
 ########################################################################################
 def transmit_pkts(self):
 	#Tested: Loop length correct
