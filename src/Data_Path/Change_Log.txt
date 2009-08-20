@@ -1,0 +1,8 @@
+Change from version 1.0 to 1.01 txrx_controller.py
+1. Added Error event logic in the event one of the scripts fail and an error must be sent.
+	a. For outside transmitter, added in option to receive 'Error' so the transmitter can send a frame event Error down
+	b. make_pkts now has a single default variable that receives an input for the error frame
+	c. Added receive Error event logic. If at any time a frame received has the event Error, return 'Error' to controller
+2. Added cleanup statements to ensure the complete frame elif statement doesn't enter that logic state from any previous frame
+	in error.
+3. Changed where self.pkts was being cleared, as this could adversely effect the handshaking.
