@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#Version 1.01
+
 import tx_rx_path
 import packetizer
 from gnuradio import gr
@@ -7,7 +9,7 @@ from gnuradio import gr
 class txrx_controller():
 
 	def __init__(self):
-		self.event_list = ['EW', 'IN', 'PR', 'TC']
+		self.event_list = ['NT', 'IN', 'PR', 'TC', 'ER']
 		self.bad_pkt_indices = list()
 		self.data = list()
 		self.data_temp = list()
@@ -27,8 +29,13 @@ class txrx_controller():
 		#Tested
 		#Untested: receiving packets to verify they are correct
 		home_path = '/home/charles/softwaredefinedradio/src/'
+		self.pkts = list()
 		self.data = ''
-		if data_source.count('/') > 0:
+		if data_source == 'Error':
+			make_pkts(self, error_event=True)
+			transmit_pkts(self)
+			return True
+		elif data_source.count('/') > 0:
 			fo = file(home_path + data_source, 'r')
 			data = fo.read()
 			fo.close()
@@ -64,7 +71,7 @@ class txrx_controller():
 					temp_event = self.data_temp[0]
 				if temp_event == '':
 					self.data_temp = list()
-					break
+					cleanup(self)
 				if temp_event == event_list[2]:
 					insert_missing_pkts(self)
 					if frame_check(self) is True:
@@ -73,18 +80,24 @@ class txrx_controller():
 				elif temp_event == event_list[1]:
 					self.bad_pkt_indices = self.data_temp[1].split(':')
 					handshaking_transmit(2)
-					self.data_temp = list()	
-				elif (self.data[0] == event_list[3] and temp_event == '') or temp_event == event_list[3]:
+					self.data_temp = list()
 					cleanup(self)
+				elif self.data[0] == event_list[3] or temp_event == event_list[3]:
+					cleanup(self)
+					self.pkts = list()
 					return True
 				elif self.data[0] == event_list[1]:
 					self.bad_pkt_indices = self.data[1].split(':')
 					handshaking_transmit(2)
 					self.data_temp = list()
+					cleanup(self)
 				elif self.data[0] == event_list[0] or self.data[0] == '':
 					if frame_check(self) is True:
 						self.data.pop(0)
 						return ''.join(self.data)
+				elif self.data[0] == event_list[4] or temp_event == event_list[4]:
+					cleanup(self)
+					return "Error"
 
 	def set_freq(self, new_freq, tx_rx=''):
 		#Tested
@@ -123,6 +136,7 @@ def frame_check(self):
 		bad_pkt_indexes(self)
 		handshaking_transmit(self, 1)
 		self.data_temp = list()
+		cleanup(self)
 		return False
 
 def insert_missing_pkts(self):
@@ -177,18 +191,22 @@ def slice_total_count_pkt_count_payload(self, temp):
 #				TRANSMITTER TOOLS				       #
 ########################################################################################
 
-def make_pkts(self):
+def make_pkts(self, error_event=False):
 	#Tested
-	total_pkts = len(self.data)/self.payload_length + 2
-	if len(self.data)%2 == 0:
-		total_pkts -= 1
-	self.pkts.append(packetizer.make_packet(self.event_list[0], '0', total_pkts))
-	for i in range(1, total_pkts):
-		payload = self.data[:self.payload_length]
-		self.data = self.data[self.payload_length:]
-		self.pkts.append(packetizer.make_packet(payload, i, total_pkts))
-	for i in range(len(self.pkts)):
-		self.pkts_temp.append(self.pkts[i])
+	if error_event is False:
+		total_pkts = len(self.data)/self.payload_length + 2
+		if len(self.data)%2 == 0:
+			total_pkts -= 1
+		self.pkts.append(packetizer.make_packet(self.event_list[0], '0', total_pkts))
+		for i in range(1, total_pkts):
+			payload = self.data[:self.payload_length]
+			self.data = self.data[self.payload_length:]
+			self.pkts.append(packetizer.make_packet(payload, i, total_pkts))
+		for i in range(len(self.pkts)):
+			self.pkts_temp.append(self.pkts[i])
+	else:
+		self.pkts.append(packetizer.make_packet(self.event_list[4], '0', 1))
+		self.pkts_temp.append(self.pkts[0])
 
 ########################################################################################
 #				COMMON TOOLS					       #
@@ -203,7 +221,6 @@ def transmit_pkts(self):
 def cleanup(self):
 	#No Testing needed
 	self.bad_pkt_indices = list()
-	self.pkts = list()
 	self.pkts_temp = list()
 	self.pkt_count = None
 	self.total_pkts = None
