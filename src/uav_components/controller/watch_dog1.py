@@ -1,25 +1,24 @@
 #!/usr/bin/env python
 
 import os, time, ctypes
-from controls import *
 from deamon import *
-from txrx_controller import *
 
-class uav_controller(Deamon):
+class watch_dog1(Deamon):
 	def run(self):
-		#set priority
-		os.system("renice 0 %d" % os.getpid())
 		libc = ctypes.CDLL('libc.so.6')
-		libc.prctl(15, 'UAV Controller', 0, 0, 0)
-		self.trans = txrx_controller()
-		self.controls = controls()
-		
-		#This is the main controller section of code
+		libc.prctl(15, 'Watch_Dog_1', 0, 0, 0)
 		while True:
+			time.sleep(10)
 			
+			if not os.path.exists('/tmp/uav_controller.pid'):
+				os.system('python /home/michael/softwaredefinedradio/src/uav_controller/controller/uav_controller.py start')
+			
+			if not os.path.exists('/tmp/watch_dog_2.pid'):
+				os.system('python /home/michael/softwaredefinedradio/src/uav_controller/controller/watch_dog2.py start')
+
 
 if __name__ == '__main__':
-	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
+	daemon = uav_controller('/uav/daemon_pids/watch_dog_1.pid')
 	if len(sys.argv) == 2:
 		if 'start' == sys.argv[1]:
 			daemon.start()
