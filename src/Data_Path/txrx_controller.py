@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#Version 1.01
+#Version 1.02
 
 import tx_rx_path
 import packetizer
@@ -76,7 +76,7 @@ class txrx_controller():
 					insert_missing_pkts(self)
 					if frame_check(self) is True:
 						self.data.pop(0)
-						return ''.join(self.data)
+						print ''.join(self.data)
 				elif temp_event == event_list[1]:
 					self.bad_pkt_indices = self.data_temp[1].split(':')
 					handshaking_transmit(2)
@@ -85,7 +85,7 @@ class txrx_controller():
 				elif self.data[0] == event_list[3] or temp_event == event_list[3]:
 					cleanup(self)
 					self.pkts = list()
-					return True
+					print True
 				elif self.data[0] == event_list[1]:
 					self.bad_pkt_indices = self.data[1].split(':')
 					handshaking_transmit(2)
@@ -94,10 +94,10 @@ class txrx_controller():
 				elif self.data[0] == event_list[0] or self.data[0] == '':
 					if frame_check(self) is True:
 						self.data.pop(0)
-						return ''.join(self.data)
+						print ''.join(self.data)
 				elif self.data[0] == event_list[4] or temp_event == event_list[4]:
 					cleanup(self)
-					return "Error"
+					print "Error"
 
 	def set_freq(self, new_freq, tx_rx=''):
 		#Tested

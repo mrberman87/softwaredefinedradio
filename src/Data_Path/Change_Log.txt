@@ -1,3 +1,7 @@
+Change from version 1.01 to 1.02 txrx_controller.py
+1. Changed all data/complete transmission returns that would hold up overall controller to print statements for
+	using pipes instead of blocking returns.
+
 Change from version 1.0 to 1.01 txrx_controller.py
 1. Added Error event logic in the event one of the scripts fail and an error must be sent.
 	a. For outside transmitter, added in option to receive 'Error' so the transmitter can send a frame event Error down
