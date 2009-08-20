@@ -38,36 +38,9 @@ class controls:
 		except OSError:
 			return True
 	
-	def exec_command(self):
-		"""
-		Commands to be run are as follows:
-			"picture" -> sends down an image
-			"fft" -> sends down an FFT
-			"misc data" -> sends down GPS, Temp. and Batt level
-			"settings" + '\n' + "<frequency>" + '\n' + "<modulation scheme>"
-					+ '\n' + "<timeout time>"
-				-> This will change the frequency, modulation
-				   scheme and timeout time as defined in the sent
-				   message.  If a setting is not clear, or cannot be
-				   acheived, then that setting will not be modified
-			If the sent file's first line doesnt contain one of these
-			commands, then the UAV will default to executing the 
-			"misc_data" command.
-		"""
-		_file = open(self.f_name_rx, 'rw')
-		command = _file.readline().strip('\n').strip()
-		_file.seek(0)
-		_file.write("")
-		_file.close()
-		self.last_mod = time.localtime(os.path.getmtime(self.f_name_rx))
-		
-		print "Received Command: " + command + '\n'
-		
+	def exec_command(self, command):
 		if(command == "settings"):
 			self.log("Changing Settings")
-			print "changing settings...\n"
-			self.last_mod = time.localtime()
-			return False
 			_file = open(self.f_name_rx, 'r')
 			_file.readline()
 			tmp_freq = int(_file.readline().strip('\n').strip())
@@ -75,53 +48,42 @@ class controls:
 			_file.close()
 			self.last_mod = time.localtime(os.path.getmtime(self.f_name_rx))
 			if chk_settings(tmp_freq, tmp_mod_sch, tmp_timeout_t):
+				self.log("Changing Settings: Freq = %d, Timeout Time = %d" % (tmp_freq, tmp_timeout_t))
 				self.err_data = 0
-				self.log("Changing Settings: Freq = %d, Mod Scheme = %s, Timeout Time = %d" % (tmp_freq, tmp_mod_sch, tmp_timeout_t))
 				return False
 		elif(command == "picture"):
 			self.log("Taking Picture")
-			print "taking picture...\n"
-			self.last_mod = time.localtime()
-			return True
 			os.system("uvccapture -q100 -o%s%s" % (os.getcwd(), "/pic.jpg"))
-			self.f_name_tx = "pic.jpg"
+			self.f_name_tx = "%spic.jpg" % os.getcwd()
 			self.err_data = 0
 			return True
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
-			print "getting fft data...\n"
-			self.last_mod = time.localtime()
-			return True
 			spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
-			self.f_name_tx = "fft.dat"
+			self.f_name_tx = "%sfft.dat" % os.getcwd()
 			self.err_data = 0
 			return True
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
-			os.system("cat batt.dat temp.dat gps.dat > misc.dat")
-			print "getting telemetery data...\n"
-			self.last_mod = time.localtime()
-			return True
 			gps_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_gps.py')
 			temp_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_temp.py')
 			batt_pid = spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_batt.py')
 			while(pid_exists(temp_pid) or pid_exists(batt_pid) or pid_exists(gps_pid)):
 				pass
 			os.system("cat batt.dat temp.dat gps.dat > misc.dat")
-			self.f_name_tx = "misc.dat"
+			self.f_name_tx = "%smisc.dat" % os.getcwd()
 			self.err_data = 0
 			return True
 		
 		self.log("Received Erroneous Command!!! => (" + command + ")")
 		fd = open("misc.dat", 'w')
-		fd.write("erroneous command")
+		fd.write("Received Erroneous Command!!! => (" + command + ")")
 		fd.close()
-		self.f_name_tx = "misc.dat"
+		self.f_name_tx = "%smisc.dat" % os.getcwd()
 		self.err_data += 1
 		if(self.err_data > 3):
 			self.err_data = 0
 			self.go_home()
-		print "letting ground know of error getting command...\n"
 		return True
 	
 	def chk_settings(self, f, m, t):
@@ -134,17 +96,6 @@ class controls:
 		fd.write(str(time.ctime(time.time())) + "     " + string + '\n')
 		fd.close()
 	
-	def update_rx_opts(self):
-		self.rx_opts = ['python', self.rx_mod_name,]
-		self.rx_opts.append("--freq=%d" % (self.freq + self.freq_offset))
-		self.rx_opts.append('--file=%s' % self.f_name_rx)
-	
-	def update_tx_opts(self):
-		self.tx_opts = ['python', self.tx_mod_name, '--freq']
-		self.tx_opts.append(self.freq + self.freq_offset)
-		self.tx_opts.append('--file')
-		self.tx_opts.append(self.f_name_tx)
-	
 	def init_vars(self):
 		#Initialize variables that define the "Go Home" state
 		self.go_home()
@@ -155,11 +106,11 @@ class controls:
 		#Transceiver Variation
 		self.freq_offset = 0
 		
+		#file name of what is going to be sent to the ground
+		self.f_name_tx = ''
+		
 		#keep track of received erroneous data
 		self.err_data = 0
-		
-		#Receive File modification Time
-		self.last_mod = time.localtime(os.path.getmtime(self.f_name_rx))
 		
 	def go_home(self):
 		print "going home...\n"
