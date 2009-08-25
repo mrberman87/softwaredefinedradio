@@ -15,7 +15,7 @@ class controls:
 		return False
 	
 	def run_to_module(self):
-		return os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", "%d" % self.timeout_t)
+		self.to_pid = os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', self.to_mod_name, "-t", "%d" % self.timeout_t)
 	
 	def pid_exists(self, pid):
 		try:
@@ -111,6 +111,9 @@ class controls:
 		
 		#keep track of received erroneous data
 		self.err_data = 0
+		
+		#keep track of the timeout module's pid
+		self.to_pid = 0
 		
 	def go_home(self):
 		print "going home...\n"
