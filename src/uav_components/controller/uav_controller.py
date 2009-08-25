@@ -13,10 +13,16 @@ class uav_controller(Deamon):
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
 		self.trans = txrx_controller()
 		self.controls = controls()
+		tmp = False
 		
 		#This is the main controller section of code
 		while True:
+			while tmp is False:
+				
 			
+			if controls.exec_command(self.command):
+				self.trans.transmit(controls.f_name_tx)
+				self.trans.receive()
 
 if __name__ == '__main__':
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')

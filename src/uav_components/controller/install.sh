@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+#This install should be ran with sudo
+#This will set up everything for the UAV
+#
 
 mkdir /uav
 mkdir /uav/daemon_pids
