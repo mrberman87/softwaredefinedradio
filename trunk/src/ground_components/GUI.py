@@ -12,7 +12,7 @@ class View(wx.Frame):
 		self.controller = controller
 		#main panel, where everything else lays on
 		panel = wx.Panel(self,-1) 
-		panel.SetBackgroundColour("Green")
+		panel.SetBackgroundColour("Black")
 		
 		#left panel (command and data viewers go here)
 		leftPanel = self.makeLeftPanel(parent = panel)
@@ -68,7 +68,7 @@ class View(wx.Frame):
 		used to communicate with the UAV as well as the Commands waiting
 		to be executed."""
 		param_data_panel = wx.Panel(parent,-1)
-		param_data_panel.SetBackgroundColour("Purple")
+		param_data_panel.SetBackgroundColour("Gray")
 		param_border = wx.StaticBox(param_data_panel, -1, 'Parameter Update')
 		param_sizer = wx.StaticBoxSizer(param_border,orient=wx.HORIZONTAL)
 		param_grid = self.makeParamGrid(parent = param_data_panel)
@@ -93,7 +93,7 @@ class View(wx.Frame):
 		"""CmdPanel in the upper left corner that has buttons for UAV
 		controls as well as the Raw Data Viewer"""
 		cmd_panel =wx.Panel(parent,-1)
-		cmd_panel.SetBackgroundColour("Orange")
+		cmd_panel.SetBackgroundColour("Gray")
 		uav_grid = self.makeUAVGrid(cmd_panel)
 		
 		uav_border = wx.StaticBox(cmd_panel, -1, 'UAV Commands')
@@ -115,14 +115,14 @@ class View(wx.Frame):
 	def makeFFTPanel(self, parent):
 		"""panel where FFT will reside"""
 		fft_panel = wx.Panel(parent,-1)
-		fft_panel.SetBackgroundColour("Yellow")
+		fft_panel.SetBackgroundColour("Gray")
 		return fft_panel
 		
 	
 	def makeRightPanel(self, parent):
 	 	"""right panel holds the image, and current data viewer"""
 		rightPanel = wx.Panel(parent,-1)
-		rightPanel.SetBackgroundColour("Blue")
+		rightPanel.SetBackgroundColour("Gray")
 		img_border = wx.StaticBox(rightPanel, -1, 'Image Viewer')
 		sizer2 = wx.StaticBoxSizer(img_border, orient=wx.VERTICAL)
 		
@@ -160,7 +160,7 @@ class View(wx.Frame):
 	def makeLeftPanel(self, parent):
 		"""Left panel contains all the control elements in the GUI."""
 		leftPanel = wx.Panel(parent,-1)
-		leftPanel.SetBackgroundColour("Red")		
+		leftPanel.SetBackgroundColour("Gray")		
 		cmd_panel = self.makeCmdPanel(parent = parent)
 		param_data_panel = self.makeParamDataPanel(parent = parent)
 		fft_panel = self.makeFFTPanel(parent = parent)
