@@ -56,32 +56,43 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		return cmd
 
 
-	"""Worker methods: These methods send and recieve data from the
-	transeiver. They are I/O bound, which is why it is necessary to run them
-	in a separate thread to keep the application responsive."""
 	def run(self):
+		"""This method is called when the thread is started. It executes
+		commands in the command queue when there are items in it. If there
+		are no items in the queue, this thread sleeps, until notified of a
+		change in the queue."""
 		while True:
-			self.pendingRequest.wait()	#sleep until a command is req
+			self.pendingRequest.wait()	#sleep until a command is requested
 			self.pendingRequest.clear()
+			
 			cmd = self.getNextCommand()
-			if cmd == 'GPS':
+
+			if cmd.startswith('GPS'):
 				self.getGPS()
-			elif cmd == 'Image':
+			elif cmd.startswith('Image'):
 				self.getImage()
-			elif cmd == 'FFT': pass
+			elif cmd.startswith('FFT'): pass
+			elif cmd.startswith('Batt'): pass
+			elif cmd.startswith('Temp'): pass
+			elif cmd.startswith('Freq'):
+				freq = cmd.split(' ')[1] #string after the space is the freq.
+				self.changeFrequency(freq)
 			else: pass
 			
 			#receive the data
+
+
+
+	"""Worker methods: These methods send and recieve data from the
+	transeiver. They are I/O bound, which is why it is necessary to run them
+	in a separate thread to keep the application responsive."""
 
 	def getImage(self):
 		self.tsvr.send(data = 'Image')
 		filename = self.tsvr.receive()
 		self.update()
 	
-	def changeModScheme(self, mod):
-		self.modulation = mod
-		self.update()
-	
+
 	def getGPS(self):
 		self.tsvr.send(data = 'GPS')
 		#recieve returns the name of the file it recieved
@@ -90,4 +101,13 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.gps = GPS_packet(f.readline())
 		self.update()
 
+	def changeModScheme(self, mod):
+		self.modulation = mod
+		self.update()
 
+	def changeFrequency(self, newFreq):
+		'''will need to send command to UAV, wait for confirmation,
+		then save the new frequency in the model.'''
+		self.freq = newFreq
+		self.update()
+	

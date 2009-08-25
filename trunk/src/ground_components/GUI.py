@@ -39,12 +39,18 @@ class View(wx.Frame):
 		"""parameter grid provides controls to the user to change
 		Frequency, Modulation scheme, and timeout length"""
 		param_grid= wx.GridSizer(3,2,2,2)
+
 		param_grid.Add(wx.StaticText(parent,-1,'New Frequency'),wx.RIGHT,20)
-		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
+		freqTxt = wx.TextCtrl(parent,-1,name = 'freqEnter',
+								style = wx.TE_PROCESS_ENTER)
+		self.Bind(wx.EVT_TEXT_ENTER, self.controller.onFreqSelect, freqTxt)
+		param_grid.Add(freqTxt,wx.EXPAND|wx.ALL,20)
+
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
 		self.modChoices = wx.Choice(parent,-1,choices=['BPSK'])
 		self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, self.modChoices)
 		param_grid.Add(self.modChoices, wx.EXPAND|wx.ALL,20)
+
 		param_grid.Add(wx.StaticText(parent,-1,'New Timeout'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
 		return param_grid
@@ -195,7 +201,8 @@ class Controller(wx.App):
 		#add listeners to model that are responsible for updating the view
 		listeners = [self.imageListener, self.modSchemeListener,
 					self.gpsListener, self.sensorListener,
-					self.sensorListener, self.queueListener]
+					self.sensorListener, self.queueListener,
+					self.frequencyListener]
 		for l in listeners:
 			self.model.addListener(l)
 		
@@ -207,9 +214,12 @@ class Controller(wx.App):
 		self.model.changeModScheme(newMod)
 		self.model.update()
 		
-	def onSettingsChange(self, event): pass
-	
-	def onTimeOut(self, event): pass
+	def onFreqSelect(self, event):
+		text = self.view.FindWindowByName('freqEnter')
+		freq = text.GetValue()
+		self.model.addToQueue('Freq ' + freq)
+
+	def onTimeOutSelect(self, event): pass
 	
 	def onButton(self, event):
 		"""Find out which button was clicked, and add to the command queue
@@ -236,7 +246,9 @@ class Controller(wx.App):
 		pass
 				
 	def frequencyListener(self):
-		pass
+		"""updatate frequency data in the view"""
+		freq_txt = self.view.FindWindowByName('freqTextBox')
+		freq_txt.SetValue(self.model.freq)
 		
 	def modSchemeListener(self):
 		"""Set the text box for modulation scheme to the same value as the
