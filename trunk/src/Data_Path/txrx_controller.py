@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#Version 1.02
+#Version 1.03
 
 import tx_rx_path
 import packetizer
@@ -56,51 +56,64 @@ class txrx_controller():
 		self.data_temp = list()
 		temp_event = ''
 		while True:
-			#Untested: msgq retrieval
 			if self.txrx_path.msg_queue_out.empty_p() is False:
+				#Tested: w/ USRP
 				msgq_in(self)
 				while len(self.data_temp) < self.pkt_count:
 					self.data_temp.append('')
 				self.data_temp.append(self.payload)
 			elif len(self.data_temp) == self.total_pkts:
-				#Tested: copy procedure
+				#Completed Frame, minimum rcvd last packet 1st time
 				if len(self.data) == 0:
+					#Tested
 					for i in range(len(self.data_temp)):
 						self.data.append(self.data_temp.pop(0))
+				#Completed 2nd + Frame, retrieving event
 				else:
+					#Untested: w/ USRP
 					temp_event = self.data_temp[0]
-				if temp_event == '':
-					self.data_temp = list()
-					cleanup(self)
-				if temp_event == event_list[2]:
+					if temp_event == '':
+						self.data_temp = list()
+				#2nd + rcvd Packet Resend
+				if temp_event == self.event_list[2]:
+					#Untested: w/ USRP
 					insert_missing_pkts(self)
 					if frame_check(self) is True:
 						self.data.pop(0)
 						print ''.join(self.data)
-				elif temp_event == event_list[1]:
+				#2nd + rcvd Incomplete Transmission
+				elif temp_event == self.event_list[1]:
+					#Untested: w/ USRP
 					self.bad_pkt_indices = self.data_temp[1].split(':')
 					handshaking_transmit(2)
 					self.data_temp = list()
 					cleanup(self)
-				elif self.data[0] == event_list[3] or temp_event == event_list[3]:
+				#Any, rcvd Transmission Complete
+				elif self.data[0] == self.event_list[3] or temp_event == self.event_list[3]:
+					#Untested: w/ USRP
 					cleanup(self)
 					self.pkts = list()
 					print True
-				elif self.data[0] == event_list[1]:
+				#1st, rcvd Incomplete Transmission
+				elif self.data[0] == self.event_list[1]:
+					#Untested: w/ USRP
 					self.bad_pkt_indices = self.data[1].split(':')
 					handshaking_transmit(2)
 					self.data_temp = list()
 					cleanup(self)
-				elif self.data[0] == event_list[0] or self.data[0] == '':
+				#1st, rcvd New Transmission or don't know Event
+				elif self.data[0] == self.event_list[0] or self.data[0] == '':
+					#Tested
 					if frame_check(self) is True:
 						self.data.pop(0)
 						print ''.join(self.data)
-				elif self.data[0] == event_list[4] or temp_event == event_list[4]:
+				#Any, rcvd Error event
+				elif self.data[0] == self.event_list[4] or temp_event == self.event_list[4]:
 					cleanup(self)
 					print "Error"
 
 	def set_freq(self, new_freq, tx_rx=''):
-		#Tested
+		#Tested: w/ USRP
 		if tx_rx == 'tx':
 			self.txrx_path.usrp_simple_sink_x_0.set_frequency(new_freq, verbose=True)
 		elif tx_rx == 'rx':
@@ -128,6 +141,7 @@ class txrx_controller():
 ########################################################################################
 
 def frame_check(self):
+	#Tested: w/ USRP
 	if self.data.count('') == 0:
 		handshaking_transmit(self, 3)
 		cleanup(self)
@@ -140,24 +154,27 @@ def frame_check(self):
 		return False
 
 def insert_missing_pkts(self):
-	#Tested
+	#Tested: theoretical
+	#Untested: w/ USRP
 	for i in range(1, len(self.data_temp)):
 		slice_total_count_pkt_count_payload(self.data_temp.pop(1))
 		self.data.pop(self.pkt_count)
 		self.data.insert(self.pkt_count, self.payload)			
 
 def msgq_in(self):
-	#Untested: msgq retrieval
+	#Tested: w/ USRP
 	temp = ''
 	temp = self.txrx_path.msg_queue_out.delete_head_nowait().to_string()
 	slice_total_count_pkt_count_payload(temp)
 
 def handshaking_transmit(self, event_index):
+	#Untested: w/ USRP
 	handshaking_make_pkts(event_index)
 	transmit_pkts(self)
 
 def handshaking_make_pkts(self, event_index):
-	#Tested
+	#Tested: theoretical
+	#Untested: /w USRP
 	if event_index == 1: #Transmitting Incomplete Transmission w/ 2nd packet having missing pkt numbers
 		self.pkts_temp.append(packetizer.make_packet(self.event_list[event_index], 0, 2))
 		self.pkts_temp.append(packetizer.make_packet(':'.join(self.bad_pkt_indices), 1, 2))
@@ -172,6 +189,7 @@ def handshaking_make_pkts(self, event_index):
 
 def bad_pkt_indexes(self):
 	#Tested
+	#Untested: /w USRP
 	self.bad_pkt_indices = list()
 	index = 0
 	n_index = 0
@@ -181,7 +199,7 @@ def bad_pkt_indexes(self):
 		n_index = index + 1
 
 def slice_total_count_pkt_count_payload(self, temp):
-	#Tested
+	#Tested: w/ USRP
 	self.total_pkts = int(temp[:temp.index(":")])
 	temp = temp[temp.index(":") + 1:]
 	self.pkt_count = int(temp[:temp.index(":")])
@@ -192,10 +210,10 @@ def slice_total_count_pkt_count_payload(self, temp):
 ########################################################################################
 
 def make_pkts(self, error_event=False):
-	#Tested
+	#Tested: w/ USRP
 	if error_event is False:
 		total_pkts = len(self.data)/self.payload_length + 2
-		if len(self.data)%2 == 0:
+		if len(self.data)/self.payload_length == 0:
 			total_pkts -= 1
 		self.pkts.append(packetizer.make_packet(self.event_list[0], '0', total_pkts))
 		for i in range(1, total_pkts):
@@ -212,11 +230,11 @@ def make_pkts(self, error_event=False):
 #				COMMON TOOLS					       #
 ########################################################################################
 def transmit_pkts(self):
-	#Tested: Loop length correct
-	#Untested: msgq insert
+	#Tested: w/ USRP
 	for i in range(len(self.pkts_temp)):
 		msg = gr.message_from_string(self.pkts_temp.pop(0))
 		self.txrx_path.msg_queue_in.insert_tail(msg)
+	return True
 
 def cleanup(self):
 	#No Testing needed
