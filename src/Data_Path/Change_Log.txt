@@ -1,8 +1,17 @@
-Change from version 1.01 to 1.02 txrx_controller.py
+#1.02 to 1.03 txrx_controller.py
+1. Fixed event_list[#] to self.event_list[#] in receive method.
+2. Added Queue padding for the transmit_pkts() method because the last packets were not being sent.
+3. Changed logic on if statement for total number of packets in make_pkts() to account for a length of 
+	data exactly equal to a multiple of the payload length.
+4. Changed logic when received 2nd frame or later and event is unknown.
+5. Added comments in receive() to help with debugging of handshaking.
+6. Added comments throughout controller to denote what has, and hasn't been tested with the USRP.
+
+#1.01 to 1.02 txrx_controller.py
 1. Changed all data/complete transmission returns that would hold up overall controller to print statements for
 	using pipes instead of blocking returns.
 
-Change from version 1.0 to 1.01 txrx_controller.py
+#1.0 to 1.01 txrx_controller.py
 1. Added Error event logic in the event one of the scripts fail and an error must be sent.
 	a. For outside transmitter, added in option to receive 'Error' so the transmitter can send a frame event Error down
 	b. make_pkts now has a single default variable that receives an input for the error frame
