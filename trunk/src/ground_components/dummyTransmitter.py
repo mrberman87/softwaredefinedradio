@@ -15,7 +15,7 @@ class dummyTransmitter():
 	def send(self, filename):
 		"""open the specified filename and send the data inside"""
 		"""will pause for a period to send data"""
-		time.sleep(3)
+		time.sleep(1)
 		return True
 	def send(self, data):
 		"""simulate sending string data"""
@@ -26,6 +26,6 @@ class dummyTransmitter():
 	def receive(self):
 		"""simulate waiting for and recieving a file, then return
 		the filename"""
-		time.sleep(10)
+		time.sleep(3)
 	
 		return self.data + ".txt"
