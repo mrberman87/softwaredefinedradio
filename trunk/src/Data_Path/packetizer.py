@@ -53,7 +53,7 @@ default_access_code = \
 preamble = \
   conv_packed_binary_string_to_1_0_string('\xA4\xF2')
 syncer = \
-  conv_packed_binary_string_to_1_0_string(10 * '\x55')
+  conv_packed_binary_string_to_1_0_string('\x55\x55')
 
 def is_1_0_string(s):
     if not isinstance(s, str):

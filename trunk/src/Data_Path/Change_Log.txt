@@ -1,3 +1,14 @@
+#1.03 to 1.04 txrx_controller.py
+1. Too much has changed to record. A lot of handshaking has been redone.
+	The way the handshaking takes place is similar to before, but
+	a lot of the hard coding for the long payload length had to be
+	generalized to a smaller payload length due to packet length
+	considerations. Also, the controller no longer saves the initial
+	packets that were sent in the first transmission, the reason for
+	this is because the payload is set and the original transmission
+	will always have a different total number of packets than the
+	new frame packet resend which will be smaller. For this reason, 
+	payloads are stored and not packets. 
 #1.02 to 1.03 txrx_controller.py
 1. Fixed event_list[#] to self.event_list[#] in receive method.
 2. Added Queue padding for the transmit_pkts() method because the last packets were not being sent.
