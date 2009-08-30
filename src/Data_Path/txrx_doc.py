@@ -4,7 +4,8 @@
 ########################################################################################
 
 
-
+#Out of Date. Must revise with current txrx_controller.py due to large changes to basic
+#handshaking functionality and new changes implemented.
 
 import tx_rx_path
 import packetizer
