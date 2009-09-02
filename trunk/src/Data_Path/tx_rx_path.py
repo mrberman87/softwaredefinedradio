@@ -51,19 +51,15 @@ class tx_rx_path(gr.top_block):
 		self.gr_message_sink_0 = gr.message_sink(gr.sizeof_char*1, self.msg_queue_out, False)
 		self.gr_message_source_0 = gr.message_source(gr.sizeof_char*1)
 		self.msg_queue_in = self.gr_message_source_0.msgq()
-		self.low_pass_filter_0 = gr.fir_filter_ccf(1, firdes.low_pass(
-			1, 256e3, 24.5e3, 500, firdes.WIN_HANN, 1.5))
-		self.low_pass_filter_0_0 = gr.fir_filter_ccf(1, firdes.low_pass(
-			1, 256e3, 24.5e3, 500, firdes.WIN_HANN, 1.5))
 		self.usrp_simple_sink_x_0 = grc_usrp.simple_sink_c(which=0, side="A")
 		self.usrp_simple_sink_x_0.set_interp_rate(500)
-		self.usrp_simple_sink_x_0.set_frequency(450e6, verbose=True)
+		self.usrp_simple_sink_x_0.set_frequency(440e6, verbose=True)
 		self.usrp_simple_sink_x_0.set_gain(0)
 		self.usrp_simple_sink_x_0.set_enable(True)
 		self.usrp_simple_sink_x_0.set_auto_tr(True)
 		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side="A", rx_ant="RX2")
 		self.usrp_simple_source_x_0.set_decim_rate(250)
-		self.usrp_simple_source_x_0.set_frequency(450.05e6, verbose=True)
+		self.usrp_simple_source_x_0.set_frequency(440.05e6, verbose=True)
 		self.usrp_simple_source_x_0.set_gain(20)
 
 		##################################################
@@ -71,9 +67,7 @@ class tx_rx_path(gr.top_block):
 		##################################################
 		self.connect((self.gr_message_source_0, 0), (self.blks2_dxpsk_mod_0, 0))
 		self.connect((self.blks2_dxpsk_mod_0, 0), (self.gr_multiply_const_vxx_0, 0))
-		self.connect((self.low_pass_filter_0, 0), (self.usrp_simple_sink_x_0, 0))
-		self.connect((self.gr_multiply_const_vxx_0, 0), (self.low_pass_filter_0, 0))
-		self.connect((self.usrp_simple_source_x_0, 0), (self.low_pass_filter_0_0, 0))
-		self.connect((self.low_pass_filter_0_0, 0), (self.blks2_dxpsk_demod_0, 0))
+		self.connect((self.gr_multiply_const_vxx_0, 0), (self.usrp_simple_sink_x_0, 0))
+		self.connect((self.usrp_simple_source_x_0, 0), (self.blks2_dxpsk_demod_0, 0))
 		self.connect((self.blks2_dxpsk_demod_0, 0), (self.blks2_packet_decoder_0, 0))
 		self.connect((self.blks2_packet_decoder_0, 0), (self.gr_message_sink_0, 0))
