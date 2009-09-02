@@ -41,20 +41,32 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	def addToQueue(self, cmd):
 		self.cmd_qLock.acquire()
 		self.cmd_list.append(cmd)
-		self.update()
 		self.cmd_qLock.release()
+		self.update()
 		self.pendingRequest.set()
 
 	def getNextCommand(self):
+		cmd = ''
 		self.cmd_qLock.acquire()
 		if len(self.cmd_list) > 0:
-			cmd = self.cmd_list.pop(0)
-			self.update()
+			cmd = self.cmd_list[0]
+			self.cmd_list[0]+=' (Pending)'
+		self.cmd_qLock.release()
+		self.update()
 		if len(self.cmd_list) > 0:
 			self.pendingRequest.set()
-		self.cmd_qLock.release()
 		return cmd
-
+	
+	def removeCompletedCommand(self):
+		"""Remove the first item in command queue to convey that it
+			has been completed"""
+		self.cmd_qLock.acquire()
+		if len(self.cmd_list) > 0:
+			self.cmd_list.pop(0)
+		if len (self.cmd_list) == 0:
+			self.pendingRequest.clear()
+		self.cmd_qLock.release()
+		self.update()
 
 	def run(self):
 		"""This method is called when the thread is started. It executes
@@ -63,10 +75,10 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		change in the queue."""
 		while True:
 			self.pendingRequest.wait()	#sleep until a command is requested
-			self.pendingRequest.clear()
-			
+
 			cmd = self.getNextCommand()
 
+			#figure out which command has been requested
 			if cmd.startswith('GPS'):
 				self.getGPS()
 			elif cmd.startswith('Image'):
@@ -78,6 +90,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				freq = cmd.split(' ')[1] #string after the space is the freq.
 				self.changeFrequency(freq)
 			else: pass
+			
+			self.removeCompletedCommand()
 			
 			#receive the data
 
@@ -99,6 +113,13 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		fname = self.tsvr.receive()
 		f = open(fname)
 		self.gps = GPS_packet(f.readline())
+		self.update()
+
+	def getBatt(self):
+		self.tsvr.send(data = 'sensors')
+		fname =self.tsvr.receive()
+		f = open(fname)
+		self.batt = f.readline()
 		self.update()
 
 	def changeModScheme(self, mod):
