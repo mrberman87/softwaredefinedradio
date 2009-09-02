@@ -1,3 +1,8 @@
+#1.04 to 1.05 txrx_controller.py
+1. Added updated documentation into txrx_doc.py
+2. Updated txrx_controller.py with collated information from lab testing.
+3. Version is ready for system integration testing.
+
 #1.03 to 1.04 txrx_controller.py
 1. Too much has changed to record. A lot of handshaking has been redone.
 	The way the handshaking takes place is similar to before, but
