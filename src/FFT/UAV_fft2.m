@@ -1,11 +1,11 @@
 function UAV_fft2
 
-  data = read_complex_binary("~/softwaredefinedradio/src/FFT/RC.dat", 1024);
+  data = read_complex_binary("/uav/RC.dat", 1024);
   #kp = fopen("~/Desktop/data.txt", "wb");
   #kp_1 = fwrite(kp, data, "float");
   #fclose(kp);
   plotfft(data,256e3)
-  print("~/Desktop/FFT_image.jpeg")
+  print("/UAV/fft_image.jpeg")
 
 endfunction
 
