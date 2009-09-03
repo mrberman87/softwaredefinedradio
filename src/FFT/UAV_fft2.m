@@ -1,6 +1,6 @@
-function UAV_fft2 (filename, count, sample_rate)
+function UAV_fft2
 
-  data = read_complex_binary(filename, count);
+  data = read_complex_binary("~/softwaredefinedradio/src/FFT/RC.dat", 1024);
   #kp = fopen("~/Desktop/data.txt", "wb");
   #kp_1 = fwrite(kp, data, "float");
   #fclose(kp);
