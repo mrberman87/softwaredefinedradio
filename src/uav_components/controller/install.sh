@@ -23,5 +23,5 @@ cp ~/softwaredefinedradio/src/Data_Path/txrx_controller.py /uav/txrx_controller.
 cp ~/softwaredefinedradio/src/FFT/FFT_data_aq.py /uav/FFT_data_aq.py
 cp ~/softwaredefinedradio/src/FFT/get_fft.py /uav/get_fft.py
 cp ~/softwaredefinedradio/src/FFT/UAV_fft2.m /uav/UAV_fft2.m
-mv /etc/rc.local /etc/rc.local.old
-cp ~/softwaredefinedradio/src/uav_components/rc.local.txt /etc/rc.local
+#mv /etc/rc.local /etc/rc.local.old
+#cp ~/softwaredefinedradio/src/uav_components/rc.local.txt /etc/rc.local

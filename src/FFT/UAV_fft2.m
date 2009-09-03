@@ -5,7 +5,7 @@ function UAV_fft2
   #kp_1 = fwrite(kp, data, "float");
   #fclose(kp);
   plotfft(data,256e3)
-  print("/UAV/fft_image.jpeg")
+  print("/uav/fft_image.jpeg")
 
 endfunction
 

@@ -14,13 +14,22 @@ class uav_controller(Deamon):
 		self.init_vars()
 		self.init_files()
 		self.trans = txrx_controller()
-		tmp = False
+		rx = True
 		
 		#This is the main controller section of code
 		while True:
-			self.trans.receive()
+			if rx:
+				self.trans.receive()
+			
 			if self.exec_commands(self.get_rx_command()):
-				self.trans.transmit(self.f_name_tx)
+				tx_receive = self.trans.transmit(self.f_name_tx)
+			
+			if tx_receive == 'Error':
+				
+			elif tx_receive == 'Timeout':
+				
+			elif tx_receive == 'Handshaking maximum reached.':
+				
 	
 	def exec_command(self, command):
 		if(command == "settings"):
@@ -33,19 +42,18 @@ class uav_controller(Deamon):
 			self.last_mod = time.localtime(os.path.getmtime(self.f_name_rx))
 			if chk_settings(tmp_freq, tmp_mod_sch, tmp_timeout_t):
 				self.log("Changing Settings: Freq = %d, Timeout Time = %d" % (tmp_freq, tmp_timeout_t))
-				self.err_data = 0
+				self.trans.set_freq(tmp_freq, 'tx')
+				self.trans.set_freq(tmp_freq, 'rx')
 				return False
 		elif(command == "picture"):
 			self.log("Taking Picture")
-			os.system("uvccapture -q100 -o%s%s" % (os.getcwd(), "/pic.jpg"))
-			self.f_name_tx = "%spic.jpg" % os.getcwd()
-			self.err_data = 0
+			os.system("uvccapture -q100 -o/uav/pic.jpg")
+			self.f_name_tx = "/uav/pic.jpg"
 			return True
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
 			spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
-			self.f_name_tx = "%sfft.jpg" % os.getcwd()
-			self.err_data = 0
+			self.f_name_tx = "/uav/fft_image.jpeg"
 			return True
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
@@ -55,25 +63,9 @@ class uav_controller(Deamon):
 			while(pid_exists(temp_pid) or pid_exists(batt_pid) or pid_exists(gps_pid)):
 				pass
 			os.system("cat batt.dat temp.dat gps.dat > misc.dat")
-			self.f_name_tx = "%smisc.dat" % os.getcwd()
-			self.err_data = 0
+			self.f_name_tx = "/uav/misc.dat"
 			return True
-		
-		self.log("Received Erroneous Command!!! => (" + command + ")")
-		fd = open("misc.dat", 'w')
-		fd.write("Received Erroneous Command!!! => (" + command + ")")
-		fd.close()
-		self.f_name_tx = "%smisc.dat" % os.getcwd()
-		self.err_data += 1
-		if(self.err_data > 3):
-			self.err_data = 0
-			#set go home state...
-			self.log("Going to Home state")
-			self.freq = 440000000
-			self.timeout_t = 60000
-			self.trans.set_freq(self.freq, 'tx|rx')
-			self.trans.set_timeout(self.timeout_t)
-		return True
+		return False
 	
 	def chk_settings(self, f, m, t):
 		if((f > 400000000 and f < 500000000) and (t > 10 and t < 100)):
@@ -100,36 +92,23 @@ class uav_controller(Deamon):
 		except OSError:
 			return True
 	
-	def get_rx_command(self):
-		fd = open(self.f_name_rx, 'rw')
-		tmp = fd.readline().strip()
-		fd.seek(0)
-		fd.write('')
-		fd.close()
-	
 	def log(self, string):
 		fd = open("log.dat", "a")
 		fd.write(str(time.ctime(time.time())) + "     " + string + '\n')
 		fd.close()
 	
 	def init_vars(self):
-		#Transceiver Frequency
-		self.freq = 440000000
-		
-		#Set timeout
-		self.timeout_t = 60000
-		
-		#Transceiver Variation
-		self.freq_offset = 0
+		self.go_home()
 		
 		#file name of what is going to be sent to the ground
 		self.f_name_tx = ''
 		
 		#file name of what has been sent to the air
-		self.f_name_rx = 'rx_file.txt'
-		
-		#keep track of received erroneous data
-		self.err_data = 0
+		self.f_name_rx = ''
+	
+	def go_home(self):
+		#Transceiver Frequency
+		self.freq = 440000000
 	
 	def init_files(self):
 		#This method makes sure that all files needed for this
