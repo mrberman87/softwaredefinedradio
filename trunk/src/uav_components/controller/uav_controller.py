@@ -79,6 +79,26 @@ class uav_controller(Deamon):
 		if((f > 400000000 and f < 500000000) and (t > 10 and t < 100)):
 			return True
 		return False
+	def pid_exists(self, pid):
+		try:
+			fd = open('/proc/%d/status' % pid, 'r')
+			for l in fd:
+				if(l.startswith('State:')):
+				junk, s, text = l.split( None, 2 )
+			fd.close()
+			if(s != "Z"):
+				return True
+			os.waitpid(pid, os.WNOHANG)
+			return False
+		except IOError, OSError:
+			return False
+	
+	def kill_pid(self, pid):
+		try:
+			os.kill(pid, 9)
+			return not self.pid_exists(pid)
+		except OSError:
+			return True
 	
 	def get_rx_command(self):
 		fd = open(self.f_name_rx, 'rw')
@@ -126,6 +146,8 @@ class uav_controller(Deamon):
 			os.system("touch gps.dat")
 		if(not os.path.exists("log.dat")):
 			os.system("touch log.dat")
+		if(not os.path.exists("RC.dat")):
+			os.system("touch RC.dat")
 
 if __name__ == '__main__':
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')

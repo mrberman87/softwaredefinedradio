@@ -9,6 +9,7 @@
 
 from gnuradio import gr
 from grc_gnuradio import usrp as grc_usrp
+import time
 
 class FFT_data_aq(gr.top_block):
 
@@ -24,7 +25,7 @@ class FFT_data_aq(gr.top_block):
 		##################################################
 		# Blocks
 		##################################################
-		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_gr_complex*1, "insert file name here")
+		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_gr_complex*1, "/uav/RC.dat")
 		self.gr_throttle_0 = gr.throttle(gr.sizeof_gr_complex*1, (3*samp_rate))
 		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side='A', rx_ant='TX/RX')
 		self.usrp_simple_source_x_0.set_decim_rate(250)
@@ -47,6 +48,6 @@ class FFT_data_aq(gr.top_block):
 if __name__ == '__main__':
 	tb = FFT_data_aq()
 	tb.start()
-	raw_input('Press Enter to quit: ')
+	time.sleep(2)
 	tb.stop()
 
