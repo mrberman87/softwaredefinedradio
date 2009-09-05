@@ -14,7 +14,6 @@ cp ~/softwaredefinedradio/src/uav_components/controller/watch_dog1.py /uav/watch
 cp ~/softwaredefinedradio/src/uav_components/controller/watch_dog2.py /uav/watch_dog2.py
 cp ~/softwaredefinedradio/src/uav_components/get_batt.py /uav/get_batt.py
 cp ~/softwaredefinedradio/src/uav_components/get_temp.py /uav/get_temp.py
-cp ~/softwaredefinedradio/src/uav_components/get_gps.py /uav/get_gps.py
 cp ~/softwaredefinedradio/src/uav_components/GPS_getter.py /uav/GPS_getter.py
 cp ~/softwaredefinedradio/src/uav_components/get_fft.py /uav/get_uav.py
 cp ~/softwaredefinedradio/src/Data_Path/packetizer.py /uav/packetizer.py
