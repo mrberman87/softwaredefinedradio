@@ -10,11 +10,11 @@ class watch_dog1(Deamon):
 		while True:
 			time.sleep(10)
 			
-			if not os.path.exists('/tmp/uav_controller.pid'):
-				os.system('python /home/michael/softwaredefinedradio/src/uav_controller/controller/uav_controller.py start')
+			if not os.path.exists('/uav/daemon_pids/uav_controller.pid'):
+				os.system('python /uav/uav_controller.py start')
 			
-			if not os.path.exists('/tmp/watch_dog_2.pid'):
-				os.system('python /home/michael/softwaredefinedradio/src/uav_controller/controller/watch_dog2.py start')
+			if not os.path.exists('/uav/daemon_pids/watch_dog_2.pid'):
+				os.system('python /uav/watch_dog2.py start')
 
 
 if __name__ == '__main__':
