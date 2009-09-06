@@ -2,8 +2,7 @@
 ##############################################################################
 '''
 An instance of this class opens gpsd, and can then be used to write current
-GPS data into a file. currently, assumes gpsd is not running. could operate
-unexpectedly if gpsd is already running.
+GPS data into a file.
 '''
 ##############################################################################
 import os,telnetlib, time,subprocess
