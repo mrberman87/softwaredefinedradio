@@ -98,11 +98,9 @@ def make_packet(total_pkts, payload_count, event, payload, original_payload_coun
 	(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble)
 
 	if original_payload_count == '':
-    		payload = str(total_pkts) + ':' + str(payload_count) + \ 
-			':' + str(event) + ':' + payload
+    		payload = str(total_pkts) + ':' + str(payload_count) + ':' + str(event) + ':' + payload
 	else:
-    		payload = str(total_pkts) + ':' + str(payload_count) + \ 
-			':' + str(event) + ':' + str(original_payload_count) + ':' + payload
+    		payload = str(total_pkts) + ':' + str(payload_count) + ':' + str(event) + ':' + str(original_payload_count) + ':' + payload
 
 	payload_with_crc = gru.gen_and_append_crc32(payload)
 
