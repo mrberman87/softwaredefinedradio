@@ -5,6 +5,7 @@
 import wx
 import ground_controls
 
+
 class View(wx.Frame):
 	def __init__(self,parent,controller):
 		wx.Frame.__init__(self,parent, -1, 'Ground Control',size=(1000,700))
@@ -225,7 +226,10 @@ class Controller(wx.App):
 		"""Find out which button was clicked, and add to the command queue
 		inside the model."""
 		cmd = event.GetEventObject().GetLabel()
-		self.model.addToQueue(cmd)
+		try:
+			self.model.addToQueue(cmd)
+		except ground_controls.QueueLimitException:
+			"""pop up a diaglog box with message"""
 		
 		
 		
@@ -264,6 +268,8 @@ class Controller(wx.App):
 		lon_txt.SetValue(self.model.gps.lon)
 		alt_txt = self.view.FindWindowByName('altTextBox')
 		alt_txt.SetValue(self.model.gps.alt)
+		sog_txt = self.view.FindWindowByName('gndSpeedTextBox')
+		sog_txt.SetValue(self.model.gps.sog)
 		
 	def sensorListener(self):
 		"""update sensor data in the view"""

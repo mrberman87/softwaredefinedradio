@@ -27,11 +27,11 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.temperature = '0'
 		self.batt = '0'
 		self.freq = '0'
-		self.modulation = ''
+		self.modulation = 'BPSK'
 		self.timeout = '10' #(in seconds)
 		self.sigPower = '0'
 		self.cmd_list = []
-		self.imageClickedTimes = 0 #test var to test relaying information to view
+		self.MAX_COMMANDS=3
 		self.imageFileName = ''
 		self.tsvr = dummyTransmitter()
 	
@@ -40,6 +40,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	called by the GUI"""	
 	def addToQueue(self, cmd):
 		self.cmd_qLock.acquire()
+		if len(self.cmd_list) > 2:
+			self.cmd_qLock.release()
+			raise QueueLimitException()
 		self.cmd_list.append(cmd)
 		self.cmd_qLock.release()
 		self.update()
@@ -131,4 +134,5 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		then save the new frequency in the model.'''
 		self.freq = newFreq
 		self.update()
-	
+
+class QueueLimitException(Exception):pass
