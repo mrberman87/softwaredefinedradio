@@ -1,12 +1,36 @@
 #!/usr/bin/env python
 
+from txrx_controller_temp_event_change import txrx_controller
+import time
+
+tb = txrx_controller()
+time.sleep(2)
+"""
+temp = True
+commands = ['picture', 'FFT', 'telemetry', 'battery', 'temperature']
+index = 0
+counter = 0
+while temp:
+	temp = tb.transmit(commands[index])
+	index += 1
+	if index == 5:
+		index = 0
+	counter += 1
+	if counter == 10:
+		temp = False
+"""
+tb.transmit('/home/sab/Desktop/data.txt')
+#temp = tb.receive()
+#print temp
+
+"""
 def main():
 	data = raw_input("Asking for input: ")
 	if data == '1':
 		return True
 	else:
 		data2 = data
-
+"""
 """
 def spc(data):
 	payload_count = []

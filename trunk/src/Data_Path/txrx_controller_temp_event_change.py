@@ -9,7 +9,7 @@ import time
 
 class txrx_controller():
 
-	def __init__(self, hand_shaking_max=5, frame_time_out=35, pay_load_length=128):
+	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_count = 0
 		self.hand_shaking_maximum = hand_shaking_max
@@ -128,21 +128,27 @@ class txrx_controller():
 		if faking_frame_completion:
 			self.new_transmission_data.append('Failed')
 		else:
-			self.new_transmission_data.append(self.payload)
+			if len(self.payload) <= self.payload_length:
+				self.new_transmission_data.append(self.payload)
+			else:
+				self.new_transmission_data.append('Failed')
 
 	#Handler of individual packets tagged with Incomplete Transmission Event
 	def rcvd_incomplete_transmission(self):
-		failed_pkts = (self.payload).split(':')
+		max_splits = self.payload_length/4
+		failed_pkts = self.payload.split(':', max_splits)
+		if len(failed_pkts[-1]) > 3:
+			failed_pkts.pop(-1)
 		num_failed_pkts = len(failed_pkts)
 		for i in range(num_failed_pkts):
 			self.pkts_for_resend.append(failed_pkts.pop(0))
 
 	#Handler of individual packets tagged with Packet Resend Event
 	def rcvd_packet_resend(self):
-		fourth_colon = (self.payload).index(':')
-		original_pkt_number = int(self.payload[: fourth_colon])
-		temp_payload = self.payload[fourth_colon + 1 :]
-		if self.new_transmission_data[original_pkt_number] == 'Failed':
+		self.payload = self.payload.split(':', 1)
+		original_pkt_number = int(self.payload.pop(0))
+		temp_payload = self.payload.pop(0)
+		if (len(temp_payload) <= self.payload_length) and (self.new_transmission_data[original_pkt_number] == 'Failed'):
 			self.new_transmission_data.pop(original_pkt_number)
 			self.new_transmission_data.insert(original_pkt_number, temp_payload)
 
@@ -150,11 +156,11 @@ class txrx_controller():
 	def frame_check(self):
 		if self.new_transmission_data.count('Failed') == 0:
 			try:
-				fo = open('/home/sab/Desktop/p', 'w')
+				fo = open('/home/p', 'w')
 				fo.write(''.join(self.new_transmission_data))
 				fo.close()
 			except:
-				print 'Invalid File Path for saving data.'
+				print 'Error: Invalid File Path for saving data.'
 				pass
 			self.make_pkts(3)
 			self.full_cleanup()
@@ -177,17 +183,17 @@ class txrx_controller():
 			index = self.new_transmission_data.index('Failed', n_index)
 			missing_pkts.append(str(index))
 			n_index = index + 1
+		print "Number of Missing Packets: ", len(missing_pkts)
+		print "Missing Packets:\n", missing_pkts
 		return missing_pkts
 
 	#Remove, Total Number of Packets in the Frame, Packet Number, Event, and Payload
 	def slice_packet(self, pkt):
-		first_colon = pkt.index(':')
-		second_colon = pkt.index(':', first_colon + 1)
-		third_colon = pkt.index(':', second_colon + 1)
-		self.total_pkts = int(pkt[: first_colon])
-		self.pkt_num = int(pkt[first_colon + 1 : second_colon])
-		self.event = pkt[second_colon + 1 : third_colon]
-		self.payload = pkt[third_colon + 1 :]
+		pkt = pkt.split(':', 3)
+		self.total_pkts = int(pkt.pop(0))
+		self.pkt_num = int(pkt.pop(0))
+		self.event = pkt.pop(0)
+		self.payload = pkt.pop(0)
 
 ########################################################################################
 #				COMMON TOOLS					       #
@@ -225,20 +231,20 @@ class txrx_controller():
 			for i in self.pkts_for_resend:
 				payload = self.data_split_for_pkts[int(i)]
 				pkt = packetizer.make_packet( \
-					total_pkts, counter, self.event_list[event_index], \ 
+					total_pkts, counter, self.event_list[event_index],  
 					payload, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
 		#Transmitting Transmission Complete
 		elif event_index == 3:
 			pkt = packetizer.make_packet( \
-				1, 0, self.event_list[event_index], \
+				1, 0, self.event_list[event_index], 
 				self.event_list[event_index])
 			self.transmit_pkts(pkt)
 		#Transmitting Error Event
 		elif event_index == 4:
 			pkt = packetizer.make_packet( \
-				1, 0, self.event_list[event_index], \
+				1, 0, self.event_list[event_index], 
 				self.event_list[event_index])
 			self.transmit_pkts(pkt)
 
