@@ -1,0 +1,32 @@
+This file details an example handshaking between two USRPs using this controller. The purpose of this
+file is to give an example on the actual functionality required of the system so that there are no
+misconceptions about how this controller should operate. It is a guide to programming the actual 
+controller and also give guidance as to the purpose of choices made and to have documentation on
+how a sample handshaking occurs.
+
+The numbers refer to the order in which things will happen between points A and B. If a number appears
+in both lists, it means that that action is happening simultaneously at both systems (or should be.)
+
+
+
+	Point A								Point B
+
+1. Packetize outside data for transmission.				1. Go into Receive mode.
+2. Transmit packets over USRP.						2. Receive Frame.
+3. Once all payloads are queued, return True.				3. Once condition of all payloads received, check list for missing packets.
+4. Overall controller sends txrxcontroller into receive mode.		5. Transmit a response to Point A about status of received packets.
+										a. If missing at least 1 packet then respond with: 'IN' for incomplete
+											transmission. This response will have two packets total, a frame 
+											packet and a data packet which will contain a list of indexes
+											referring to the packets that were lost in the original transmission.
+										b. If not missing any packets, respond with 'TC' meaning Transmission Complete.
+											i. If this condition is met, return the data to the overall controller
+												and await function call.
+6. Receive response frame.
+	a. If 'IN' transmit missing packets with a frame event
+		'PR' to denote Packet Resend.
+	b. If 'TC' then return True to overall controller.
+7. In the event this frame loses packets, repeat 6 (a,b)		6. Receive mode.
+										a. Receieve mode to receive missing packets.
+										b. Return Data to overall controller.
+									7. In the event still missing packets, repeat 3, 5 (a,b), 6 (a,b), 7 until done.	
