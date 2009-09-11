@@ -62,7 +62,7 @@ class txrx_controller():
 					self.slice_packet(queue_item)
 				#New Transmission Event
 				if self.event == self.event_list[0]:
-					print 'New Transmission Event, ', 'Packet Number: ', self.pkt_num
+					print 'New Transmission Event: Total Packets ', self.total_pkts, ' Packet Number: ', self.pkt_num
 					if faking_frame_completion:
 						self.rcvd_new_transmission(True)
 					else:
@@ -74,7 +74,7 @@ class txrx_controller():
 							return True
 				#Incomplete Transmission Event
 				elif self.event == self.event_list[1]:
-					print 'Incomplete Transmission Event, ', 'Packet Number: ', self.pkt_num
+					print 'Incomplete Transmission Event: Total Packets ', self.total_pkts, ' Packet Number: ', self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_incomplete_transmission()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -85,7 +85,7 @@ class txrx_controller():
 						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
-					print 'Packet Resent Event, ', 'Packet Number: ', self.pkt_num
+					print 'Packet Resent Event, Total Packets ', self.total_pkts, ' Packet Number: ', self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_packet_resend()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -131,17 +131,26 @@ class txrx_controller():
 			if len(self.payload) <= self.payload_length:
 				self.new_transmission_data.append(self.payload)
 			else:
+				print "New Transmission Packet failed length test. ", self.pkt_num
 				self.new_transmission_data.append('Failed')
 
 	#Handler of individual packets tagged with Incomplete Transmission Event
 	def rcvd_incomplete_transmission(self):
-		max_splits = self.payload_length/4
-		failed_pkts = self.payload.split(':', max_splits)
-		if len(failed_pkts[-1]) > 3:
-			failed_pkts.pop(-1)
-		num_failed_pkts = len(failed_pkts)
+		if len(self.payload) <= self.payload_length:
+			failed_pkts = self.payload.split(':')
+			num_failed_pkts = len(failed_pkts)
+		else:
+			print "Incomplete Transmission Packet failed length test. "
+			print self.payload
+			max_splits = self.payload_length/4
+			failed_pkts = self.payload.split(':', max_splits)
+			print "Last item in failed_pkts: "
+			print failed_pkts[-1]
+			if len(failed_pkts[-1]) > 3:
+				failed_pkts.pop(-1)
 		for i in range(num_failed_pkts):
 			self.pkts_for_resend.append(failed_pkts.pop(0))
+
 
 	#Handler of individual packets tagged with Packet Resend Event
 	def rcvd_packet_resend(self):
@@ -151,6 +160,8 @@ class txrx_controller():
 		if (len(temp_payload) <= self.payload_length) and (self.new_transmission_data[original_pkt_number] == 'Failed'):
 			self.new_transmission_data.pop(original_pkt_number)
 			self.new_transmission_data.insert(original_pkt_number, temp_payload)
+		else:
+			print "Packet Resend failed length test. ", self.pkt_num
 
 	#Check the received frame to see if all packets are accounted for
 	def frame_check(self):
