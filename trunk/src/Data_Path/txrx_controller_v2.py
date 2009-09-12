@@ -8,15 +8,16 @@ from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128):
+	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
+			work_directory = '/home/' + os.getenv('USERNAME') + '/Desktop'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
+		self.working_directory = work_directory
 		self.payload_length = pay_load_length
 		self.frame_timeout = frame_time_out
 		self.new_transmission_data = list()
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
-		self.rx_file_destination = '/home/' + os.getenv('USERNAME') + '/Desktop/rx_data'
 		self.hand_shaking_count = 0
 		self.total_pkts = None
 		self.pkt_num = None
@@ -30,13 +31,12 @@ class txrx_controller():
 ########################################################################################
 	def transmit(self, data_source):
 		self.full_cleanup()
-		user_path = '/home/' + os.getenv('USERNAME') + '/Desktop'
 		if data_source == 'Error':
 			self.make_pkts(4)
 			return True
 		elif data_source.count('/') > 0:
 			try:
-				fo = file(user_path + data_source, 'r')
+				fo = file(self.working_directory + data_source, 'r')
 				temp_data = fo.read()
 				fo.close()
 			except:
@@ -168,7 +168,7 @@ class txrx_controller():
 	def frame_check(self):
 		if self.new_transmission_data.count('Failed') == 0:
 			try:
-				fo = open(self.rx_file_destination, 'w')
+				fo = open(self.working_directory + '/rx_data', 'w')
 				fo.write(''.join(self.new_transmission_data))
 				fo.close()
 			except:
