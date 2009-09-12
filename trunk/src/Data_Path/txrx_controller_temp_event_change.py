@@ -1,27 +1,27 @@
 #!/usr/bin/env python
 
-#Version 2.0
+#Version 2.01
 
-import tx_rx_path
-import packetizer
+import tx_rx_path, packetizer
+import time, os
 from gnuradio import gr
-import time
 
 class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
-		self.hand_shaking_count = 0
 		self.hand_shaking_maximum = hand_shaking_max
+		self.payload_length = pay_load_length
 		self.frame_timeout = frame_time_out
 		self.new_transmission_data = list()
-		self.pkts_for_resend = list()
 		self.data_split_for_pkts = list()
-		self.payload_length = pay_load_length
-		self.event = ''
-		self.pkt_num = None
+		self.pkts_for_resend = list()
+		self.rx_file_destination = '/home/' + os.getenv('USERNAME') + '/Desktop/rx_data'
+		self.hand_shaking_count = 0
 		self.total_pkts = None
+		self.pkt_num = None
 		self.payload = ''
+		self.event = ''
 		self.txrx_path = tx_rx_path.tx_rx_path()
 		self.txrx_path.start()
 
@@ -30,12 +30,13 @@ class txrx_controller():
 ########################################################################################
 	def transmit(self, data_source):
 		self.full_cleanup()
+		user_path = '/home/' + os.getenv('USERNAME') + '/Desktop'
 		if data_source == 'Error':
 			self.make_pkts(4)
 			return True
 		elif data_source.count('/') > 0:
 			try:
-				fo = file(data_source, 'r')
+				fo = file(user_path + data_source, 'r')
 				temp_data = fo.read()
 				fo.close()
 			except:
@@ -167,7 +168,7 @@ class txrx_controller():
 	def frame_check(self):
 		if self.new_transmission_data.count('Failed') == 0:
 			try:
-				fo = open('/home/p', 'w')
+				fo = open(self.rx_file_destination, 'w')
 				fo.write(''.join(self.new_transmission_data))
 				fo.close()
 			except:
