@@ -8,14 +8,32 @@ class watch_dog1(Deamon):
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'Watch_Dog_1', 0, 0, 0)
 		while True:
-			time.sleep(10)
+			time.sleep(7)
 			
-			if not os.path.exists('/uav/daemon_pids/uav_controller.pid'):
+			if self.pid_exists('/uav/daemon_pids/uav_controller.pid'):
 				os.system('python /uav/uav_controller.py start')
 			
-			if not os.path.exists('/uav/daemon_pids/watch_dog_2.pid'):
+			if self.pid_exists('/uav/daemon_pids/watch_dog_2.pid'):
 				os.system('python /uav/watch_dog2.py start')
-
+	
+	def pid_exists(self, path):
+		if not os.path.exists(path):
+			return False
+		try:
+			fd = open(path, 'r')
+			pid = fd.readline().strip('\n').strip()
+			fd.close()
+			fd = open('/proc/%d/status' % pid, 'r')
+			for l in fd:
+				if(l.startswith('State:')):
+				junk, s, text = l.split( None, 2 )
+			fd.close()
+			if(s != "Z"):
+				return True
+			os.waitpid(pid, os.WNOHANG)
+			return False
+		except IOError, OSError:
+			return False
 
 if __name__ == '__main__':
 	daemon = uav_controller('/uav/daemon_pids/watch_dog_1.pid')
