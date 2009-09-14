@@ -17,9 +17,7 @@ class uav_controller(Deamon):
 		self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max)
 		self.gps = GPS_getter()
 		time.sleep(2)
-		self.trans.set_frequency(self.tx_freq, 'tx')
-		self.trans.set_frequency(self.rx_freq, 'rx')
-		self.trans.set_rx_file_path(self.f_name_rx)
+		self.set_params()
 		
 		#handles if controller restarts with a command still to be sent down
 		#tells the ground there was an error
@@ -35,9 +33,19 @@ class uav_controller(Deamon):
 				tmp = self.trans.receive()
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
+					self.errors = 0
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
 					self.send_error(tmp)
 					tx = True
+					self.errors = self.errors + 1
+				elif tmp == 'Error':
+					tx = True
+					self.errors = self.errors + 1
+			
+			if self.errors > 3:
+				self.log("Had more than 3 errors, going home!")
+				self.go_home()
+				self.set_params()
 			
 			if tx:
 				tmp = self.trans.transmit(self.f_name_tx)
@@ -72,7 +80,7 @@ class uav_controller(Deamon):
 			return True
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
-			spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
+			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
 			self.f_name_tx = "/uav/fft_image.jpeg"
 			return True
 		elif(command == "sensors"):
@@ -128,6 +136,9 @@ class uav_controller(Deamon):
 		
 		#file name of what has been sent to the air
 		self.f_name_rx = '/uav/rx_file'
+		
+		#this tracks the number of erroneous tries on the data link before going home
+		self.errors = 0
 	
 	def go_home(self):
 		self.tx_freq = 440000000
@@ -136,7 +147,9 @@ class uav_controller(Deamon):
 		self.hand_max = 5
 	
 	def set_params(self):
-		
+		self.trans.set_frequency(self.tx_freq, 'tx')
+		self.trans.set_frequency(self.rx_freq, 'rx')
+		self.trans.set_rx_file_path(self.f_name_rx)
 	
 	def init_files(self):
 		#This method makes sure that all files needed for this
