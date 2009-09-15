@@ -9,7 +9,7 @@ from gnuradio import gr
 class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
-			work_directory = '/home/' + os.getenv('USERNAME') + '/Desktop'):
+			work_directory = os.path.expanduser('~') + '/Desktop'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
@@ -315,4 +315,9 @@ class txrx_controller():
 					new_freq, verbose=True)
 			except:
 				return False
+	def set_rx_path(self, new_path):
+		if os.path.exists(new_path):
+			work_directory = new_path
+			return True
+		return False
 
