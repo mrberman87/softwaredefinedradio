@@ -14,7 +14,8 @@ class uav_controller(Deamon):
 		self.log("Starting Up: pid = %d" % os.getpid())
 		self.init_vars()
 		self.init_files()
-		self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max)
+		self.check_saved_vars()
+		self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx)
 		self.gps = GPS_getter()
 		time.sleep(2)
 		self.set_params()
@@ -76,11 +77,17 @@ class uav_controller(Deamon):
 		elif(command == "picture"):
 			self.log("Taking Picture")
 			os.system("uvccapture -q100 -o/uav/pic.jpg")
+			time.sleep(1.5)
 			self.f_name_tx = "/uav/pic.jpg"
 			return True
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
+			del self.trans
+			time.sleep(1)
 			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
+			self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx)
+			time.sleep(2)
+			self.set_params()
 			self.f_name_tx = "/uav/fft_image.jpeg"
 			return True
 		elif(command == "sensors"):
@@ -149,7 +156,7 @@ class uav_controller(Deamon):
 	def set_params(self):
 		self.trans.set_frequency(self.tx_freq, 'tx')
 		self.trans.set_frequency(self.rx_freq, 'rx')
-		self.trans.set_rx_file_path(self.f_name_rx)
+		self.trans.set_rx_path(self.f_name_rx)
 	
 	def init_files(self):
 		#This method makes sure that all files needed for this
@@ -168,6 +175,27 @@ class uav_controller(Deamon):
 			os.system("touch log.dat")
 		if(not os.path.exists("RC.dat")):
 			os.system("touch RC.dat")
+	
+	def check_saved_vars(self):
+		path = os.getcwd()
+		path.append("/saved_vars")
+		if not os.path.exists("%s" % path):
+			return
+		fd = open(path, 'r')
+		self.tx_freq = int(fd.readline().strip('\n').strip())
+		self.rx_freq = int(fd.readline().strip('\n').strip())
+		fd.close()
+		os.system("rm %s" % path)
+		return
+	
+	def __del__(self):
+		path = os.getcwd()
+		path.append("/saved_vars")
+		os.system("touch %s" % path)
+		fd = open(path, 'w')
+		fd.write("%s\n" % self.tx_freq)
+		fd.write("%s\n" % self.rx_freq)
+		fd.close()
 
 if __name__ == '__main__':
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
