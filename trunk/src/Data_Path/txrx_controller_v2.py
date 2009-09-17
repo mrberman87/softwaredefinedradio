@@ -317,7 +317,7 @@ class txrx_controller():
 				return False
 	def set_rx_path(self, new_path):
 		if os.path.exists(new_path):
-			work_directory = new_path
+			self.work_directory = new_path
 			return True
 		return False
 
