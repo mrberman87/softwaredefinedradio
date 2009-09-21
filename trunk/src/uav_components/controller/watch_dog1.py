@@ -1,20 +1,29 @@
 #!/usr/bin/env python
 
 import os, time, ctypes
-from deamon import *
+from daemon import *
+from wd_reset import *
 
-class watch_dog1(Deamon):
+class watch_dog1(Daemon):
 	def run(self):
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'Watch_Dog_1', 0, 0, 0)
+		time.sleep(2)
+		wd = wd_reset('/uav/daemon_pids/wd1_wd2.wd').start()
 		while True:
 			time.sleep(7)
 			
-			if self.pid_exists('/uav/daemon_pids/uav_controller.pid'):
-				os.system('python /uav/uav_controller.py start')
+			#if self.pid_exists('/uav/daemon_pids/uav_controller.pid'):
+			#	os.system('python /uav/uav_controller.py start')
 			
-			if self.pid_exists('/uav/daemon_pids/watch_dog_2.pid'):
+			#if not self.check_file('/uav/daemon_pids/wd1_controller.wd'):
+			#	os.system('python /uav/uav_controller.py restart')
+			
+			if self.pid_exists('/uav/daemon_pids/watch_dog_2.pid') is False:
 				os.system('python /uav/watch_dog2.py start')
+			
+			if self.check_file('/uav/daemon_pids/wd2_wd1.wd') is False:
+				os.system('python /uav/watch_dog2.py restart')
 	
 	def pid_exists(self, path):
 		if not os.path.exists(path):
@@ -23,20 +32,28 @@ class watch_dog1(Deamon):
 			fd = open(path, 'r')
 			pid = fd.readline().strip('\n').strip()
 			fd.close()
-			fd = open('/proc/%d/status' % pid, 'r')
-			for l in fd:
-				if(l.startswith('State:')):
-				junk, s, text = l.split( None, 2 )
-			fd.close()
-			if(s != "Z"):
+			if os.path.exists('/proc/%s/status' % pid):
 				return True
-			os.waitpid(pid, os.WNOHANG)
 			return False
 		except IOError, OSError:
 			return False
+	
+	def check_file(self, path):
+		try:
+			fd1 = open(path, 'r')
+			check = fd1.readline().strip('\n').strip()
+			fd1.close()
+			fd = open(path, 'w')
+			fd.write('0')
+			fd.close()
+			if check == '1':
+				return True
+			return False
+		except IOError:
+			return False
 
 if __name__ == '__main__':
-	daemon = uav_controller('/uav/daemon_pids/watch_dog_1.pid')
+	daemon = watch_dog1(pidfile='/uav/daemon_pids/watch_dog_1.pid')
 	if len(sys.argv) == 2:
 		if 'start' == sys.argv[1]:
 			daemon.start()
