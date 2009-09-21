@@ -4,6 +4,7 @@ import os, time, ctypes
 from deamon import *
 from txrx_controller import *
 from GPS_getter import *
+from wd_reset import *
 
 class uav_controller(Deamon):
 	def run(self):
