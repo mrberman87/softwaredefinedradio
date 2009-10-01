@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#Version 2.01
+#Version 2.02
 
 import tx_rx_path, packetizer
 import time, os
@@ -10,7 +10,7 @@ class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
 			work_directory = os.path.expanduser('~') + '/Desktop'):
-		self.event_list = ['N', 'I', 'P', 'C', 'E']
+		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
 		self.payload_length = pay_load_length
@@ -31,21 +31,25 @@ class txrx_controller():
 ########################################################################################
 	def transmit(self, data_source):
 		self.full_cleanup()
-		if data_source == 'Error':
-			self.make_pkts(4)
-			return True
-		elif data_source.count('/') > 0:
-			try:
-				fo = file(self.working_directory + data_source, 'r')
-				temp_data = fo.read()
-				fo.close()
-			except:
-				return False
+		self.make_pkts(5)
+		if self.receive() == True:
+			if data_source == 'Error':
+				self.make_pkts(4)
+				return True
+			elif data_source.count('/') > 0:
+				try:
+					fo = file(self.working_directory + data_source, 'r')
+					temp_data = fo.read()
+					fo.close()
+				except:
+					return False
+			else:
+				temp_data = data_source	
+			self.make_pkts(0, temp_data)
+			temp = self.receive()
+			return temp
 		else:
-			temp_data = data_source	
-		self.make_pkts(0, temp_data)
-		temp = self.receive()
-		return temp
+			return False
 
 ########################################################################################
 #					RECEIVER				       #
@@ -63,7 +67,6 @@ class txrx_controller():
 					self.slice_packet(queue_item)
 				#New Transmission Event
 				if self.event == self.event_list[0]:
-					print 'New Transmission Event: Total Packets ', self.total_pkts, ' Packet Number: ', self.pkt_num
 					if faking_frame_completion:
 						self.rcvd_new_transmission(True)
 					else:
@@ -75,7 +78,6 @@ class txrx_controller():
 							return True
 				#Incomplete Transmission Event
 				elif self.event == self.event_list[1]:
-					print 'Incomplete Transmission Event: Total Packets ', self.total_pkts, ' Packet Number: ', self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_incomplete_transmission()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -86,7 +88,6 @@ class txrx_controller():
 						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
-					print 'Packet Resent Event, Total Packets ', self.total_pkts, ' Packet Number: ', self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_packet_resend()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -96,14 +97,20 @@ class txrx_controller():
 							return True
 				#Transmission Complete
 				elif self.event == self.event_list[3]:
-					print 'Transmission Complete'
 					self.full_cleanup()
 					return True
 				#Error Event
 				elif self.event == self.event_list[4]:
-					print 'Error Event'
 					self.full_cleanup()
 					return 'Error'
+				#Ready To Send Event
+				elif self.event == self.event_list[5]:
+					self.make_pkts(6)
+					self.event_cleanup()
+				#Clear to Send Event
+				elif self.event == self.event_list[6]:
+					return True
+				#Unknown Event
 				else:
 					self.event_cleanup()
 			#Used to keep the total number of receives to a maximum
@@ -132,7 +139,6 @@ class txrx_controller():
 			if len(self.payload) <= self.payload_length:
 				self.new_transmission_data.append(self.payload)
 			else:
-				print "New Transmission Packet failed length test. ", self.pkt_num
 				self.new_transmission_data.append('Failed')
 
 	#Handler of individual packets tagged with Incomplete Transmission Event
@@ -141,14 +147,12 @@ class txrx_controller():
 			failed_pkts = self.payload.split(':')
 			num_failed_pkts = len(failed_pkts)
 		else:
-			print "Incomplete Transmission Packet failed length test. "
-			print self.payload
 			max_splits = self.payload_length/4
 			failed_pkts = self.payload.split(':', max_splits)
-			print "Last item in failed_pkts: "
-			print failed_pkts[-1]
 			if len(failed_pkts[-1]) > 3:
 				failed_pkts.pop(-1)
+
+			num_failed_pkts = len(failed_pkts)
 		for i in range(num_failed_pkts):
 			self.pkts_for_resend.append(failed_pkts.pop(0))
 
@@ -161,8 +165,6 @@ class txrx_controller():
 		if (len(temp_payload) <= self.payload_length) and (self.new_transmission_data[original_pkt_number] == 'Failed'):
 			self.new_transmission_data.pop(original_pkt_number)
 			self.new_transmission_data.insert(original_pkt_number, temp_payload)
-		else:
-			print "Packet Resend failed length test. ", self.pkt_num
 
 	#Check the received frame to see if all packets are accounted for
 	def frame_check(self):
@@ -172,7 +174,6 @@ class txrx_controller():
 				fo.write(''.join(self.new_transmission_data))
 				fo.close()
 			except:
-				print 'Error: Invalid File Path for saving data.'
 				pass
 			self.make_pkts(3)
 			self.full_cleanup()
@@ -195,8 +196,6 @@ class txrx_controller():
 			index = self.new_transmission_data.index('Failed', n_index)
 			missing_pkts.append(str(index))
 			n_index = index + 1
-		print "Number of Missing Packets: ", len(missing_pkts)
-		print "Missing Packets:\n", missing_pkts
 		return missing_pkts
 
 	#Remove, Total Number of Packets in the Frame, Packet Number, Event, and Payload
@@ -247,14 +246,8 @@ class txrx_controller():
 					payload, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
-		#Transmitting Transmission Complete
-		elif event_index == 3:
-			pkt = packetizer.make_packet( \
-				1, 0, self.event_list[event_index], 
-				self.event_list[event_index])
-			self.transmit_pkts(pkt)
-		#Transmitting Error Event
-		elif event_index == 4:
+		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
+		elif event_index == 3 or event_index == 4 or event_index == 5 or event_index == 6:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
 				self.event_list[event_index])

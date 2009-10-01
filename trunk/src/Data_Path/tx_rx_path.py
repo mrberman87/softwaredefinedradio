@@ -46,20 +46,20 @@ class tx_rx_path(gr.top_block):
 				callback=lambda ok, payload: self.blks2_packet_decoder_0.recv_pkt(ok, payload),
 			),
 		)
-		self.gr_multiply_const_vxx_0 = gr.multiply_const_vcc((8000, ))
+		self.gr_multiply_const_vxx_0 = gr.multiply_const_vcc((4500, ))
 		self.msg_queue_out = gr.msg_queue()
 		self.gr_message_sink_0 = gr.message_sink(gr.sizeof_char*1, self.msg_queue_out, False)
 		self.gr_message_source_0 = gr.message_source(gr.sizeof_char*1)
 		self.msg_queue_in = self.gr_message_source_0.msgq()
 		self.usrp_simple_sink_x_0 = grc_usrp.simple_sink_c(which=0, side="A")
 		self.usrp_simple_sink_x_0.set_interp_rate(500)
-		self.usrp_simple_sink_x_0.set_frequency(440e6, verbose=True)
+		self.usrp_simple_sink_x_0.set_frequency((440e6+11.5e3), verbose=True)
 		self.usrp_simple_sink_x_0.set_gain(0)
 		self.usrp_simple_sink_x_0.set_enable(True)
 		self.usrp_simple_sink_x_0.set_auto_tr(True)
 		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side="A", rx_ant="RX2")
 		self.usrp_simple_source_x_0.set_decim_rate(250)
-		self.usrp_simple_source_x_0.set_frequency(440.05e6, verbose=True)
+		self.usrp_simple_source_x_0.set_frequency((440e6+ 50e3 + 11.5e3), verbose=True)
 		self.usrp_simple_source_x_0.set_gain(20)
 
 		##################################################
