@@ -10,7 +10,7 @@ class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
 			work_directory = os.path.expanduser('~') + '/Desktop'):
-		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
+		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
 		self.payload_length = pay_load_length
@@ -31,25 +31,21 @@ class txrx_controller():
 ########################################################################################
 	def transmit(self, data_source):
 		self.full_cleanup()
-		self.make_pkts(5)
-		if self.receive() == True:
-			if data_source == 'Error':
-				self.make_pkts(4)
-				return True
-			elif data_source.count('/') > 0:
-				try:
-					fo = file(self.working_directory + data_source, 'r')
-					temp_data = fo.read()
-					fo.close()
-				except:
-					return False
-			else:
-				temp_data = data_source	
-			self.make_pkts(0, temp_data)
-			temp = self.receive()
-			return temp
+		if data_source == 'Error':
+			self.make_pkts(4)
+			return True
+		elif data_source.count('/') > 0:
+			try:
+				fo = file(self.working_directory + data_source, 'r')
+				temp_data = fo.read()
+				fo.close()
+			except:
+				return False
 		else:
-			return False
+			temp_data = data_source	
+		self.make_pkts(0, temp_data)
+		temp = self.receive()
+		return temp
 
 ########################################################################################
 #					RECEIVER				       #
@@ -103,13 +99,6 @@ class txrx_controller():
 				elif self.event == self.event_list[4]:
 					self.full_cleanup()
 					return 'Error'
-				#Ready To Send Event
-				elif self.event == self.event_list[5]:
-					self.make_pkts(6)
-					self.event_cleanup()
-				#Clear to Send Event
-				elif self.event == self.event_list[6]:
-					return True
 				#Unknown Event
 				else:
 					self.event_cleanup()
@@ -250,7 +239,7 @@ class txrx_controller():
 		elif event_index == 3 or event_index == 4 or event_index == 5 or event_index == 6:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
-				self.event_list[event_index])
+				temp_data)
 			self.transmit_pkts(pkt)
 
 	#Queue a packet in the transceiver flow graph
@@ -308,6 +297,7 @@ class txrx_controller():
 					new_freq, verbose=True)
 			except:
 				return False
+
 	def set_rx_path(self, new_path):
 		if os.path.exists(new_path):
 			self.work_directory = new_path
