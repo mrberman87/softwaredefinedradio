@@ -235,8 +235,8 @@ class txrx_controller():
 					payload, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
-		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
-		elif event_index == 3 or event_index == 4 or event_index == 5 or event_index == 6:
+		#Transmitting: Transmission Complete, Error Event in order
+		elif event_index == 3 or event_index == 4:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
 				temp_data)
