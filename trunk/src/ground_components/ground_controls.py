@@ -32,7 +32,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.sigPower = '0'
 		self.cmd_list = []
 		self.MAX_COMMANDS=3
-		self.imageFileName = ''
+		self.imageName = '2.jpg'
 		self.tsvr = dummyTransmitter()
 	
 	
