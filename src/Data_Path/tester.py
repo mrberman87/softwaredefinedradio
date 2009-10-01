@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from txrx_controller_temp_event_change import txrx_controller
+from txrx_controller_v2 import txrx_controller
 import time
 
-tb = txrx_controller()
+tb = txrx_controller(hand_shaking_max=20,frame_time_out=130)
 time.sleep(2)
 """
 temp = True
@@ -19,7 +19,7 @@ while temp:
 	if counter == 10:
 		temp = False
 """
-tb.transmit('/home/sab/Desktop/data.txt')
+tb.transmit('/data.txt')
 #temp = tb.receive()
 #print temp
 
