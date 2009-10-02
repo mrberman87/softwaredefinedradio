@@ -239,7 +239,7 @@ class txrx_controller():
 		elif event_index == 3 or event_index == 4:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
-				temp_data)
+				self.event_list[event_index])
 			self.transmit_pkts(pkt)
 
 	#Queue a packet in the transceiver flow graph

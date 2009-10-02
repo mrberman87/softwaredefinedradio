@@ -19,9 +19,9 @@ while temp:
 	if counter == 10:
 		temp = False
 """
-tb.transmit('/data.txt')
+temp = tb.transmit('/data.txt')
 #temp = tb.receive()
-#print temp
+print temp
 
 """
 def main():
