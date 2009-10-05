@@ -15,10 +15,10 @@ import timeit, time, serial
 def Temp():
 	s = serial.Serial(0)
 	push_low(s)
-	while(s.getCTS()):
+	while(not s.getCTS()):
  		pass
 	s.close()
-
+	
 #-----------------------------------------------------------------------------------------------
 #The Power function is the element in which the imported module "time" will time. In this case test is the time that 
 #the CTS line is low.
@@ -28,10 +28,10 @@ def Power():
  	s = serial.Serial(0)
 	trigger_2(s) 
 	#Pin number 6
-	while(s.getDSR()):
+	while(not s.getDSR()):
 		pass
 	s.close()
-
+	
 #--------------------------------------------------------------------------------------------
 # Push_low is a function that triggers the circuit with a momentarily actective low pulse.
 #This active low Pulse is required by the hardware of the circuit. Specificly the 555(6) timer.
@@ -42,20 +42,25 @@ def push_low(s):
 	s.setRTS(1)
 	time.sleep(.001)
 	s.setRTS(0)
+	
 
 def trigger_2(s):
 	s.setDTR(1)
 	time.sleep(.001)
 	s.setDTR(0)
+	
 #----------------------------------------------------------------------------------------------
 # The decode defenition is an equation derived from the temp file during testing. Tempurature values  of 0 to 300 degrees F "Voltages" were
 # simulated using voltages from 0-3.0V by increments of 0.1 Volts. The data was mapped to excel and the equation below was dervived. The
 # value is actually the unique pulse width for a given Tempurature. 
-def decode_data(value1,value2):
+def decode_data(value1):
 	Tempurature = 549.69*value1*value1 - 1194.4*value1 + 439.13
- 	Batt=value2*value2+50
 	print "%d degrees" % Tempurature 
-	print "%d Volts" % Batt
+	#print value1
+def decode_data2(value2):
+	Batt=-116.28*value2+41.26
+	print "%f Volts" % Batt
+	#print value2
 
 #----------------------------------------------------------------------------------------------
 
@@ -63,7 +68,9 @@ if __name__ == '__main__':
 	t=timeit.Timer('Temp()', "from __main__ import Temp")
 	t2=timeit.Timer('Power()', "from __main__ import Power")
 	while(True):
-		decode_data(t.timeit(number=1),t2.timeit(number=1))
+		decode_data(t.timeit(number=1))
+		#time.sleep(.05)
+		decode_data2(t2.timeit(number=1))
 		time.sleep(1)
 #-----------------------------------------------------------------------------------------------
 #Output to file for circuit curve fitting (used only to get equation)
