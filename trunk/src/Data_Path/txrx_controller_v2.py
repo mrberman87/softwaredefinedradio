@@ -8,9 +8,9 @@ from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
+	def __init__(self, hand_shaking_max=5, frame_time_out=130, pay_load_length=128, \
 			work_directory = os.path.expanduser('~') + '/Desktop'):
-		self.event_list = ['N', 'I', 'P', 'C', 'E']
+		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
 		self.payload_length = pay_load_length
@@ -19,6 +19,7 @@ class txrx_controller():
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
 		self.hand_shaking_count = 0
+		self.init_rcv = True
 		self.total_pkts = None
 		self.pkt_num = None
 		self.payload = ''
@@ -30,13 +31,13 @@ class txrx_controller():
 #					TRANSMITTER				       #
 ########################################################################################
 	def transmit(self, data_source):
-		self.full_cleanup()
+		self.full_cleanup()		
 		if data_source == 'Error':
 			self.make_pkts(4)
 			return True
 		elif data_source.count('/') > 0:
 			try:
-				fo = file(self.working_directory + data_source, 'r')
+				fo = open(self.working_directory + data_source, 'r')
 				temp_data = fo.read()
 				fo.close()
 			except:
@@ -111,7 +112,7 @@ class txrx_controller():
 				self.full_cleanup()
 				return 'Timeout'
 			#Used to fake a frame completion for handshaking
-			if (self.event in self.event_list) and (int(time.time() - time_0) >= 10):
+			if (self.event in self.event_list) and (int(time.time() - time_0) >= 5):
 				faking_frame_completion = True
 				self.pkt_num = self.total_pkts - 1
 
@@ -235,8 +236,14 @@ class txrx_controller():
 					payload, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
-		#Transmitting: Transmission Complete, Error Event in order
-		elif event_index == 3 or event_index == 4:
+		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
+		elif event_index == 3:
+			pkt = packetizer.make_packet( \
+				1, 0, self.event_list[event_index], 
+				self.event_list[event_index])
+			self.transmit_pkts(pkt)
+		#Transmitting Error Event
+		elif event_index == 4:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
 				self.event_list[event_index])

@@ -3,7 +3,7 @@
 from txrx_controller_v2 import txrx_controller
 import time
 
-tb = txrx_controller(hand_shaking_max=20,frame_time_out=130)
+tb = txrx_controller(hand_shaking_max=20)
 time.sleep(2)
 """
 temp = True
