@@ -4,14 +4,13 @@
 # Title: FFT_data_aq
 # Author: UAV Group
 # Description: gnuradio flow graph
-# Generated: Wed Sep 16 11:42:31 2009
+# Generated: Wed Sep 30 19:22:42 2009
 ##################################################
 
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
 from grc_gnuradio import usrp as grc_usrp
 from optparse import OptionParser
-import time
 
 class FFT_data_aq(gr.top_block):
 
@@ -27,7 +26,7 @@ class FFT_data_aq(gr.top_block):
 		##################################################
 		# Blocks
 		##################################################
-		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_gr_complex*1, "/home/michael/Desktop/RC.dat")
+		self.gr_file_sink_0 = gr.file_sink(gr.sizeof_gr_complex*1, "/home/sab/Desktop/RC.dat")
 		self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side="A", rx_ant="TX/RX")
 		self.usrp_simple_source_x_0.set_decim_rate(250)
 		self.usrp_simple_source_x_0.set_frequency((440e6 + freq_offset), verbose=True)
@@ -50,6 +49,6 @@ if __name__ == '__main__':
 	(options, args) = parser.parse_args()
 	tb = FFT_data_aq()
 	tb.start()
-	time.sleep(3)
+	raw_input('Press Enter to quit: ')
 	tb.stop()
 
