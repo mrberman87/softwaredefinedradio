@@ -8,7 +8,7 @@ from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, hand_shaking_max=5, frame_time_out=130, pay_load_length=128, \
+	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
 			work_directory = os.path.expanduser('~') + '/Desktop'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
 		self.hand_shaking_maximum = hand_shaking_max
@@ -24,7 +24,7 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		self.txrx_path = tx_rx_path_w_filter.tx_rx_path(f_offset_rx=50e3, f_offset_tx=0, cent_off=0, f_c=440e6)
+		self.txrx_path = tx_rx_path_w_filter.tx_rx_path(f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
 		self.txrx_path.start()
 
 ########################################################################################
@@ -64,6 +64,7 @@ class txrx_controller():
 					self.slice_packet(queue_item)
 				#New Transmission Event
 				if self.event == self.event_list[0]:
+					print "N : ", self.pkt_num
 					if faking_frame_completion:
 						self.rcvd_new_transmission(True)
 					else:
@@ -75,6 +76,7 @@ class txrx_controller():
 							return True
 				#Incomplete Transmission Event
 				elif self.event == self.event_list[1]:
+					print "I : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_incomplete_transmission()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -85,6 +87,7 @@ class txrx_controller():
 						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
+					print "P : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_packet_resend()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -94,6 +97,7 @@ class txrx_controller():
 							return True
 				#Transmission Complete
 				elif self.event == self.event_list[3]:
+					print "C : ", self.pkt_num
 					self.full_cleanup()
 					return True
 				#Error Event
@@ -188,6 +192,7 @@ class txrx_controller():
 			index = self.new_transmission_data.index('Failed', n_index)
 			missing_pkts.append(str(index))
 			n_index = index + 1
+		print "Missing Packets: \n", missing_pkts
 		return missing_pkts
 
 	#Remove, Total Number of Packets in the Frame, Packet Number, Event, and Payload
