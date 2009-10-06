@@ -2,7 +2,7 @@
 
 #Version 2.02
 
-import tx_rx_path, packetizer
+import tx_rx_path_w_filter, packetizer
 import time, os
 from gnuradio import gr
 
@@ -24,7 +24,7 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		self.txrx_path = tx_rx_path.tx_rx_path()
+		self.txrx_path = tx_rx_path_w_filter.tx_rx_path(f_offset_rx=50e3, f_offset_tx=0, cent_off=0, f_c=440e6)
 		self.txrx_path.start()
 
 ########################################################################################
@@ -158,7 +158,9 @@ class txrx_controller():
 
 	#Check the received frame to see if all packets are accounted for
 	def frame_check(self):
-		if self.new_transmission_data.count('Failed') == 0:
+		temp = self.new_transmission_data.count('Failed')
+		print "Number of Failed Packets: ", temp
+		if temp == 0:
 			try:
 				fo = open(self.working_directory + '/rx_data', 'w')
 				fo.write(''.join(self.new_transmission_data))
