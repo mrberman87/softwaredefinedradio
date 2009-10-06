@@ -192,7 +192,7 @@ class txrx_controller():
 			index = self.new_transmission_data.index('Failed', n_index)
 			missing_pkts.append(str(index))
 			n_index = index + 1
-		print "Missing Packets: \n", missing_pkts
+		print "Number of missing packets: ", len(missing_pkts)
 		return missing_pkts
 
 	#Remove, Total Number of Packets in the Frame, Packet Number, Event, and Payload
@@ -218,6 +218,7 @@ class txrx_controller():
 				temp_data = temp_data[self.payload_length:]
 				self.transmit_pkts(packetizer.make_packet( \
 					total_pkts, i, self.event_list[0], payload))
+			self.transmit_pkts('1010101010101010')
 		#Transmitting Incomplete Transmission
 		elif event_index == 1:
 			bad_pkts = self.bad_pkt_indices()
@@ -232,6 +233,7 @@ class txrx_controller():
 				pkt = packetizer.make_packet( \
 					total_pkts, i, self.event_list[event_index], pkt_payload)
 				self.transmit_pkts(pkt)
+			self.transmit_pkts('1010101010101010')
 		#Transmitting Packet Resend
 		elif event_index == 2:
 			counter = 0
@@ -243,18 +245,21 @@ class txrx_controller():
 					payload, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
+			self.transmit_pkts('1010101010101010')
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
 				self.event_list[event_index])
 			self.transmit_pkts(pkt)
+			self.transmit_pkts('1010101010101010')
 		#Transmitting Error Event
 		elif event_index == 4:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
 				self.event_list[event_index])
 			self.transmit_pkts(pkt)
+			self.transmit_pkts('1010101010101010')
 
 	#Queue a packet in the transceiver flow graph
 	def transmit_pkts(self, msg):
