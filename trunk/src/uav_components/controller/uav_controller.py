@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, time, ctypes
+import os, time, ctypes, usb
 from deamon import *
 from txrx_controller import *
 from GPS_getter import *
@@ -13,19 +13,22 @@ class uav_controller(Deamon):
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
 		self.log("Starting Up: pid = %d" % os.getpid())
+		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
+		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
 		self.init_vars()
 		self.init_files()
 		self.check_saved_vars()
 		self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx)
 		self.gps = GPS_getter()
-		time.sleep(2)
 		self.set_params()
+		self.dev = usb.core.find(idVendor=4184, idProduct=1797)
+		self.dev.set_configuration()
 		
 		#handles if controller restarts with a command still to be sent down
 		#tells the ground there was an error
-		tmp = self.get_command()
-		if not tmp == '':
-			self.trans.transmit('Error')
+		#tmp = self.get_command()
+		#if not tmp == '':
+		#	self.trans.transmit('Error')
 		rx = True
 		tx = True
 		
@@ -43,7 +46,7 @@ class uav_controller(Deamon):
 				elif tmp == 'Error':
 					tx = True
 					self.errors = self.errors + 1
-			
+			return 0
 			if self.errors > 3:
 				self.log("Had more than 3 errors, going home!")
 				self.go_home()
@@ -84,10 +87,10 @@ class uav_controller(Deamon):
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
 			del self.trans
-			time.sleep(1)
+			self.dev.reset()
 			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
+			self.dev.reset()
 			self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx)
-			time.sleep(2)
 			self.set_params()
 			self.f_name_tx = "/uav/fft_image.jpeg"
 			return True
@@ -115,7 +118,7 @@ class uav_controller(Deamon):
 			fd = open('/proc/%d/status' % pid, 'r')
 			for l in fd:
 				if(l.startswith('State:')):
-				junk, s, text = l.split( None, 2 )
+					junk, s, text = l.split( None, 2 )
 			fd.close()
 			if(s != "Z"):
 				return True

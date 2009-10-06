@@ -9,7 +9,7 @@ class watch_dog1(Daemon):
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'Watch_Dog_1', 0, 0, 0)
 		time.sleep(2)
-		wd = wd_reset('/uav/daemon_pids/wd1_wd2.wd').start()
+		wd = wd_reset('/uav/daemon_pids/wd1_wd2.wd', 5).start()
 		while True:
 			time.sleep(7)
 			
