@@ -1,0 +1,6 @@
+gnuradio (hopefully obvious)
+pyusb 1.0 (to reset the usrp)
+uvccapture (to take picture)
+gpsd (to get gps data)
+pyserial (to get sensor data)
+
