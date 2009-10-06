@@ -70,7 +70,7 @@ class tx_rx_path(gr.top_block):
 		)
 		self.gr_multiply_const_vxx_0 = gr.multiply_const_vcc(((4500), ))
 		self.gr_multiply_xx_0 = gr.multiply_vcc(1)
-		self.gr_sig_source_x_0_0 = gr.sig_source_c(256e3, gr.GR_COS_WAVE, 50e3, 1, 0)
+		self.gr_sig_source_x_0_0 = gr.sig_source_c(256e3, gr.GR_COS_WAVE, -50e3, 1, 0)
 		self.msg_queue_out = gr.msg_queue()
 		self.gr_message_sink_0 = gr.message_sink(gr.sizeof_char*1, self.msg_queue_out, False)
 		self.gr_message_source_0 = gr.message_source(gr.sizeof_char*1)
