@@ -55,11 +55,12 @@ def trigger_2(s):
 # value is actually the unique pulse width for a given Tempurature. 
 def decode_data(value1):
 	Tempurature = 549.69*value1*value1 - 1194.4*value1 + 439.13
-	print "%d degrees" % Tempurature 
-	#print value1
+	print "%d F" % Tempurature 
+	
 def decode_data2(value2):
-	Batt=-116.28*value2+41.26
-	print "%f Volts" % Batt
+	Batt=-58.743*value2+26.115
+	print "%.1f Volts" % Batt 
+	print '\n'
 	#print value2
 
 #----------------------------------------------------------------------------------------------
@@ -72,6 +73,8 @@ if __name__ == '__main__':
 		#time.sleep(.05)
 		decode_data2(t2.timeit(number=1))
 		time.sleep(1)
+		
+		
 #-----------------------------------------------------------------------------------------------
 #Output to file for circuit curve fitting (used only to get equation)
 #fd = open('temp.dat', "w")
