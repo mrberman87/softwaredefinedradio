@@ -109,7 +109,7 @@ def make_packet(total_pkts, payload_count, event, payload, original_payload_coun
 	pkt = ''.join((syncer, packed_preamble, packed_access_code, make_header(L, whitener_offset), \
 			whiten(payload_with_crc, whitener_offset), '\x55'))
 
-	pkt = (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55') + pkt 
+	pkt = 3*'\x05\x39\x77' + (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55') + pkt 
 
 	return pkt
 

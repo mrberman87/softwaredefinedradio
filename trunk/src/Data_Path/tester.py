@@ -3,8 +3,12 @@
 from txrx_controller_v2 import txrx_controller
 import time
 
-tb = txrx_controller(version = '8psk')
+tb = txrx_controller(version = 'qpsk')
 time.sleep(2)
+temp = tb.transmit('/data.txt')
+#temp = tb.receive()
+print temp
+
 """
 temp = True
 commands = ['picture', 'FFT', 'telemetry', 'battery', 'temperature']
@@ -19,9 +23,6 @@ while temp:
 	if counter == 10:
 		temp = False
 """
-temp = tb.transmit('/data.txt')
-#temp = tb.receive()
-print temp
 
 """
 def main():

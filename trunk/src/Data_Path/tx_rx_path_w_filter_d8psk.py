@@ -47,7 +47,7 @@ class tx_rx_path(gr.top_block):
 			1, 256e3, 25e3, 5e3, firdes.WIN_HAMMING, 6.76))
 		self.blks2_dxpsk_demod_0 = blks2.d8psk_demod(
 			samples_per_symbol=self.sps,
-			excess_bw=0.35,
+			excess_bw=0.45,
 			costas_alpha=0.175,
 			gain_mu=0.175,
 			mu=0.5,
@@ -58,7 +58,7 @@ class tx_rx_path(gr.top_block):
 		)
 		self.blks2_dxpsk_mod_0 = blks2.d8psk_mod(
 			samples_per_symbol=self.sps,
-			excess_bw=0.35,
+			excess_bw=0.45,
 			gray_code=True,
 			verbose=False,
 			log=False,
