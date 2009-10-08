@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 import os, time, ctypes, usb
-from deamon import *
+from daemon import *
 from txrx_controller import *
 from GPS_getter import *
 from wd_reset import *
 
-class uav_controller(Deamon):
+class uav_controller(Daemon):
 	def run(self):
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
