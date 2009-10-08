@@ -13,11 +13,11 @@ class watch_dog1(Daemon):
 		while True:
 			time.sleep(7)
 			
-			#if self.pid_exists('/uav/daemon_pids/uav_controller.pid'):
-			#	os.system('python /uav/uav_controller.py start')
+			if self.pid_exists('/uav/daemon_pids/uav_controller.pid'):
+				os.system('python /uav/uav_controller.py start')
 			
-			#if not self.check_file('/uav/daemon_pids/wd1_controller.wd'):
-			#	os.system('python /uav/uav_controller.py restart')
+			if not self.check_file('/uav/daemon_pids/wd1_controller.wd'):
+				os.system('python /uav/uav_controller.py restart')
 			
 			if self.pid_exists('/uav/daemon_pids/watch_dog_2.pid') is False:
 				os.system('python /uav/watch_dog2.py start')
