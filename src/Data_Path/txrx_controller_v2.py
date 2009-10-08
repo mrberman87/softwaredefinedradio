@@ -28,15 +28,15 @@ class txrx_controller():
 		self.event = ''
 		if version == 'bpsk':
 			self.txrx_path = tx_rx_path_w_filter_dbpsk.tx_rx_path(
-				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
+				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=0, f_c=440e6)
 			self.txrx_path.start()
 		elif version == 'qpsk':
 			self.txrx_path = tx_rx_path_w_filter_dqpsk.tx_rx_path(
-				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
+				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=0, f_c=440e6)
 			self.txrx_path.start()
 		elif version == '8psk':
 			self.txrx_path = tx_rx_path_w_filter_d8psk.tx_rx_path(
-				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
+				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=0, f_c=440e6)
 			self.txrx_path.start()
 
 ########################################################################################
@@ -204,7 +204,6 @@ class txrx_controller():
 			index = self.new_transmission_data.index('Failed', n_index)
 			missing_pkts.append(str(index))
 			n_index = index + 1
-		print "Number of missing packets: ", len(missing_pkts)
 		return missing_pkts
 
 	#Remove, Total Number of Packets in the Frame, Packet Number, Event, and Payload
