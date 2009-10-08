@@ -2,16 +2,18 @@
 
 #Version 2.02
 
-import tx_rx_path_w_filter_dbpsk, packetizer
-import tx_rx_path_w_filter_dqpsk
-import tx_rx_path_w_filter_d8psk 
+import txrx_dbpsk
+import txrx_dqpsk
+import txrx_d8psk 
 import time, os
+import packetizer
 from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
-			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk'):
+	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128,
+			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk',
+			fc=440e6, centoff=0, foffset_tx=0, foffset_rx=0):
 		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
@@ -21,22 +23,30 @@ class txrx_controller():
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
 		self.hand_shaking_count = 0
-		self.init_rcv = True
 		self.total_pkts = None
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		if version == 'bpsk':
-			self.txrx_path = tx_rx_path_w_filter_dbpsk.tx_rx_path(
-				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=0, f_c=440e6)
+		self.fc = fc
+		self.carrier_offset = centoff
+		self.rx_f_offset = foffset_rx
+		self.tx_f_offset = foffset_tx
+		#If Ground:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
+		#if UAV:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
+		if   version == 'bpsk':
+			self.txrx_path = txrx_dbpsk.tx_rx_path(
+				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
+				cent_off=self.carrier_offset, f_c=self.fc)
 			self.txrx_path.start()
 		elif version == 'qpsk':
-			self.txrx_path = tx_rx_path_w_filter_dqpsk.tx_rx_path(
-				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=0, f_c=440e6)
+			self.txrx_path = txrx_dqpsk.tx_rx_path(
+				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
+				cent_off=self.carrier_offset, f_c=self.fc)
 			self.txrx_path.start()
 		elif version == '8psk':
-			self.txrx_path = tx_rx_path_w_filter_d8psk.tx_rx_path(
-				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=0, f_c=440e6)
+			self.txrx_path = txrx_d8psk.tx_rx_path(
+				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
+				cent_off=self.carrier_offset, f_c=self.fc)
 			self.txrx_path.start()
 
 ########################################################################################
@@ -314,17 +324,28 @@ class txrx_controller():
 		except:
 			return False
 
-	def set_frequency(self, new_freq, tx_rx):
+	def set_frequency(self, fc, centoff=0, foffset_rx=0, foffset_tx=0, tx_rx):
+
+		if fc > 400.025e6 and fc < 499.075e6:
+			self.fc = fc
+		else:
+			return "Invalid Carrier Frequency."
+		self.carrier_offset = centoff
+		self.rx_f_offset = foffset_rx
+		self.tx_f_offset = foffset_tx
+
 		if tx_rx == 'tx':
+			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
 			try:
 				self.txrx_path.usrp_simple_sink_x_0.set_frequency( \
-					new_freq, verbose=True)
+					tx_freq, verbose=True)
 			except:
 				return False
 		elif tx_rx == 'rx':
+			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
 			try:
 				self.txrx_path.usrp_simple_source_x_0.set_frequency( \
-					new_freq, verbose=True)
+					rx_freq, verbose=True)
 			except:
 				return False
 
