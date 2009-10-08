@@ -1,28 +1,30 @@
 #!/usr/bin/env python
 
-import os, time, ctypes, usb
+import os, ctypes, usb, time
 from daemon import *
 from txrx_controller import *
 from GPS_getter import *
 from wd_reset import *
 
-class uav_controller(Daemon):
+class uav_controller():
 	def run(self):
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
 		self.log("Starting Up: pid = %d" % os.getpid())
+		self.dev = usb.core.find(idVendor=65534, idProduct=2)
+		self.dev.set_configuration()
+		self.dev.reset()
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
 		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
 		self.init_vars()
 		self.init_files()
-		self.check_saved_vars()
-		self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx)
+		#self.check_saved_vars()
+		#self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx, version='8psk')
+		self.trans = txrx_controller(work_directory='/uav', version = '8psk')
 		self.gps = GPS_getter()
-		self.set_params()
-		self.dev = usb.core.find(idVendor=4184, idProduct=1797)
-		self.dev.set_configuration()
+		#self.set_params()
 		
 		#handles if controller restarts with a command still to be sent down
 		#tells the ground there was an error
@@ -35,6 +37,7 @@ class uav_controller(Daemon):
 		#This is the main controller section of code
 		while True:
 			if rx:
+				print "Test Point!!!"
 				tmp = self.trans.receive()
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
@@ -46,13 +49,14 @@ class uav_controller(Daemon):
 				elif tmp == 'Error':
 					tx = True
 					self.errors = self.errors + 1
-			return 0
+			
 			if self.errors > 3:
 				self.log("Had more than 3 errors, going home!")
 				self.go_home()
 				self.set_params()
 			
 			if tx:
+				print "transmitting: " + self.f_name_tx
 				tmp = self.trans.transmit(self.f_name_tx)
 				if tmp is True or tmp == 'Transmission Complete':
 					rx = True
@@ -82,17 +86,20 @@ class uav_controller(Daemon):
 			self.log("Taking Picture")
 			os.system("uvccapture -q100 -o/uav/pic.jpg")
 			time.sleep(1.5)
-			self.f_name_tx = "/uav/pic.jpg"
+			self.f_name_tx = "/pic.jpg"
 			return True
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
 			del self.trans
 			self.dev.reset()
+			time.sleep(2)
 			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
 			self.dev.reset()
-			self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx)
-			self.set_params()
-			self.f_name_tx = "/uav/fft_image.jpeg"
+			time.sleep(2)
+			self.trans = txrx_controller(work_directory='/uav', version = '8psk')
+			time.sleep(2)
+			#self.set_params()
+			self.f_name_tx = "/fft_image.jpeg"
 			return True
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
@@ -102,7 +109,7 @@ class uav_controller(Daemon):
 			while(self.pid_exists(temp_pid) or self.pid_exists(batt_pid)):
 				pass
 			os.system("cat batt.dat temp.dat gps.dat > misc.dat")
-			self.f_name_tx = "/uav/misc.dat"
+			self.f_name_tx = "/misc.dat"
 			return True
 	
 	def get_command(self):
@@ -146,7 +153,7 @@ class uav_controller(Daemon):
 		self.f_name_tx = ''
 		
 		#file name of what has been sent to the air
-		self.f_name_rx = '/uav/rx_file'
+		self.f_name_rx = '/uav/rx_data'
 		
 		#this tracks the number of erroneous tries on the data link before going home
 		self.errors = 0
@@ -179,10 +186,11 @@ class uav_controller(Daemon):
 			os.system("touch log.dat")
 		if(not os.path.exists("RC.dat")):
 			os.system("touch RC.dat")
+		if(not os.path.exists("rx_data")):
+			os.system("touch rx_data")
 	
 	def check_saved_vars(self):
-		path = os.getcwd()
-		path.append("/saved_vars")
+		path = os.getcwd() + "/saved_vars"
 		if not os.path.exists("%s" % path):
 			return
 		fd = open(path, 'r')
@@ -192,16 +200,17 @@ class uav_controller(Daemon):
 		os.system("rm %s" % path)
 		return
 	
-	def __del__(self):
-		path = os.getcwd()
-		path.append("/saved_vars")
+	"""def __del__(self):
+		path = os.getcwd() + "/saved_vars"
 		os.system("touch %s" % path)
 		fd = open(path, 'w')
 		fd.write("%s\n" % self.tx_freq)
 		fd.write("%s\n" % self.rx_freq)
-		fd.close()
+		fd.close()"""
 
 if __name__ == '__main__':
+	uav_controller().run()
+	"""
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
 		if 'start' == sys.argv[1]:
@@ -216,4 +225,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 	else:
 		print "usage: %s start|stop|restart" % sys.argv[0]
-		sys.exit(2)
+		sys.exit(2)"""
