@@ -2,14 +2,16 @@
 
 #Version 2.02
 
-import tx_rx_path_w_filter, packetizer
+import tx_rx_path_w_filter_dbpsk, packetizer
+import tx_rx_path_w_filter_dqpsk
+import tx_rx_path_w_filter_d8psk 
 import time, os
 from gnuradio import gr
 
 class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128, \
-			work_directory = os.path.expanduser('~') + '/Desktop'):
+			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
@@ -24,8 +26,18 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		self.txrx_path = tx_rx_path_w_filter.tx_rx_path(f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
-		self.txrx_path.start()
+		if version == 'bpsk':
+			self.txrx_path = tx_rx_path_w_filter_dbpsk.tx_rx_path(
+				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
+			self.txrx_path.start()
+		elif version == 'qpsk':
+			self.txrx_path = tx_rx_path_w_filter_dqpsk.tx_rx_path(
+				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
+			self.txrx_path.start()
+		elif version == '8psk':
+			self.txrx_path = tx_rx_path_w_filter_d8psk.tx_rx_path(
+				f_offset_rx=-50e3, f_offset_tx=100e3, cent_off=-6.75e3, f_c=440e6)
+			self.txrx_path.start()
 
 ########################################################################################
 #					TRANSMITTER				       #

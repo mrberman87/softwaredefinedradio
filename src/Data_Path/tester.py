@@ -3,7 +3,7 @@
 from txrx_controller_v2 import txrx_controller
 import time
 
-tb = txrx_controller(hand_shaking_max=20)
+tb = txrx_controller(version = '8psk')
 time.sleep(2)
 """
 temp = True
@@ -19,8 +19,8 @@ while temp:
 	if counter == 10:
 		temp = False
 """
-#temp = tb.transmit('/data.txt')
-temp = tb.receive()
+temp = tb.transmit('/data.txt')
+#temp = tb.receive()
 print temp
 
 """
