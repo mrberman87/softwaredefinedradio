@@ -13,7 +13,7 @@ import threading
 import Queue
 sys.path.append("GPS") #includes GPS/ directory to use GPS_packet.py
 from GPS_packet import GPS_packet
-from dummyTransmitter import dummyTransmitter
+from txrxdummy import txrx_controller
 
 
 class ground_controls(abstractmodel.AbstractModel, threading.Thread):
@@ -26,14 +26,16 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.gps = GPS_packet("GPSD,P=0 0,A=0,V=0,E=0")
 		self.temperature = '0'
 		self.batt = '0'
-		self.freq = '0'
+		self.freq = '0'		#deprecated. will be disappearing shortly
+		self.tx_freq = '0'
+		self.rx_freq = '0'
 		self.modulation = 'BPSK'
 		self.timeout = '10' #(in seconds)
-		self.sigPower = '0'
+		self.sigPower = '0' #depracated
 		self.cmd_list = []
 		self.MAX_COMMANDS=max_commands
 		self.imageName = '2.jpg'
-		self.tsvr = dummyTransmitter()
+		self.tsvr = txrx_controller()
 	
 	
 	"""GUI responder methods: These are the only methods that should be
@@ -105,13 +107,13 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	in a separate thread to keep the application responsive."""
 
 	def getImage(self):
-		self.tsvr.send(data = 'Image')
+		self.tsvr.transmit(data = 'Image')
 		filename = self.tsvr.receive()
 		self.update()
 	
 
 	def getGPS(self):
-		self.tsvr.send(data = 'GPS')
+		self.tsvr.transmit('GPS')
 		#recieve returns the name of the file it recieved
 		fname = self.tsvr.receive()
 		f = open(fname)
@@ -119,7 +121,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.update()
 
 	def getBatt(self):
-		self.tsvr.send(data = 'sensors')
+		self.tsvr.transmit('sensors')
 		fname =self.tsvr.receive()
 		f = open(fname)
 		self.batt = f.readline()
