@@ -18,7 +18,7 @@ from dummyTransmitter import dummyTransmitter
 
 class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 
-	def __init__(self):
+	def __init__(self,max_commands=3):
 		abstractmodel.AbstractModel.__init__(self)
 		threading.Thread.__init__(self)
 		self.pendingRequest = threading.Event()
@@ -31,7 +31,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.timeout = '10' #(in seconds)
 		self.sigPower = '0'
 		self.cmd_list = []
-		self.MAX_COMMANDS=3
+		self.MAX_COMMANDS=max_commands
 		self.imageName = '2.jpg'
 		self.tsvr = dummyTransmitter()
 	
@@ -40,7 +40,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	called by the GUI"""	
 	def addToQueue(self, cmd):
 		self.cmd_qLock.acquire()
-		if len(self.cmd_list) > 2:
+		if len(self.cmd_list) == self.MAX_COMMANDS:
 			self.cmd_qLock.release()
 			raise QueueLimitException()
 		self.cmd_list.append(cmd)
