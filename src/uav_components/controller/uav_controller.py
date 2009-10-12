@@ -21,16 +21,11 @@ class uav_controller():
 		self.init_vars()
 		self.init_files()
 		#self.check_saved_vars()
-		#self.trans = txrx_controller(frame_time_out=self.time_0, hand_shaking_max=self.hand_max, work_directory=self.f_name_rx, version='8psk')
 		self.trans = txrx_controller(work_directory='/uav', version = '8psk')
 		self.gps = GPS_getter()
+		time.sleep(2)
 		#self.set_params()
 		
-		#handles if controller restarts with a command still to be sent down
-		#tells the ground there was an error
-		#tmp = self.get_command()
-		#if not tmp == '':
-		#	self.trans.transmit('Error')
 		rx = True
 		tx = True
 		
@@ -67,7 +62,7 @@ class uav_controller():
 		fd = open('/uav/misc.dat', 'w')
 		fd.write(msg)
 		fd.close()
-		self.f_name_tx = '/uav/misc.dat'
+		self.f_name_tx = '/misc.dat'
 	
 	def exec_command(self, command):
 		if(command == "settings"):
@@ -79,7 +74,7 @@ class uav_controller():
 			self.time_0 = int(_file.readline().strip('\n').strip())
 			self.hand_max = int(_file.readline().strip('\n').strip())
 			_file.close()
-			self.set_params()
+			#self.set_params()
 			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d" % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
 			return False
 		elif(command == "picture"):
@@ -103,12 +98,9 @@ class uav_controller():
 			return True
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
-			temp_pid = os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_temp.py')
-			batt_pid = os.spawnl(os.P_NOWAIT, '/usr/bin/python', 'python', 'get_batt.py')
+			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'telemetry.py')
 			self.gps.get_gps('w')
-			while(self.pid_exists(temp_pid) or self.pid_exists(batt_pid)):
-				pass
-			os.system("cat batt.dat temp.dat gps.dat > misc.dat")
+			os.system("cat sensor.dat gps.dat > misc.dat")
 			self.f_name_tx = "/misc.dat"
 			return True
 	
@@ -119,27 +111,6 @@ class uav_controller():
 		fd.write('')
 		fd.close()
 		return tmp
-	
-	def pid_exists(self, pid):
-		try:
-			fd = open('/proc/%d/status' % pid, 'r')
-			for l in fd:
-				if(l.startswith('State:')):
-					junk, s, text = l.split( None, 2 )
-			fd.close()
-			if(s != "Z"):
-				return True
-			os.waitpid(pid, os.WNOHANG)
-			return False
-		except IOError, OSError:
-			return False
-	
-	def kill_pid(self, pid):
-		try:
-			os.kill(pid, 9)
-			return not self.pid_exists(pid)
-		except OSError:
-			return True
 	
 	def log(self, string):
 		fd = open("log.dat", "a")
@@ -174,10 +145,8 @@ class uav_controller():
 		#program are exist.
 		if(not os.path.exists("pic.jpg")):
 			os.system("touch pic.jpg")
-		if(not os.path.exists("temp.dat")):
-			os.system("touch temp.dat")
-		if(not os.path.exists("batt.dat")):
-			os.system("touch batt.dat")
+		if(not os.path.exists("sensor.dat")):
+			os.system("touch sensor.dat")
 		if(not os.path.exists("misc.dat")):
 			os.system("touch misc.dat")
 		if(not os.path.exists("gps.dat")):
@@ -200,13 +169,14 @@ class uav_controller():
 		os.system("rm %s" % path)
 		return
 	
-	"""def __del__(self):
+	def __del__(self):
+		self.log("Closeing")
 		path = os.getcwd() + "/saved_vars"
 		os.system("touch %s" % path)
 		fd = open(path, 'w')
-		fd.write("%s\n" % self.tx_freq)
-		fd.write("%s\n" % self.rx_freq)
-		fd.close()"""
+		fd.write("%d\n" % self.tx_freq)
+		fd.write("%d\n" % self.rx_freq)
+		fd.close()
 
 if __name__ == '__main__':
 	uav_controller().run()
