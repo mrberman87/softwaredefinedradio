@@ -14,8 +14,8 @@ class GPS_getter:
 		self.kill_gpsd()
 
 		#open gpsd to and prepare to read GPS device
-		os.system("gpsd /dev/ttyUSB0" + " -S " + PORT)
-		#os.system("gpsfake dl_gps.txt") #uncomment gpsfake call if testing
+		#os.system("gpsd /dev/ttyUSB0 -S " + PORT)
+		os.system("gpsfake dl_gps.txt") #uncomment gpsfake call if testing
 		
 		#delay opening a telnet session to give gpsd time to set GPS device
 		time.sleep(2)
