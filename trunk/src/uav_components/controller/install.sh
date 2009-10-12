@@ -12,8 +12,7 @@ cp ~/softwaredefinedradio/src/uav_components/controller/uav_controller.py /uav/u
 cp ~/softwaredefinedradio/src/uav_components/controller/watch_dog1.py /uav/watch_dog1.py
 cp ~/softwaredefinedradio/src/uav_components/controller/watch_dog2.py /uav/watch_dog2.py
 cp ~/softwaredefinedradio/src/uav_components/controller/wd_reset.py /uav/wd_reset.py
-cp ~/softwaredefinedradio/src/uav_components/get_batt.py /uav/get_batt.py
-cp ~/softwaredefinedradio/src/uav_components/get_temp.py /uav/get_temp.py
+cp ~/softwaredefinedradio/src/uav_components/telemetry.py /uav/telemetry.py
 cp ~/softwaredefinedradio/src/uav_components/GPS_getter.py /uav/GPS_getter.py
 #cp ~/softwaredefinedradio/src/Data_Path/packetizer.py /uav/packetizer.py
 #cp ~/softwaredefinedradio/src/Data_Path/tx_rx_path.py /uav/tx_rx_path.py
