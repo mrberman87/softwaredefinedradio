@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, ctypes, usb, time
+import os, ctypes, usb, time, subprocess
 from daemon import *
 from txrx_controller import *
 from GPS_getter import *
@@ -21,18 +21,20 @@ class uav_controller():
 		self.init_vars()
 		self.init_files()
 		#self.check_saved_vars()
-		self.trans = txrx_controller(work_directory='/uav', version = '8psk')
+		self.trans = txrx_controller(work_directory='/uav', version = self.version)
 		self.gps = GPS_getter()
 		time.sleep(2)
 		#self.set_params()
 		
+		#initialize local variables specific to controlling the transceiver
 		rx = True
 		tx = True
+		going_home = False
 		
 		#This is the main controller section of code
 		while True:
+			#this condition deals with receiving things from the ground
 			if rx:
-				print "Test Point!!!"
 				tmp = self.trans.receive()
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
@@ -45,42 +47,61 @@ class uav_controller():
 					tx = True
 					self.errors = self.errors + 1
 			
+			#this condition deals with getting errors with receiving
 			if self.errors > 3:
 				self.log("Had more than 3 errors, going home!")
-				self.go_home()
-				self.set_params()
+				self.send_error("going home")
+				going_home = True
 			
+			#this condition deals with transmitting data back to the ground
 			if tx:
-				print "transmitting: " + self.f_name_tx
 				tmp = self.trans.transmit(self.f_name_tx)
 				if tmp is True or tmp == 'Transmission Complete':
 					rx = True
+					if going_home:
+						self.go_home()
+						self.set_params()
+						going_home = False
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
 					rx = False
 	
+	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
+		self.clear_file('/uav/misc.dat')
 		fd = open('/uav/misc.dat', 'w')
 		fd.write(msg)
 		fd.close()
 		self.f_name_tx = '/misc.dat'
 	
+	#this method takes the command from the ground, and executes what it needs to in order to fulfill the command
 	def exec_command(self, command):
 		if(command == "settings"):
 			self.log("Changing Settings")
-			_file = open(self.f_name_rx, 'r')
-			_file.readline()
-			self.tx_freq = int(_file.readline().strip('\n').strip())
-			self.rx_freq = int(_file.readline().strip('\n').strip())
-			self.time_0 = int(_file.readline().strip('\n').strip())
-			self.hand_max = int(_file.readline().strip('\n').strip())
-			_file.close()
+			fd = open(self.f_name_rx, 'r')
+			for l in fd:
+				if l.startswith("Tx_Freq:"):
+					junk, tmp_tx_freq = l.split()
+					self.tx_freq = int(tmp_tx_freq)
+				if l.startswith("Rx_Freq:"):
+					junk, tmp_rx_freq = l.split()
+					self.rx_freq = int(tmp_rx_freq)
+				if l.startswith("Timeout:"):
+					junk, tmp_time_0 = l.split()
+					self.time_0 = int(tmp_time_0)
+				if l.startswith("Hand_Max:")
+					junk, tmp_hand_max = l.split()
+					self.hand_max = int(tmp_hand_max)
+				if l.startswith("Version:"):
+					junk, self.version = l.split()
+			fd.close()
 			#self.set_params()
 			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d" % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
 			return False
 		elif(command == "picture"):
 			self.log("Taking Picture")
-			os.system("uvccapture -q100 -o/uav/pic.jpg")
-			time.sleep(1.5)
+			self.pic = subprocess.Popen('uvccapture -q100 -o/uav/pic.jpg', shell=True)
+			os.waitpid(self.pic.pid, 0)
+			time.sleep(2)
 			self.f_name_tx = "/pic.jpg"
 			return True
 		elif(command == "fft"):
@@ -88,34 +109,70 @@ class uav_controller():
 			del self.trans
 			self.dev.reset()
 			time.sleep(2)
-			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'get_fft.py')
+			self.fft = subprocess.Popen('python get_fft.py', shell=True)
+			os.waitpid(self.fft.pid, 0)
 			self.dev.reset()
 			time.sleep(2)
-			self.trans = txrx_controller(work_directory='/uav', version = '8psk')
+			self.trans = txrx_controller(work_directory='/uav', version = self.version)
 			time.sleep(2)
 			#self.set_params()
 			self.f_name_tx = "/fft_image.jpeg"
 			return True
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
-			os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'telemetry.py')
+			self.tel = subprocess.Popen('python telemetry.py', shell=True)
+			os.waitpid(self.tel.pid, 0)
 			self.gps.get_gps('w')
-			os.system("cat sensor.dat gps.dat > misc.dat")
+			self.merg = subprocess.Popen('cat sensor.dat gps.dat > misc.dat', shell=True)
+			os.waitpid(self.merg.pid, 0)
+			self.f_name_tx = "/misc.dat"
+			return True
+		elif(command == "command"):
+			fd = open(self.f_name_rx, 'r')
+			cli = fd.readline.strip('\n').strip()
+			fd.close()
+			self.log("Executing Command: %s" % cli)
+			self.comm = subprocess.Popen('%s > misc.dat' % cli, shell=True)
+			os.waitpid(self.comm.pid, 0)
 			self.f_name_tx = "/misc.dat"
 			return True
 	
 	def get_command(self):
 		fd = open(self.f_name_rx, 'rw')
 		tmp = fd.readline().strip('\n').strip()
-		fd.seek(0)
-		fd.write('')
 		fd.close()
+		self.clear_file(self.f_name_rx)
 		return tmp
 	
 	def log(self, string):
 		fd = open("log.dat", "a")
 		fd.write(str(time.ctime(time.time())) + "     " + string + '\n')
 		fd.close()
+	
+	def clear_file(self, path):
+		p = subprocess.Popen('>%s' % path, shell=True)
+		os.waitpid(p.pid, 0)
+	
+	def pid_exists(self, pid):
+		try:
+			fd = open('/proc/%d/status' % pid, 'r')
+			for l in fd:
+				if(l.startswith('State:')):
+					junk, s, text = l.split( None, 2 )
+			fd.close()
+			if(s != "Z"):
+				return True
+			os.waitpid(pid, os.WNOHANG)
+			return False
+		except IOError, OSError:
+			return False
+	
+	def kill_pid(self, pid):
+		try:
+			os.kill(pid, 9)
+			return not self.pid_exists(pid)
+		except OSError:
+			return True
 	
 	def init_vars(self):
 		self.go_home()
@@ -128,6 +185,9 @@ class uav_controller():
 		
 		#this tracks the number of erroneous tries on the data link before going home
 		self.errors = 0
+		
+		#keeps track of the modulation scheme being used
+		self.version = '8psk'
 	
 	def go_home(self):
 		self.tx_freq = 440000000
@@ -136,6 +196,10 @@ class uav_controller():
 		self.hand_max = 5
 	
 	def set_params(self):
+		del self.trans
+		self.dev.reset()
+		self.trans = txrx_controller(work_directory='/uav', version = self.version)
+		time.sleep(2)
 		self.trans.set_frequency(self.tx_freq, 'tx')
 		self.trans.set_frequency(self.rx_freq, 'rx')
 		self.trans.set_rx_path(self.f_name_rx)
@@ -144,39 +208,49 @@ class uav_controller():
 		#This method makes sure that all files needed for this
 		#program are exist.
 		if(not os.path.exists("pic.jpg")):
-			os.system("touch pic.jpg")
+			subprocess.Popen('touch pic.jpg', shell=True)
 		if(not os.path.exists("sensor.dat")):
-			os.system("touch sensor.dat")
+			subprocess.Popen('touch sensor.dat', shell=True)
 		if(not os.path.exists("misc.dat")):
-			os.system("touch misc.dat")
+			subprocess.Popen('touch misc.dat', shell=True)
 		if(not os.path.exists("gps.dat")):
-			os.system("touch gps.dat")
+			subprocess.Popen('touch gps.dat', shell=True)
 		if(not os.path.exists("log.dat")):
-			os.system("touch log.dat")
+			subprocess.Popen('touch log.dat', shell=True)
 		if(not os.path.exists("RC.dat")):
-			os.system("touch RC.dat")
+			subprocess.Popen('touch RC.dat', shell=True)
 		if(not os.path.exists("rx_data")):
-			os.system("touch rx_data")
+			subprocess.Popen('touch rx_data', shell=True)
 	
 	def check_saved_vars(self):
-		path = os.getcwd() + "/saved_vars"
-		if not os.path.exists("%s" % path):
+		if not os.path.exists('/uav/saved_vars'):
 			return
-		fd = open(path, 'r')
+		fd = open('/uav/saved_vars', 'r')
 		self.tx_freq = int(fd.readline().strip('\n').strip())
 		self.rx_freq = int(fd.readline().strip('\n').strip())
 		fd.close()
-		os.system("rm %s" % path)
+		os.remove('/uav/saved_vars')
 		return
 	
 	def __del__(self):
 		self.log("Closeing")
-		path = os.getcwd() + "/saved_vars"
-		os.system("touch %s" % path)
-		fd = open(path, 'w')
+		if self.pid_exists(self.pic.pid):
+			self.kill_pid(self.pic.pid)
+		if self.pid_exists(self.fft.pid):
+			self.kill_pid(self.fft.pid)
+		if self.pid_exists(self.tel.pid):
+			self.kill_pid(self.tel.pid)
+		if self.pid_exists(self.merg.pid):
+			self.kill_pid(self.merg.pid)
+		if self.pid_exists(self.comm.pid):
+			self.kill_pid(self.comm.pid)
+		
+		"""p = subprocess.Popen('touch /uav/saved_vars', shell=True)
+		os.waitpid(p.pid, 0)
+		fd = open('/uav/saved_vars', 'w')
 		fd.write("%d\n" % self.tx_freq)
 		fd.write("%d\n" % self.rx_freq)
-		fd.close()
+		fd.close()"""
 
 if __name__ == '__main__':
 	uav_controller().run()
