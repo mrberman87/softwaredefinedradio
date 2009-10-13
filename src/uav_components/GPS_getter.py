@@ -12,10 +12,10 @@ class GPS_getter:
 		#attempts to start gpsd are silently ignored it is already running
 		#so we need to kill it if already being started
 		self.kill_gpsd()
-
+		
 		#open gpsd to and prepare to read GPS device
-		#os.system("gpsd /dev/ttyUSB0 -S " + PORT)
-		os.system("gpsfake dl_gps.txt") #uncomment gpsfake call if testing
+		os.system("gpsd /dev/ttyUSB0 -S " + PORT)
+		#os.system("gpsfake dl_gps.txt") #uncomment gpsfake call if testing
 		
 		#delay opening a telnet session to give gpsd time to set GPS device
 		time.sleep(2)
@@ -57,5 +57,4 @@ class GPS_getter:
 			 an instance of gpsd running"""
 			kill_cmd = "kill -KILL " + pid
 			pipe2 = subprocess.Popen(kill_cmd, shell = True, bufsize = bufsize)
-
 
