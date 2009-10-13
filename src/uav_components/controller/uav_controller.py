@@ -21,10 +21,10 @@ class uav_controller():
 		self.init_vars()
 		self.init_files()
 		#self.check_saved_vars()
-		self.trans = txrx_controller(work_directory='/uav', version = self.version)
+		#set_params will initialize self.trans, it is just being allocated here
+		self.trans = None
+		self.set_params()
 		self.gps = GPS_getter()
-		time.sleep(2)
-		#self.set_params()
 		
 		#initialize local variables specific to controlling the transceiver
 		rx = True
@@ -75,6 +75,7 @@ class uav_controller():
 	
 	#this method takes the command from the ground, and executes what it needs to in order to fulfill the command
 	def exec_command(self, command):
+		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
 		if(command == "settings"):
 			self.log("Changing Settings")
 			fd = open(self.f_name_rx, 'r')
@@ -94,9 +95,10 @@ class uav_controller():
 				if l.startswith("Version:"):
 					junk, self.version = l.split()
 			fd.close()
-			#self.set_params()
+			self.set_params()
 			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d" % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
 			return False
+		#this takes a picture
 		elif(command == "picture"):
 			self.log("Taking Picture")
 			self.pic = subprocess.Popen('uvccapture -q100 -o/uav/pic.jpg', shell=True)
@@ -104,6 +106,7 @@ class uav_controller():
 			time.sleep(2)
 			self.f_name_tx = "/pic.jpg"
 			return True
+		#this gets an FFT of the air
 		elif(command == "fft"):
 			self.log("Getting FFT Data")
 			del self.trans
@@ -111,13 +114,10 @@ class uav_controller():
 			time.sleep(2)
 			self.fft = subprocess.Popen('python get_fft.py', shell=True)
 			os.waitpid(self.fft.pid, 0)
-			self.dev.reset()
-			time.sleep(2)
-			self.trans = txrx_controller(work_directory='/uav', version = self.version)
-			time.sleep(2)
-			#self.set_params()
+			self.set_params()
 			self.f_name_tx = "/fft_image.jpeg"
 			return True
+		#this gets temprature and battery voltage as well as GPS location of the UAV
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
 			self.tel = subprocess.Popen('python telemetry.py', shell=True)
@@ -127,6 +127,7 @@ class uav_controller():
 			os.waitpid(self.merg.pid, 0)
 			self.f_name_tx = "/misc.dat"
 			return True
+		#this will execute a cli command, and send the result back to the gound
 		elif(command == "command"):
 			fd = open(self.f_name_rx, 'r')
 			cli = fd.readline.strip('\n').strip()
@@ -137,6 +138,7 @@ class uav_controller():
 			self.f_name_tx = "/misc.dat"
 			return True
 	
+	#this parses out what the command to be executed from the ground is
 	def get_command(self):
 		fd = open(self.f_name_rx, 'rw')
 		tmp = fd.readline().strip('\n').strip()
@@ -144,15 +146,19 @@ class uav_controller():
 		self.clear_file(self.f_name_rx)
 		return tmp
 	
+	#this appends a log file with useful, timestamped information
 	def log(self, string):
 		fd = open("log.dat", "a")
 		fd.write(str(time.ctime(time.time())) + "     " + string + '\n')
 		fd.close()
 	
+	#this clears the contents of a given file
 	def clear_file(self, path):
 		p = subprocess.Popen('>%s' % path, shell=True)
 		os.waitpid(p.pid, 0)
 	
+	#this checks if a given pid exists on the system
+	#if it is a zombie, it will kill it
 	def pid_exists(self, pid):
 		try:
 			fd = open('/proc/%d/status' % pid, 'r')
@@ -167,6 +173,7 @@ class uav_controller():
 		except IOError, OSError:
 			return False
 	
+	#this kills any process given its pid
 	def kill_pid(self, pid):
 		try:
 			os.kill(pid, 9)
@@ -174,6 +181,7 @@ class uav_controller():
 		except OSError:
 			return True
 	
+	#this initializes class level variables
 	def init_vars(self):
 		self.go_home()
 		
@@ -189,21 +197,26 @@ class uav_controller():
 		#keeps track of the modulation scheme being used
 		self.version = '8psk'
 	
+	#this sets the "go home" variables
 	def go_home(self):
 		self.tx_freq = 440000000
 		self.rx_freq = 440050000
 		self.time_0 = 35
 		self.hand_max = 5
 	
+	#this sets parameters for the txrx_controller
+	#calling this will also initialze the controller
 	def set_params(self):
 		del self.trans
 		self.dev.reset()
+		time.sleep(2)
 		self.trans = txrx_controller(work_directory='/uav', version = self.version)
 		time.sleep(2)
-		self.trans.set_frequency(self.tx_freq, 'tx')
-		self.trans.set_frequency(self.rx_freq, 'rx')
-		self.trans.set_rx_path(self.f_name_rx)
+		#self.trans.set_frequency(self.tx_freq, 'tx')
+		#self.trans.set_frequency(self.rx_freq, 'rx')
+		#self.trans.set_rx_path(self.f_name_rx)
 	
+	#this initializes files that the UAV controller may need in its operation
 	def init_files(self):
 		#This method makes sure that all files needed for this
 		#program are exist.
@@ -222,16 +235,19 @@ class uav_controller():
 		if(not os.path.exists("rx_data")):
 			subprocess.Popen('touch rx_data', shell=True)
 	
+	#this loads up variables that were saved from the previous run of this process
 	def check_saved_vars(self):
 		if not os.path.exists('/uav/saved_vars'):
 			return
 		fd = open('/uav/saved_vars', 'r')
 		self.tx_freq = int(fd.readline().strip('\n').strip())
 		self.rx_freq = int(fd.readline().strip('\n').strip())
+		self.version = fd.readline().strip('\n').strip()
 		fd.close()
 		os.remove('/uav/saved_vars')
 		return
 	
+	#this handles the book keeping of processes, and saving variables
 	def __del__(self):
 		self.log("Closeing")
 		if self.pid_exists(self.pic.pid):
@@ -250,11 +266,13 @@ class uav_controller():
 		fd = open('/uav/saved_vars', 'w')
 		fd.write("%d\n" % self.tx_freq)
 		fd.write("%d\n" % self.rx_freq)
+		fd.write("%s\n" % self.version)
 		fd.close()"""
 
 if __name__ == '__main__':
 	uav_controller().run()
 	"""
+	#this sets up this controller as a daemon to run in the background
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
 		if 'start' == sys.argv[1]:
