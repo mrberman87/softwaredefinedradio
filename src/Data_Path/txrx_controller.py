@@ -12,9 +12,9 @@ from gnuradio import gr
 class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128,
-			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk',
+			work_directory = os.path.expanduser('~') + '/Desktop/', version='bpsk',
 			fc=440e6, centoff=0, foffset_tx=0, foffset_rx=0):
-		self.event_list = ['N', 'I', 'P', 'C', 'E', 'RTS', 'CTS']
+		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
 		self.payload_length = pay_load_length
@@ -22,6 +22,7 @@ class txrx_controller():
 		self.new_transmission_data = list()
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
+		self.rx_filename = 'rx_data'
 		self.hand_shaking_count = 0
 		self.total_pkts = None
 		self.pkt_num = None
@@ -188,7 +189,7 @@ class txrx_controller():
 		print "Number of Failed Packets: ", temp
 		if temp == 0:
 			try:
-				fo = open(self.working_directory + '/rx_data', 'w')
+				fo = file(self.working_directory + self.rx_filename, 'w')
 				fo.write(''.join(self.new_transmission_data))
 				fo.close()
 			except:
@@ -324,15 +325,19 @@ class txrx_controller():
 		except:
 			return False
 
-	def set_frequency(self, fc, centoff=0, foffset_rx=0, foffset_tx=0, tx_rx):
+	def set_frequency(self, fc, tx_rx, change_c_offset=False, centoff=0, change_rx_offset=False, foffset_rx=0, 
+			change_tx_offset=False, foffset_tx=0,):
 
 		if fc > 400.025e6 and fc < 499.075e6:
 			self.fc = fc
 		else:
 			return "Invalid Carrier Frequency."
-		self.carrier_offset = centoff
-		self.rx_f_offset = foffset_rx
-		self.tx_f_offset = foffset_tx
+		if change_c_offset:
+			self.carrier_offset = centoff
+		if change_rx_offset:
+			self.rx_f_offset = foffset_rx
+		if change_tx_offset:
+			self.tx_f_offset = foffset_tx
 
 		if tx_rx == 'tx':
 			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
@@ -355,3 +360,5 @@ class txrx_controller():
 			return True
 		return False
 
+	def set_rx_filename(self, new_name):
+		self.rx_filename = new_name
