@@ -1,9 +1,10 @@
 function UAV_fft2 (from_path, to_path)
-
+  
   data = read_complex_binary(from_path, 1024);
   plotfft(data,256e3)
   print(to_path)
-
+  keyboard;
+  
 endfunction
 
 function v = read_complex_binary (filename, count)
