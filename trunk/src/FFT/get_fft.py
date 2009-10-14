@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
-import subprocess, os
+import subprocess, os, sys, time
 
 if __name__ == '__main__':
-	os.system("rm -f /home/michael/Desktop/RC.dat")
-	os.system("touch /home/michael/Desktop/RC.dat")
-	os.spawnl(os.P_WAIT, '/usr/bin/python', 'python', 'FFT_data_aq.py')
-	subprocess.Popen("octave", stdout=subprocess.PIPE, stdin=subprocess.PIPE).communicate('UAV_fft2\n')
-
+	to_path = sys.argv[1]
+	from_path = sys.argv[2]
+	p = subprocess.Popen('> %s' % path, shell=True)
+	p.wait()
+	p = subprocess.Popen('python FFT_data_aq.py', shell=True)
+	os.waitpid(p.pid, 0)
+	p = subprocess.Popen("octave", stdin=subprocess.PIPE, shell=True)
+	os.write(p.stdin.fileno(), 'UAV_fft2 %s %s\n' % (to_path, from_path))
+	time.sleep(5)
+	os.write(p.stdin.fileno(), 'exit\n')

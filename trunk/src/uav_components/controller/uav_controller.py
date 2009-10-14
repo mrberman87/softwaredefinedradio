@@ -10,19 +10,24 @@ class uav_controller():
 	def run(self):
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
+		#changing the system name of this program when it's running
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
 		self.log("Starting Up: pid = %d" % os.getpid())
+		#setting up the usb controller
 		self.dev = usb.core.find(idVendor=65534, idProduct=2)
 		self.dev.set_configuration()
-		self.dev.reset()
+		#starting threads to reset the watchdog timers
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
 		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
+		#intializing the system
 		self.init_vars()
 		self.init_files()
 		#self.check_saved_vars()
 		#set_params will initialize self.trans, it is just being allocated here
 		self.trans = None
+		#the next line is to set the link to d8psk outright for testing
+		self.version = '8psk'
 		self.set_params()
 		self.gps = GPS_getter()
 		
@@ -36,13 +41,18 @@ class uav_controller():
 			#this condition deals with receiving things from the ground
 			if rx:
 				tmp = self.trans.receive()
+				#this is reached when a transmission is completed normally, and the other
+				#side gets all of the data
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
 					self.errors = 0
+				#this is reached when there is an error and either a timeout is reached, or
+				#the transmission cannot complete with the given number of hand shakes
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
 					self.send_error(tmp)
 					tx = True
 					self.errors = self.errors + 1
+				#this is reached when there is a general error from the ground
 				elif tmp == 'Error':
 					tx = True
 					self.errors = self.errors + 1
@@ -52,40 +62,44 @@ class uav_controller():
 				self.log("Had more than 3 errors, going home!")
 				self.send_error("going home")
 				going_home = True
+				self.errors = 0
 			
 			#this condition deals with transmitting data back to the ground
 			if tx:
 				tmp = self.trans.transmit(self.f_name_tx)
+				#this section is reached when the transmission completes as normal
 				if tmp is True or tmp == 'Transmission Complete':
 					rx = True
+					self.errors = 0
+					#this handles the "go home" situation due to too many errors
 					if going_home:
 						self.go_home()
 						self.set_params()
 						going_home = False
+				#this section is reached when there is a problem sending the information to the other
+				#side of the link
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
 					rx = False
 	
 	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
-		self.clear_file('/uav/misc.dat')
-		fd = open('/uav/misc.dat', 'w')
+		self.f_name_tx = '/misc.dat'
+		path = self.working_dir + self.f_name_tx
+		self.clear_file(path)
+		fd = open(path, 'w')
 		fd.write(msg)
 		fd.close()
-		self.f_name_tx = '/misc.dat'
 	
 	#this method takes the command from the ground, and executes what it needs to in order to fulfill the command
 	def exec_command(self, command):
 		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
 		if(command == "settings"):
 			self.log("Changing Settings")
-			fd = open(self.f_name_rx, 'r')
+			fd = open(self.working_dir + self.f_name_rx, 'r')
 			for l in fd:
-				if l.startswith("Tx_Freq:"):
-					junk, tmp_tx_freq = l.split()
-					self.tx_freq = int(tmp_tx_freq)
-				if l.startswith("Rx_Freq:"):
-					junk, tmp_rx_freq = l.split()
-					self.rx_freq = int(tmp_rx_freq)
+				if l.startswith("Freq:"):
+					junk, tmp_freq = l.split()
+					self.freq = int(tmp_freq)
 				if l.startswith("Timeout:"):
 					junk, tmp_time_0 = l.split()
 					self.time_0 = int(tmp_time_0)
@@ -96,15 +110,16 @@ class uav_controller():
 					junk, self.version = l.split()
 			fd.close()
 			self.set_params()
-			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d" % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
+			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d"/
+				 % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
 			return False
 		#this takes a picture
 		elif(command == "picture"):
 			self.log("Taking Picture")
-			self.pic = subprocess.Popen('uvccapture -q100 -o/uav/pic.jpg', shell=True)
-			os.waitpid(self.pic.pid, 0)
-			time.sleep(2)
 			self.f_name_tx = "/pic.jpg"
+			self.pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.working_dir + self.f_name_tx), shell=True)
+			self.pic.wait()
+			time.sleep(2)
 			return True
 		#this gets an FFT of the air
 		elif(command == "fft"):
@@ -112,30 +127,31 @@ class uav_controller():
 			del self.trans
 			self.dev.reset()
 			time.sleep(2)
-			self.fft = subprocess.Popen('python get_fft.py', shell=True)
-			os.waitpid(self.fft.pid, 0)
-			self.set_params()
 			self.f_name_tx = "/fft_image.jpeg"
+			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat, %s' % /
+				(self.working_dir, self.working_dir + self.f_name_tx), shell=True)
+			self.fft.wait()
+			self.set_params()
 			return True
 		#this gets temprature and battery voltage as well as GPS location of the UAV
 		elif(command == "sensors"):
 			self.log("Getting Telemetry Data")
 			self.tel = subprocess.Popen('python telemetry.py', shell=True)
-			os.waitpid(self.tel.pid, 0)
+			self.tel.wait()
 			self.gps.get_gps('w')
-			self.merg = subprocess.Popen('cat sensor.dat gps.dat > misc.dat', shell=True)
-			os.waitpid(self.merg.pid, 0)
+			self.merg = subprocess.Popen('cat gps.dat >> misc.dat', shell=True)
+			self.merg.wait()
 			self.f_name_tx = "/misc.dat"
 			return True
 		#this will execute a cli command, and send the result back to the gound
 		elif(command == "command"):
-			fd = open(self.f_name_rx, 'r')
+			fd = open(self.working_dir + self.f_name_rx, 'r')
 			cli = fd.readline.strip('\n').strip()
 			fd.close()
 			self.log("Executing Command: %s" % cli)
-			self.comm = subprocess.Popen('%s > misc.dat' % cli, shell=True)
-			os.waitpid(self.comm.pid, 0)
 			self.f_name_tx = "/misc.dat"
+			self.comm = subprocess.Popen('%s > %S' % (cli, self.working_dir + self.f_name_tx), shell=True)
+			self.comm.wait()
 			return True
 	
 	#this parses out what the command to be executed from the ground is
@@ -155,7 +171,7 @@ class uav_controller():
 	#this clears the contents of a given file
 	def clear_file(self, path):
 		p = subprocess.Popen('>%s' % path, shell=True)
-		os.waitpid(p.pid, 0)
+		p.wait()
 	
 	#this checks if a given pid exists on the system
 	#if it is a zombie, it will kill it
@@ -189,20 +205,20 @@ class uav_controller():
 		self.f_name_tx = ''
 		
 		#file name of what has been sent to the air
-		self.f_name_rx = '/uav/rx_data'
+		self.f_name_rx = '/rx_data'
 		
 		#this tracks the number of erroneous tries on the data link before going home
 		self.errors = 0
 		
-		#keeps track of the modulation scheme being used
-		self.version = '8psk'
+		#sets where the working direcotry is even if os.getcwd() is not here
+		self.working_dir = '/uav'
 	
 	#this sets the "go home" variables
 	def go_home(self):
-		self.tx_freq = 440000000
-		self.rx_freq = 440050000
+		self.freq = 440000000
 		self.time_0 = 35
 		self.hand_max = 5
+		self.version = 'bpsk'
 	
 	#this sets parameters for the txrx_controller
 	#calling this will also initialze the controller
@@ -210,19 +226,18 @@ class uav_controller():
 		del self.trans
 		self.dev.reset()
 		time.sleep(2)
-		self.trans = txrx_controller(work_directory='/uav', version = self.version)
+		self.trans = txrx_controller(hand_shaking_max = self.hand_max, frame_time_out = self.time_0,
+			work_directory=self.working_dir, version = self.version, fc = self.freq, centoff=0,
+			foffset_tx=0, foffset_rx=0, rx_file=self.f_name_rx)
 		time.sleep(2)
-		#self.trans.set_frequency(self.tx_freq, 'tx')
-		#self.trans.set_frequency(self.rx_freq, 'rx')
-		#self.trans.set_rx_path(self.f_name_rx)
 	
 	#this initializes files that the UAV controller may need in its operation
 	def init_files(self):
 		#This method makes sure that all files needed for this
 		#program are exist.
 		if(not os.path.exists("pic.jpg")):
-			subprocess.Popen('touch pic.jpg', shell=True)
-		if(not os.path.exists("sensor.dat")):
+			subprocess.Popen('touch fft_image.jpeg', shell=True)
+		if(not os.path.exists("fft_image.jpeg")):
 			subprocess.Popen('touch sensor.dat', shell=True)
 		if(not os.path.exists("misc.dat")):
 			subprocess.Popen('touch misc.dat', shell=True)
@@ -237,14 +252,14 @@ class uav_controller():
 	
 	#this loads up variables that were saved from the previous run of this process
 	def check_saved_vars(self):
-		if not os.path.exists('/uav/saved_vars'):
+		path = self.working_dir + '/saved_vars'
+		if not os.path.exists(path):
 			return
-		fd = open('/uav/saved_vars', 'r')
-		self.tx_freq = int(fd.readline().strip('\n').strip())
-		self.rx_freq = int(fd.readline().strip('\n').strip())
+		fd = open(path, 'r')
+		self.freq = int(fd.readline().strip('\n').strip())
 		self.version = fd.readline().strip('\n').strip()
 		fd.close()
-		os.remove('/uav/saved_vars')
+		os.remove(path)
 		return
 	
 	#this handles the book keeping of processes, and saving variables
@@ -261,11 +276,11 @@ class uav_controller():
 		if self.pid_exists(self.comm.pid):
 			self.kill_pid(self.comm.pid)
 		
-		"""p = subprocess.Popen('touch /uav/saved_vars', shell=True)
+		"""path = self.working_dir + '/saved_vars'
+		p = subprocess.Popen('touch %s' % path, shell=True)
 		os.waitpid(p.pid, 0)
-		fd = open('/uav/saved_vars', 'w')
-		fd.write("%d\n" % self.tx_freq)
-		fd.write("%d\n" % self.rx_freq)
+		fd = open(path, 'w')
+		fd.write("%d\n" % self.freq)
 		fd.write("%s\n" % self.version)
 		fd.close()"""
 
