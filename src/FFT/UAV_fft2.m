@@ -1,11 +1,8 @@
-function UAV_fft2
+function UAV_fft2 (from_path, to_path)
 
-  data = read_complex_binary("/home/michael/Desktop/RC.dat", 1024);
-  #kp = fopen("~/Desktop/data.txt", "wb");
-  #kp_1 = fwrite(kp, data, "float");
-  #fclose(kp);
+  data = read_complex_binary(from_path, 1024);
   plotfft(data,256e3)
-  print("/home/michael/Desktop/fft_image.jpeg")
+  print(to_path)
 
 endfunction
 

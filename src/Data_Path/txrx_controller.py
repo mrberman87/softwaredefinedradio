@@ -12,8 +12,8 @@ from gnuradio import gr
 class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128,
-			work_directory = os.path.expanduser('~') + '/Desktop/', version='bpsk',
-			fc=440e6, centoff=0, foffset_tx=0, foffset_rx=0):
+			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk',
+			fc=440e6, centoff=0, foffset_tx=0, foffset_rx=0, rx_file='/rx_data'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
@@ -22,7 +22,7 @@ class txrx_controller():
 		self.new_transmission_data = list()
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
-		self.rx_filename = 'rx_data'
+		self.rx_filename = rx_file
 		self.hand_shaking_count = 0
 		self.total_pkts = None
 		self.pkt_num = None
