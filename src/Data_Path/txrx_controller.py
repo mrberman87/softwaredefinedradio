@@ -13,7 +13,7 @@ class txrx_controller():
 
 	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128,
 			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk',
-			fc=440e6, centoff=0, foffset_tx=0, foffset_rx=0, rx_file='/rx_data'):
+			rx_file='/rx_data', fc, centoff, foffset_tx, foffset_rx):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
@@ -32,8 +32,8 @@ class txrx_controller():
 		self.carrier_offset = centoff
 		self.rx_f_offset = foffset_rx
 		self.tx_f_offset = foffset_tx
-		#If Ground:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
-		#if UAV:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
+		#If UAV:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
+		#if Ground:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
 		if   version == 'bpsk':
 			self.txrx_path = txrx_dbpsk.tx_rx_path(
 				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
@@ -189,7 +189,7 @@ class txrx_controller():
 		print "Number of Failed Packets: ", temp
 		if temp == 0:
 			try:
-				fo = file(self.working_directory + self.rx_filename, 'w')
+				fo = open(self.working_directory + self.rx_filename, 'w')
 				fo.write(''.join(self.new_transmission_data))
 				fo.close()
 			except:
@@ -325,8 +325,8 @@ class txrx_controller():
 		except:
 			return False
 
-	def set_frequency(self, fc, tx_rx, change_c_offset=False, centoff=0, change_rx_offset=False, foffset_rx=0, 
-			change_tx_offset=False, foffset_tx=0,):
+	def set_frequency(self, fc, tx_rx, change_c_offset=False, centoff=0, change_rx_offset=False, 
+			foffset_rx=0, change_tx_offset=False, foffset_tx=0,):
 
 		if fc > 400.025e6 and fc < 499.075e6:
 			self.fc = fc
@@ -362,3 +362,7 @@ class txrx_controller():
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
+
+	def set_mixing_frequency(self, new_offset):
+		self.rx_f_offset = new_offset
+		self.txrx_path.gr_sig_source_x_0_0.set_frequency(self.rx_f_offset)
