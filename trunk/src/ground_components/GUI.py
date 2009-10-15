@@ -41,24 +41,11 @@ class View(wx.Frame):
 		Frequency, Modulation scheme, and timeout length"""
 		param_grid= wx.GridSizer(3,2,2,2)
 
-		param_grid.Add(wx.StaticText(parent,-1,'TX Frequency'),wx.RIGHT,20)
-		sendfreqTxt = wx.TextCtrl(parent,-1,name = 'sendFreqSelect',
+		param_grid.Add(wx.StaticText(parent,-1,'New Frequency'),wx.RIGHT,20)
+		freqTxt = wx.TextCtrl(parent,-1,name = 'freqEnter',
 								style = wx.TE_PROCESS_ENTER)
-		self.Bind(wx.EVT_TEXT_ENTER, self.controller.onFreqSelect, sendfreqTxt)
-		param_grid.Add(sendfreqTxt,wx.EXPAND|wx.ALL,20)
-
-
-
-		param_grid.Add(wx.StaticText(parent, -1, 'RX Frequency'), wx.RIGHT, 20)
-		rcvfreqTxt = wx.TextCtrl(parent,-1,name = 'rcvFreqSelect',
-								style = wx.TE_PROCESS_ENTER)
-		self.Bind(wx.EVT_TEXT_ENTER, self.controller.onFreqSelect, rcvfreqTxt)
-		param_grid.Add(rcvfreqTxt,wx.EXPAND|wx.ALL,20)
-
-
-
-
-
+		self.Bind(wx.EVT_TEXT_ENTER, self.controller.onFreqSelect, freqTxt)
+		param_grid.Add(freqTxt,wx.EXPAND|wx.ALL,20)
 
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
 		self.modChoices = wx.Choice(parent,-1,choices=['BPSK'])
@@ -146,12 +133,7 @@ class View(wx.Frame):
 		img_border = wx.StaticBox(rightPanel, -1, 'Image Viewer')
 		sizer2 = wx.StaticBoxSizer(img_border, orient=wx.VERTICAL)
 		
-		"""=========================================================================================="""
-		img = wx.Image("1.jpg", wx.BITMAP_TYPE_ANY, -1)
-		sb = wx.StaticBitmap(rightPanel, -1, wx.BitmapFromImage(img))
-		sizer2.Add(sb)
-		self.imgSizer = sizer2
-		"""==========================================================================================="""		
+		
 		"""Make current data grid sizer and add to this panel"""
 		cdv_border = wx.StaticBox(rightPanel, -1, 'Current Data Viewer')
 		sizer2a = wx.StaticBoxSizer(cdv_border, orient=wx.VERTICAL)
@@ -234,7 +216,7 @@ class Controller(wx.App):
 		self.model.update()
 		
 	def onFreqSelect(self, event):
-		text = self.view.FindWindowByName('sendFreqSelect')
+		text = self.view.FindWindowByName('freqEnter')
 		freq = text.GetValue()
 		self.model.addToQueue('Freq ' + freq)
 
@@ -264,7 +246,8 @@ class Controller(wx.App):
 			
 		cmdTextBox.SetValue(cmdString)
 
-	def imageListener(self): pass
+	def imageListener(self):
+		pass
 				
 	def frequencyListener(self):
 		"""updatate frequency data in the view"""
