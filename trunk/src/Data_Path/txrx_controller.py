@@ -355,6 +355,19 @@ class txrx_controller():
 					rx_freq, verbose=True)
 			except:
 				return False
+		elif tx_rx == 'txrx':
+			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
+			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
+			try:
+				self.txrx_path.usrp_simple_source_x_0.set_frequency( \
+					rx_freq, verbose=True)
+			except:
+				return False
+			try:
+				self.txrx_path.usrp_simple_sink_x_0.set_frequency( \
+					tx_freq, verbose=True)
+			except:
+				return False
 
 	def set_rx_path(self, new_path):
 		if os.path.exists(new_path):
