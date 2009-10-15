@@ -23,6 +23,7 @@ class txrx_controller():
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
 		self.rx_filename = rx_file
+		self.rx_osc_f_offset = -50e3
 		self.hand_shaking_count = 0
 		self.total_pkts = None
 		self.pkt_num = None
@@ -336,6 +337,7 @@ class txrx_controller():
 			self.carrier_offset = centoff
 		if change_rx_offset:
 			self.rx_f_offset = foffset_rx
+			self.txrx_path.gr_sig_source_x_0_0.set_frequency(self.rx_osc_f_offset - 50e3)
 		if change_tx_offset:
 			self.tx_f_offset = foffset_tx
 
@@ -362,7 +364,3 @@ class txrx_controller():
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
-
-	def set_mixing_frequency(self, new_offset):
-		self.rx_f_offset = new_offset
-		self.txrx_path.gr_sig_source_x_0_0.set_frequency(self.rx_f_offset)
