@@ -2,7 +2,7 @@
 
 """This will be used to simulate transmitting and recieving data with USRP"""
 
-import time
+import time, os
 
 class dummyTransmitter():
 	def __init__(self):
@@ -14,7 +14,8 @@ class dummyTransmitter():
 	def send(self, filename):
 		"""open the specified filename and send the data inside"""
 		"""will pause for a period to send data"""
-		time.sleep(1)
+		if(os.getenv('SLEEP')):
+			time.sleep(1)
 		return True
 	def send(self, data):
 		"""simulate sending string data"""
@@ -26,13 +27,15 @@ class dummyTransmitter():
 			if self.img_count%2 == 0:
 				self.filename = '1.jpg'
 			else:
-				self.filename = '2.jpg' 
-		time.sleep(1)
+				self.filename = '2.jpg'
+		if(os.getenv('SLEEP')): 
+			time.sleep(1)
 		return
 		
 	def receive(self):
 		"""simulate waiting for and recieving a file, then return
 		the filename"""
-		time.sleep(3)
+		if(os.getenv('SLEEP')):		
+			time.sleep(3)
 	
 		return self.filename
