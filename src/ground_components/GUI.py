@@ -250,8 +250,17 @@ class Controller(wx.App):
 	def imageListener(self):
 		pass
 		if (os.getenv("LOADIMAGE")):
-			img = wx.CallAfter(wx.Bitmap,"1.jpg", wx.BITMAP_TYPE_JPEG) 
-				
+			imageViewer = self.view.FindWindowByLabel('Image Viewer')		
+			dc = wx.ClientDC(imageViewer)
+			img = wx.Image("1.jpg")
+			(x,y)= imageViewer.GetClientSizeTuple()
+			#bmp.SetHeight(x)
+			#bmp.SetWidth(y)
+			scaledIMG= img.Scale(x - 10 , y - 20)
+			bmp=wx.BitmapFromImage(scaledIMG)
+			dc.DrawBitmap(bmp,10,20,False)
+
+	
 	def frequencyListener(self):
 		"""updatate frequency data in the view"""
 		freq_txt = self.view.FindWindowByName('freqTextBox')

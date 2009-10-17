@@ -1,3 +1,4 @@
+import wx
 class AbstractModel(object):
 
     def __init__(self):
@@ -11,5 +12,5 @@ class AbstractModel(object):
 
     def update(self):
         for eachFunc in self.listeners:
-            eachFunc()
+            wx.CallAfter(eachFunc)
 
