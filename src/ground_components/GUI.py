@@ -241,9 +241,10 @@ class Controller(wx.App):
 		cmdTextBox = self.view.FindWindowByName("cmdTextBox")
 		
 		cmdString = ''
+		self.model.cmd_qLock.acquire()
 		for command in self.model.cmd_list:
 			cmdString = cmdString + command + "\n"
-			
+		self.model.cmd_qLock.release()
 		cmdTextBox.SetValue(cmdString)
 
 	def imageListener(self):
