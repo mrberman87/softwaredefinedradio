@@ -95,7 +95,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			else: pass
 			
 			self.removeCompletedCommand()
-			
+			self.update()
 			#receive the data
 
 
@@ -107,7 +107,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	def getImage(self):
 		self.tsvr.send(data = 'Image')
 		filename = self.tsvr.receive()
-		self.update()
+		#self.update()
 	
 
 	def getGPS(self):
@@ -116,23 +116,23 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		fname = self.tsvr.receive()
 		f = open(fname)
 		self.gps = GPS_packet(f.readline())
-		self.update()
+		#self.update()
 
 	def getBatt(self):
 		self.tsvr.send(data = 'sensors')
 		fname =self.tsvr.receive()
 		f = open(fname)
 		self.batt = f.readline()
-		self.update()
+		#self.update()
 
 	def changeModScheme(self, mod):
 		self.modulation = mod
-		self.update()
+		#self.update()
 
 	def changeFrequency(self, newFreq):
 		'''will need to send command to UAV, wait for confirmation,
 		then save the new frequency in the model.'''
 		self.freq = newFreq
-		self.update()
+		#self.update()
 
 class QueueLimitException(Exception):pass
