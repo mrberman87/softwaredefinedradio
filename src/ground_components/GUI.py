@@ -4,7 +4,7 @@
 
 import wx
 import ground_controls
-
+import os
 
 class View(wx.Frame):
 	def __init__(self,parent,controller):
@@ -249,6 +249,8 @@ class Controller(wx.App):
 
 	def imageListener(self):
 		pass
+		if (os.getenv("LOADIMAGE")):
+			img = wx.Image("1.jpg", wx.BITMAP_TYPE_JPEG)
 				
 	def frequencyListener(self):
 		"""updatate frequency data in the view"""
