@@ -250,7 +250,7 @@ class Controller(wx.App):
 	def imageListener(self):
 		pass
 		if (os.getenv("LOADIMAGE")):
-			img = wx.Image("1.jpg", wx.BITMAP_TYPE_JPEG)
+			img = wx.CallAfter(wx.Bitmap,"1.jpg", wx.BITMAP_TYPE_JPEG) 
 				
 	def frequencyListener(self):
 		"""updatate frequency data in the view"""
