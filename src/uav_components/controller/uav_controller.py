@@ -93,28 +93,44 @@ class uav_controller():
 	#this method takes the command from the ground, and executes what it needs to in order to fulfill the command
 	def exec_command(self, command):
 		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
-		if(command == "settings"):
+		if(command == "Settings"):
 			self.log("Changing Settings")
 			fd = open(self.working_dir + self.f_name_rx, 'r')
+			#this for loop goes through the file and pulls out only what is sent to be changed
 			for l in fd:
 				if l.startswith("Freq:"):
 					junk, tmp_freq = l.split()
-					self.freq = int(tmp_freq)
+					if tmp_freq != None:
+						self.freq = int(tmp_freq)
 				if l.startswith("Timeout:"):
 					junk, tmp_time_0 = l.split()
-					self.time_0 = int(tmp_time_0)
+					if tmp_time_0 != None:
+						self.time_0 = int(tmp_time_0)
 				if l.startswith("Hand_Max:")
 					junk, tmp_hand_max = l.split()
-					self.hand_max = int(tmp_hand_max)
+					if tmp_hand_max != None:
+						self.hand_max = int(tmp_hand_max)
 				if l.startswith("Version:"):
-					junk, self.version = l.split()
+					junk, tmp_version = l.split()
+					if tmp_version != None:
+						self.version = tmp_version
 			fd.close()
-			self.set_params()
-			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d"/
+			#this deals with a modulation scheme change
+			if tmp_version != None:
+				self.set_params()
+			#this deals with the change of any other variable
+			else:
+				if tmp_freq != None:
+					self.trans.()
+				if tmp_time_0 != None:
+					self.trans.()
+				if tmp_hand_max != None:
+					self.trans.()
+			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d"\
 				 % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
 			return False
 		#this takes a picture
-		elif(command == "picture"):
+		elif(command == "Image"):
 			self.log("Taking Picture")
 			self.f_name_tx = "/pic.jpg"
 			self.pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.working_dir + self.f_name_tx), shell=True)
@@ -122,7 +138,7 @@ class uav_controller():
 			time.sleep(2)
 			return True
 		#this gets an FFT of the air
-		elif(command == "fft"):
+		elif(command == "FFT"):
 			self.log("Getting FFT Data")
 			del self.trans
 			self.dev.reset()
@@ -134,14 +150,15 @@ class uav_controller():
 			self.set_params()
 			return True
 		#this gets temprature and battery voltage as well as GPS location of the UAV
-		elif(command == "sensors"):
+		elif(command == "Telemetry"):
 			self.log("Getting Telemetry Data")
 			self.tel = subprocess.Popen('python telemetry.py', shell=True)
 			self.tel.wait()
-			self.gps.get_gps('w')
-			self.merg = subprocess.Popen('cat gps.dat >> misc.dat', shell=True)
-			self.merg.wait()
+			return True
+		elif(command == "GPS"):
+			self.log("Getting GPS Data")
 			self.f_name_tx = "/misc.dat"
+			self.gps.get_gps('w', self.working_dir + self.f_name_tx)
 			return True
 		#this will execute a cli command, and send the result back to the gound
 		elif(command == "command"):
@@ -156,7 +173,7 @@ class uav_controller():
 	
 	#this parses out what the command to be executed from the ground is
 	def get_command(self):
-		fd = open(self.f_name_rx, 'rw')
+		fd = open(self.f_name_rx, 'r')
 		tmp = fd.readline().strip('\n').strip()
 		fd.close()
 		self.clear_file(self.f_name_rx)
@@ -216,6 +233,8 @@ class uav_controller():
 	#this sets the "go home" variables
 	def go_home(self):
 		self.freq = 440000000
+		self.rx_offset = -50e3
+		self.tx_offset = 100e3
 		self.time_0 = 35
 		self.hand_max = 5
 		self.version = 'bpsk'
@@ -228,7 +247,7 @@ class uav_controller():
 		time.sleep(2)
 		self.trans = txrx_controller(hand_shaking_max = self.hand_max, frame_time_out = self.time_0,
 			work_directory=self.working_dir, version = self.version, fc = self.freq, centoff=0,
-			foffset_tx=0, foffset_rx=0, rx_file=self.f_name_rx)
+			foffset_tx=100e3, foffset_rx=-50e3, rx_file=self.f_name_rx)
 		time.sleep(2)
 	
 	#this initializes files that the UAV controller may need in its operation
