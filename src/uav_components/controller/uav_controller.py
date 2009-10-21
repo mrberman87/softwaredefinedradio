@@ -94,7 +94,7 @@ class uav_controller():
 	def exec_command(self, command):
 		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
 		if(command == "Settings"):
-			self.log("Changing Settings")
+			log = "Changing Settings: "
 			fd = open(self.working_dir + self.f_name_rx, 'r')
 			#this for loop goes through the file and pulls out only what is sent to be changed
 			for l in fd:
@@ -102,19 +102,24 @@ class uav_controller():
 					junk, tmp_freq = l.split()
 					if tmp_freq != None:
 						self.freq = int(tmp_freq)
+						log = log + "Freq = %d" % self.freq
 				if l.startswith("Timeout:"):
 					junk, tmp_time_0 = l.split()
 					if tmp_time_0 != None:
 						self.time_0 = int(tmp_time_0)
+						log = log + ", Timeout = %d" % self.time_0
 				if l.startswith("Hand_Max:")
 					junk, tmp_hand_max = l.split()
 					if tmp_hand_max != None:
 						self.hand_max = int(tmp_hand_max)
+						log = log + ", Handshaking Max = %d" % self.hand_max
 				if l.startswith("Version:"):
 					junk, tmp_version = l.split()
 					if tmp_version != None:
 						self.version = tmp_version
+						log = log + ", Modulation Scheme = %s" % self.version
 			fd.close()
+			
 			#this deals with a modulation scheme change
 			if tmp_version != None:
 				self.set_params()
@@ -126,15 +131,18 @@ class uav_controller():
 					self.trans.()
 				if tmp_hand_max != None:
 					self.trans.()
-			self.log("Changing Settings: Tx Freq = %d, Rx Freq = %d, Timeout Time = %d, Handshaking Max = %d"\
-				 % (self.tx_freq, self.rx_freq, self.time_0, self.hand_max))
+			self.log(log)
 			return False
 		#this takes a picture
 		elif(command == "Image"):
 			self.log("Taking Picture")
 			self.f_name_tx = "/pic.jpg"
 			self.pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.working_dir + self.f_name_tx), shell=True)
-			self.pic.wait()
+			while self.pic.poll != None:
+				if time.time() - time_not > 5:
+					self.f_name_tx = "Error"
+					self.kill_pid(self.pic.pid)
+					break
 			time.sleep(2)
 			return True
 		#this gets an FFT of the air
@@ -144,16 +152,25 @@ class uav_controller():
 			self.dev.reset()
 			time.sleep(2)
 			self.f_name_tx = "/fft_image.jpeg"
-			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat, %s' % /
-				(self.working_dir, self.working_dir + self.f_name_tx), shell=True)
-			self.fft.wait()
+			time_not = time.time()
+			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat, %s' % (self.working_dir, self.working_dir + self.f_name_tx), shell=True)
+			while self.fft.poll != None:
+				if time.time() - time_not > 5:
+					self.f_name_tx = "Error"
+					self.kill_pid(self.fft.pid)
+					break
 			self.set_params()
 			return True
 		#this gets temprature and battery voltage as well as GPS location of the UAV
 		elif(command == "Telemetry"):
 			self.log("Getting Telemetry Data")
 			self.tel = subprocess.Popen('python telemetry.py', shell=True)
-			self.tel.wait()
+`			self.f_name_tx = "/misc.dat"
+			while self.tel.poll != None:
+				if time.time() - time_not > 5:
+					self.f_name_tx = "Error"
+					self.kill_pid(self.tel.pid)
+					break
 			return True
 		elif(command == "GPS"):
 			self.log("Getting GPS Data")
