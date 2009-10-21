@@ -84,22 +84,28 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			cmd = self.getNextCommand()
 
 			#figure out which command has been requested
-			if cmd.startswith('GPS'): self.send_data('GPS')
-			elif cmd.startswith('Image'):self.send_data('Image')
-			elif cmd.startswith('FFT'): self.send_data('FFT')
-			elif cmd.startswith('Batt'): self.send_data('Telemetry')
+			if cmd.startswith('GPS'): data = 'GPS'
+			elif cmd.startswith('Image'): data = 'Image'
+			elif cmd.startswith('FFT'): data = 'FFT'
+			elif cmd.startswith('Batt'): data = 'Telemetry'
 			elif cmd.startswith('Settings'):
+				data = 'Settings'
 				tmp  = cmd.split(' ')
 				self.new_freq = int(tmp[1])
 				self.new_modulation = tmp[2]
 				self.new_timeout = int(tmp[3])
 				#self.new_handshake = int(tmp[4])
-			else: pass
 			
-			self.removeCompletedCommand()
-			self.update()
-			#receive the data
-
+			rtn = self.send_data(data)
+			
+			#deal with not getting everything properly...
+			if not rtn:
+				
+			#handle getting everything properly
+			else:
+				self.removeCompletedCommand()
+				self.update()
+				
 
 
 	"""Worker methods: These methods send and recieve data from the
@@ -130,29 +136,14 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		if tmp is True or tmp == 'Transmission Complete':
 			self.go_home = 0
 			#decode the data sent back down
-			if data == 'GPS':
-				f = open(self.fname)
-				self.gps = GPS_packet(f.readline())
-				f.close()
-			elif data == 'Telemetry':
-				f = open(self.fname)
-				self.temprature = int(f.readline().strip('\n').strip())
-				self.batt = int(f.readline().strip('\n').strip())
-				f.close()
-			elif data == 'Settings':
+			if data == 'Settings':
 				self.freq = self.new_freq
 				self.modulation = self.new_modulation
 				self.timeout = self.new_timeout
 				#self.handshake = self.new_handshake
-		elif tmp == 'Handshaking Maximum Reached':
+		else:
 			self.go_home = self.go_home + 1
-			
-		elif tmp == 'Timeout':
-			self.go_home = self.go_home + 1
-			
-		elif tmp == 'Error':
-			self.go_home = self.go_home + 1
-			
+			self.report_error(tx_rx = 'Receiving', msg = tmp)
 		
 		if self.go_home >= 3:
 			#Going Home
@@ -163,13 +154,25 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			tmp = self.tsvr.receive()
 			if tmp is True or tmp == 'Transmission Complete':
 				self.go_home = 0
-			elif tmp == 'Handshaking Maximum Reached':
-				
-			elif tmp == 'Timeout':
-				
-			elif tmp == 'Error':
-				
-
+				#decode the data sent back down
+				if data == 'GPS':
+					f = open(self.fname)
+					self.gps = GPS_packet(f.readline())
+					f.close()
+				elif data == 'Telemetry':
+					f = open(self.fname)
+					self.temprature = int(f.readline().strip('\n').strip())
+					self.batt = int(f.readline().strip('\n').strip())
+					f.close()
+			else:
+				self.go_home = self.go_home + 1
+				self.report_error(tx_rx = 'Transmitting', msg = tmp)
+	
+	def report_error(self, tx_rx, msg):
+		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
+		#show this error message to the user in some fassion... possibly a popup message, or in the queue
+		pass
+	
 	def go_home(self):
 		self.go_home = 0
 		self.freq = '0'
