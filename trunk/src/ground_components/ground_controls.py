@@ -31,8 +31,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.sigPower = '0'
 		self.cmd_list = []
 		self.MAX_COMMANDS=3
-		self.imageFileName = '/image.jpeg'
-		self.fftFileName = '/fft.jpeg'
+		self.imageFileName = '1.jpg'
+		self.fftFileName = '2.jpg'
 		self.fname = ''
 		self.new_freq = 0
 		self.new_modulation = ''
@@ -80,9 +80,11 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		commands in the command queue when there are items in it. If there
 		are no items in the queue, this thread sleeps, until notified of a
 		change in the queue."""
+		#self.update()
 		while True:
+			print "\ntest point\n"
 			self.pendingRequest.wait()	#sleep until a command is requested
-
+			
 			cmd = self.getNextCommand()
 
 			#figure out which command has been requested
@@ -141,7 +143,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				self.timeout = self.new_timeout
 				#self.handshake = self.new_handshake
 		else:
-			self.go_home = self.go_home + 1
+			#self.go_home = self.go_home + 1
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 		
 		if self.go_home >= 3:
@@ -151,6 +153,18 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		
 		if rx:
 			tmp = self.tsvr.receive()
+			
+			self.imageFileName = '2.jpg'
+			self.fftFileName = '1.jpg'
+			self.temperature = '100'
+			self.freq = '70'
+			self.batt = '13'
+			self.gps = GPS_packet("GPSD,P=5 6,A=7,V=8,E=9")
+			self.modulation = 'ASDF'
+			self.timeout = '35'
+			print "rx worked...\n"
+			return
+			
 			if tmp is True or tmp == 'Transmission Complete':
 				self.go_home = 0
 				#decode the data sent back down
@@ -160,19 +174,17 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 					f.close()
 				elif data == 'Telemetry':
 					f = open(self.fname)
-					self.temprature = int(f.readline().strip('\n').strip())
+					self.temperature = int(f.readline().strip('\n').strip())
 					self.batt = int(f.readline().strip('\n').strip())
 					f.close()
 			else:
-				self.go_home = self.go_home + 1
+				#self.go_home = self.go_home + 1
 				self.report_error(tx_rx = 'Transmitting', msg = tmp)
 	
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
 		#show this error message to the user in some fassion... possibly a popup message, or in the queue
 		print rtn
-		self.removeCompletedCommand()
-		pass
 	
 	def go_home(self):
 		self.go_home = 0

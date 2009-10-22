@@ -212,7 +212,8 @@ class Controller(wx.App):
 		listeners = [self.imageListener, self.modSchemeListener,
 					self.gpsListener, self.sensorListener,
 					self.sensorListener, self.queueListener,
-					self.frequencyListener, self.fftListener]
+					self.frequencyListener, self.fftListener,
+					self.timeoutListener]
 		for l in listeners:
 			self.model.addListener(l)
 		
@@ -257,29 +258,26 @@ class Controller(wx.App):
 		cmdTextBox.SetValue(cmdString)
 
 	def imageListener(self):
-		pass
-		if (os.getenv("LOADIMAGE")):
-			imageViewer = self.view.FindWindowByLabel('Image Viewer')		
-			dc = wx.ClientDC(imageViewer)
-			img = wx.Image("1.jpg")
-			(x,y)= imageViewer.GetClientSizeTuple()
-			#bmp.SetHeight(x)
-			#bmp.SetWidth(y)
-			scaledIMG= img.Scale(x - 10 , y - 20)
-			bmp=wx.BitmapFromImage(scaledIMG)
-			dc.DrawBitmap(bmp,10,20,False)
+		#pass
+		imageViewer = self.view.FindWindowByLabel('Image Viewer')		
+		dc = wx.ClientDC(imageViewer)
+		img = wx.Image(self.model.imageFileName)
+		(x,y)= imageViewer.GetClientSizeTuple()
+		#bmp.SetHeight(x)
+		#bmp.SetWidth(y)
+		scaledIMG= img.Scale(x - 10 , y - 20)
+		bmp=wx.BitmapFromImage(scaledIMG)
+		dc.DrawBitmap(bmp,10,20,False)
 	def fftListener(self):
-		pass
-		if (os.getenv("LOADIMAGE")):
-			fftViewer = self.view.FindWindowByLabel('Frequency Spectrum Viewer')		
-			dc = wx.ClientDC(fftViewer)
-			fft= wx.Image("fft.jpg")
-			(x,y)= fftViewer.GetClientSizeTuple()
-			#bmp.SetHeight(x)
-			#bmp.SetWidth(y)
-			scaledIMG= img.Scale(x - 10 , y - 20)
-			bmp=wx.BitmapFromImage(scaledIMG)
-			dc.DrawBitmap(bmp,10,20,False)
+		fftViewer = self.view.FindWindowByLabel('Frequency Spectrum Viewer')		
+		dc = wx.ClientDC(fftViewer)
+		fft= wx.Image(self.model.fftFileName)
+		(x,y)= fftViewer.GetClientSizeTuple()
+		#bmp.SetHeight(x)
+		#bmp.SetWidth(y)
+		scaledIMG= fft.Scale(x - 10 , y - 20)
+		bmp=wx.BitmapFromImage(scaledIMG)
+		dc.DrawBitmap(bmp,10,20,False)
 
 	
 	def frequencyListener(self):
@@ -310,6 +308,12 @@ class Controller(wx.App):
 		temp_txt.SetValue(self.model.temperature)
 		batt_txt = self.view.FindWindowByName('battTextBox')
 		batt_txt.SetValue(self.model.batt)
+	
+	def timeoutListener(self):
+		"""updatate frequency data in the view"""
+		freq_txt = self.view.FindWindowByName('timeoutTextBox')
+		freq_txt.SetValue(self.model.timeout)
+
 		
 if __name__ =="__main__":
 	app = Controller()
