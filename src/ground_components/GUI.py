@@ -120,10 +120,19 @@ class View(wx.Frame):
 	
 	
 	def makeFFTPanel(self, parent):
+		left_panel =wx.Panel(parent,-1)
+		left_panel.SetBackgroundColour("Gray")
 		"""panel where FFT will reside"""
 		fft_panel = wx.Panel(parent,-1)
 		fft_panel.SetBackgroundColour("Gray")
-		return fft_panel
+		fft_border= wx.StaticBox(left_panel, -1, 'Frequency Spectrum Viewer')
+		fft_sizer = wx.StaticBoxSizer(fft_border,orient=wx.HORIZONTAL)
+
+		hbox3 =wx.BoxSizer(wx.HORIZONTAL)
+		hbox3.Add(fft_sizer,1,wx.EXPAND)
+		left_panel.SetSizer(hbox3)
+		
+		return left_panel
 		
 	
 	def makeRightPanel(self, parent):
@@ -203,7 +212,7 @@ class Controller(wx.App):
 		listeners = [self.imageListener, self.modSchemeListener,
 					self.gpsListener, self.sensorListener,
 					self.sensorListener, self.queueListener,
-					self.frequencyListener]
+					self.frequencyListener, self.fftListener]
 		for l in listeners:
 			self.model.addListener(l)
 		
@@ -254,6 +263,18 @@ class Controller(wx.App):
 			dc = wx.ClientDC(imageViewer)
 			img = wx.Image("1.jpg")
 			(x,y)= imageViewer.GetClientSizeTuple()
+			#bmp.SetHeight(x)
+			#bmp.SetWidth(y)
+			scaledIMG= img.Scale(x - 10 , y - 20)
+			bmp=wx.BitmapFromImage(scaledIMG)
+			dc.DrawBitmap(bmp,10,20,False)
+	def fftListener(self):
+		pass
+		if (os.getenv("LOADIMAGE")):
+			fftViewer = self.view.FindWindowByLabel('Frequency Spectrum Viewer')		
+			dc = wx.ClientDC(fftViewer)
+			fft= wx.Image("fft.jpg")
+			(x,y)= fftViewer.GetClientSizeTuple()
 			#bmp.SetHeight(x)
 			#bmp.SetWidth(y)
 			scaledIMG= img.Scale(x - 10 , y - 20)
