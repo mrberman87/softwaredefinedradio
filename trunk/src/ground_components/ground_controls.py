@@ -31,6 +31,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.cmd_list = []
 		self.MAX_COMMANDS=3
 		self.imageFileName = ''
+		self.fftFileName = ''
 		self.tsvr = dummyTransmitter()
 		self.fname = ''
 		self.new_freq = 0
