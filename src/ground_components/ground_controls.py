@@ -14,7 +14,7 @@ import Queue
 sys.path.append("GPS") #includes GPS/ directory to use GPS_packet.py
 from GPS_packet import GPS_packet
 sys.path.append("../Data_Path")
-from Data_Path import txrx_controller
+from txrx_controller import txrx_controller
 
 
 class ground_controls(abstractmodel.AbstractModel, threading.Thread):
