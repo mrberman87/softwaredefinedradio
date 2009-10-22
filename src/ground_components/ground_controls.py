@@ -98,11 +98,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			
 			rtn = self.send_data(data)
 			
-			#deal with not getting everything properly...
-			if not rtn:
-				
 			#handle getting everything properly
-			else:
+			if rtn:
 				self.removeCompletedCommand()
 				self.update()
 				
