@@ -31,8 +31,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.sigPower = '0'
 		self.cmd_list = []
 		self.MAX_COMMANDS=3
-		self.imageFileName = ''
-		self.fftFileName = ''
+		self.imageFileName = '/image.jpeg'
+		self.fftFileName = '/fft.jpeg'
 		self.fname = ''
 		self.new_freq = 0
 		self.new_modulation = ''
@@ -101,9 +101,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			rtn = self.send_data(data)
 			
 			#handle getting everything properly
-			if rtn:
-				self.removeCompletedCommand()
-				self.update()
+			#if rtn:
+			self.removeCompletedCommand()
+			self.update()
 				
 
 
@@ -170,6 +170,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
 		#show this error message to the user in some fassion... possibly a popup message, or in the queue
+		print rtn
 		self.removeCompletedCommand()
 		pass
 	
