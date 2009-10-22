@@ -52,8 +52,12 @@ default_access_code = \
   conv_packed_binary_string_to_1_0_string('\xAC\xDD\xA4\xE2\xF2\x8C\x20\xFC')
 preamble = \
   conv_packed_binary_string_to_1_0_string('\xA4\xF2')
-syncer = \
-  conv_packed_binary_string_to_1_0_string('\x55\x55\x55')
+preamble_bpsk = \
+  conv_packed_binary_string_to_1_0_string('\x55\x55')
+preamble_qpsk = \
+  conv_packed_binary_string_to_1_0_string('\x1E\x1E\x1E\x1E')
+preamble_8psk = \
+  conv_packed_binary_string_to_1_0_string('\x2D\x6F\x60\x2D\x6F\x60\x2D\x6F\x60')
 
 def is_1_0_string(s):
     if not isinstance(s, str):
@@ -77,7 +81,7 @@ def make_header(payload_len, whitener_offset=0):
     #print "offset =", whitener_offset, " len =", payload_len, " val=", val
     return struct.pack('!HH', val, val)
 
-def make_packet(total_pkts, payload_count, event, payload, original_payload_count='', samples_per_symbol=8, bits_per_symbol=1,
+def make_packet(total_pkts, payload_count, event, payload, scheme, original_payload_count='',
                 access_code=default_access_code, whitener_offset=0):
 	"""
 	Build a packet, given access code, payload, and whitener offset
@@ -93,9 +97,18 @@ def make_packet(total_pkts, payload_count, event, payload, original_payload_coun
 	Packet will have access code at the beginning, count, length, payload
 	and finally CRC-32.
 	"""
+	samples_per_symbol=8
 
 	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(access_code)
-	(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble)
+	if scheme == 'bpsk':
+		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_bpsk)
+		bits_per_symbol=1
+	elif scheme == 'qpsk':
+		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_qpsk)
+		bits_per_symbol=2
+	elif scheme == '8psk':
+		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_8psk)
+		bits_per_symbol=3
 
 	if original_payload_count == '':
     		payload = str(total_pkts) + ':' + str(payload_count) + ':' + str(event) + ':' + payload
@@ -106,10 +119,10 @@ def make_packet(total_pkts, payload_count, event, payload, original_payload_coun
 
 	L = len(payload_with_crc)
 
-	pkt = ''.join((syncer, packed_preamble, packed_access_code, make_header(L, whitener_offset), \
+	pkt = ''.join((packed_preamble, packed_access_code, make_header(L, whitener_offset), \
 			whiten(payload_with_crc, whitener_offset), '\x55'))
 
-	pkt = 3*'\x05\x39\x77' + (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55') + pkt 
+	pkt = (_npadding_bytes(len(pkt), samples_per_symbol, bits_per_symbol) * '\x55') + pkt 
 
 	return pkt
 
