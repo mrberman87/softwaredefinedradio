@@ -13,7 +13,8 @@ import threading
 import Queue
 sys.path.append("GPS") #includes GPS/ directory to use GPS_packet.py
 from GPS_packet import GPS_packet
-from dummyTransmitter import dummyTransmitter
+sys.path.append("../Data_Path")
+from Data_Path import txrx_controller
 
 
 class ground_controls(abstractmodel.AbstractModel, threading.Thread):
@@ -32,11 +33,11 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.MAX_COMMANDS=3
 		self.imageFileName = ''
 		self.fftFileName = ''
-		self.tsvr = dummyTransmitter()
 		self.fname = ''
 		self.new_freq = 0
 		self.new_modulation = ''
 		self.new_timeout = 0
+		self.tsvr = txrx_controller(fc=440e6, centoff=11e3, foffset_tx=0, foffset_rx=50e3)
 	
 	
 	"""GUI responder methods: These are the only methods that should be
