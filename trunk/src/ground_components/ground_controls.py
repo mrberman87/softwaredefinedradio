@@ -170,6 +170,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
 		#show this error message to the user in some fassion... possibly a popup message, or in the queue
+		self.removeCompletedCommand()
 		pass
 	
 	def go_home(self):
