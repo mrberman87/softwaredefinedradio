@@ -26,6 +26,7 @@ class txrx_controller():
 		self.rx_osc_f_offset = -50e3
 		self.hand_shaking_count = 0
 		self.total_pkts = None
+		self.scheme = version
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
@@ -239,9 +240,9 @@ class txrx_controller():
 				payload = temp_data[:self.payload_length]
 				self.data_split_for_pkts.append(payload)
 				temp_data = temp_data[self.payload_length:]
-				self.transmit_pkts(packetizer.make_packet( \
-					total_pkts, i, self.event_list[0], payload))
-			self.transmit_pkts('1010101010101010')
+				pkt = packetizer.make_packet( total_pkts, i, 
+					self.event_list[0], payload, scheme = self.scheme)
+				self.transmit_pkts(pkt)
 		#Transmitting Incomplete Transmission
 		elif event_index == 1:
 			bad_pkts = self.bad_pkt_indices()
@@ -254,9 +255,9 @@ class txrx_controller():
 				bad_pkts = bad_pkts[max_items_per_packet:]
 				pkt_payload = ':'.join(payload)
 				pkt = packetizer.make_packet( \
-					total_pkts, i, self.event_list[event_index], pkt_payload)
+					total_pkts, i, self.event_list[event_index], pkt_payload, 
+					scheme = self.scheme)
 				self.transmit_pkts(pkt)
-			self.transmit_pkts('1010101010101010')
 		#Transmitting Packet Resend
 		elif event_index == 2:
 			counter = 0
@@ -265,24 +266,21 @@ class txrx_controller():
 				payload = self.data_split_for_pkts[int(i)]
 				pkt = packetizer.make_packet( \
 					total_pkts, counter, self.event_list[event_index],  
-					payload, original_payload_count = i)
+					payload, scheme = self.scheme, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
-			self.transmit_pkts('1010101010101010')
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
-				self.event_list[event_index])
+				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
-			self.transmit_pkts('1010101010101010')
 		#Transmitting Error Event
 		elif event_index == 4:
 			pkt = packetizer.make_packet( \
 				1, 0, self.event_list[event_index], 
-				self.event_list[event_index])
+				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
-			self.transmit_pkts('1010101010101010')
 
 	#Queue a packet in the transceiver flow graph
 	def transmit_pkts(self, msg):
