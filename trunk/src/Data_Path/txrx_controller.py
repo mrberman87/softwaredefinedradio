@@ -11,9 +11,9 @@ from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, hand_shaking_max=5, frame_time_out=45, pay_load_length=128,
-			work_directory = os.path.expanduser('~') + '/Desktop', version='bpsk',
-			rx_file='/rx_data', fc, centoff, foffset_tx, foffset_rx):
+	def __init__(self, fc, centoff, foffset_tx, foffset_rx, hand_shaking_max=5, frame_time_out=45, 
+			pay_load_length=128, work_directory = os.path.expanduser('~') + '/Desktop', 
+			version='bpsk', rx_file='/rx_data'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
 		self.hand_shaking_maximum = hand_shaking_max
 		self.working_directory = work_directory
