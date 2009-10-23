@@ -169,7 +169,7 @@ class txrx_controller():
 			max_splits = self.payload_length/4
 			failed_pkts = self.payload.split(':', max_splits)
 			if len(failed_pkts[-1]) > 3:
-				failed_pkts.pop(-1)
+				failed_pkts.pop()
 
 			num_failed_pkts = len(failed_pkts)
 		for i in range(num_failed_pkts):
@@ -213,7 +213,8 @@ class txrx_controller():
 		index = 0
 		n_index = 0
 		missing_pkts = list()
-		while len(missing_pkts) < self.new_transmission_data.count('Failed'):
+		num_missing_pkts = self.new_transmission_data.count('Failed')
+		while len(missing_pkts) < num_missing_pkts:
 			index = self.new_transmission_data.index('Failed', n_index)
 			missing_pkts.append(str(index))
 			n_index = index + 1
@@ -240,7 +241,7 @@ class txrx_controller():
 				payload = temp_data[:self.payload_length]
 				self.data_split_for_pkts.append(payload)
 				temp_data = temp_data[self.payload_length:]
-				pkt = packetizer.make_packet( total_pkts, i, 
+				pkt = packetizer.make_packet(total_pkts, i, 
 					self.event_list[0], payload, scheme = self.scheme)
 				self.transmit_pkts(pkt)
 		#Transmitting Incomplete Transmission
@@ -254,8 +255,8 @@ class txrx_controller():
 				payload = bad_pkts[:max_items_per_packet]
 				bad_pkts = bad_pkts[max_items_per_packet:]
 				pkt_payload = ':'.join(payload)
-				pkt = packetizer.make_packet( \
-					total_pkts, i, self.event_list[event_index], pkt_payload, 
+				pkt = packetizer.make_packet(total_pkts, i, 
+					self.event_list[event_index], pkt_payload, 
 					scheme = self.scheme)
 				self.transmit_pkts(pkt)
 		#Transmitting Packet Resend
@@ -264,21 +265,19 @@ class txrx_controller():
 			total_pkts = len(self.pkts_for_resend)
 			for i in self.pkts_for_resend:
 				payload = self.data_split_for_pkts[int(i)]
-				pkt = packetizer.make_packet( \
-					total_pkts, counter, self.event_list[event_index],  
-					payload, scheme = self.scheme, original_payload_count = i)
+				pkt = packetizer.make_packet(total_pkts, counter, 
+					self.event_list[event_index],  payload, 
+					scheme = self.scheme, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
-			pkt = packetizer.make_packet( \
-				1, 0, self.event_list[event_index], 
+			pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
 		#Transmitting Error Event
 		elif event_index == 4:
-			pkt = packetizer.make_packet( \
-				1, 0, self.event_list[event_index], 
+			pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
 
@@ -324,48 +323,26 @@ class txrx_controller():
 		except:
 			return False
 
-	def set_frequency(self, fc, tx_rx, change_c_offset=False, centoff=0, change_rx_offset=False, 
-			foffset_rx=0, change_tx_offset=False, foffset_tx=0,):
+	def set_frequency(self, fc):
 
-		if fc > 400.025e6 and fc < 499.075e6:
+		if fc >= 400.025e6 and fc <= 499.975e6:
 			self.fc = fc
 		else:
 			return "Invalid Carrier Frequency."
-		if change_c_offset:
-			self.carrier_offset = centoff
-		if change_rx_offset:
-			self.rx_f_offset = foffset_rx
-			self.txrx_path.gr_sig_source_x_0_0.set_frequency(self.rx_osc_f_offset - 50e3)
-		if change_tx_offset:
-			self.tx_f_offset = foffset_tx
 
-		if tx_rx == 'tx':
-			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
-			try:
-				self.txrx_path.usrp_simple_sink_x_0.set_frequency( \
-					tx_freq, verbose=True)
-			except:
-				return False
-		elif tx_rx == 'rx':
-			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
-			try:
-				self.txrx_path.usrp_simple_source_x_0.set_frequency( \
-					rx_freq, verbose=True)
-			except:
-				return False
-		elif tx_rx == 'txrx':
-			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
-			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
-			try:
-				self.txrx_path.usrp_simple_source_x_0.set_frequency( \
-					rx_freq, verbose=True)
-			except:
-				return False
-			try:
-				self.txrx_path.usrp_simple_sink_x_0.set_frequency( \
-					tx_freq, verbose=True)
-			except:
-				return False
+		rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
+		tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
+		print "New Transmission Freq: %d, New Receive Freq: %d", tx_freq, rx_freq
+		try:
+			self.txrx_path.usrp_simple_source_x_0.set_frequency(
+				rx_freq, verbose=False)
+		except:
+			return False
+		try:
+			self.txrx_path.usrp_simple_sink_x_0.set_frequency(
+				tx_freq, verbose=False)
+		except:
+			return False
 
 	def set_rx_path(self, new_path):
 		if os.path.exists(new_path):
