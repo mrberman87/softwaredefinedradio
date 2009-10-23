@@ -81,8 +81,7 @@ def make_header(payload_len, whitener_offset=0):
     #print "offset =", whitener_offset, " len =", payload_len, " val=", val
     return struct.pack('!HH', val, val)
 
-def make_packet(total_pkts, payload_count, event, payload, scheme, original_payload_count='',
-                access_code=default_access_code, whitener_offset=0):
+def make_packet(total_pkts, payload_count, event, payload, scheme, original_payload_count=''):
 	"""
 	Build a packet, given access code, payload, and whitener offset
 
@@ -98,8 +97,9 @@ def make_packet(total_pkts, payload_count, event, payload, scheme, original_payl
 	and finally CRC-32.
 	"""
 	samples_per_symbol=8
+	whitener_offset=0
 
-	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(access_code)
+	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(default_access_code)
 	if scheme == 'bpsk':
 		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_bpsk)
 		bits_per_symbol=1
