@@ -168,9 +168,16 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		
 		if self.go_home >= 3:
 			#Going Home
-			rx = False
+			rtn = True
+			#tmp = self.tsvr.transmit("Going Home")
+			#if not (tmp is True or tmp == 'Transmission Complete'):
+			#	rtn = False
+			#	#let user know of forcefull "GO HOME" state
+			#	...
 			self.go_home()
 			#FIXME tell the user that this has occured somehow... possbily a popup
+			#...
+			return rtn
 		
 		if rx:
 			tmp = self.tsvr.receive()

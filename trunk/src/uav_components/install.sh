@@ -7,13 +7,13 @@
 mkdir /uav
 mkdir /uav/daemon_pids
 
-cp ~/softwaredefinedradio/src/uav_components/controller/daemon.py /uav/daemon.py
-cp ~/softwaredefinedradio/src/uav_components/controller/uav_controller.py /uav/uav_controller.py
-cp ~/softwaredefinedradio/src/uav_components/controller/watch_dog1.py /uav/watch_dog1.py
-cp ~/softwaredefinedradio/src/uav_components/controller/watch_dog2.py /uav/watch_dog2.py
-cp ~/softwaredefinedradio/src/uav_components/controller/wd_reset.py /uav/wd_reset.py
-cp ~/softwaredefinedradio/src/uav_components/telemetry.py /uav/telemetry.py
-cp ~/softwaredefinedradio/src/uav_components/GPS_getter.py /uav/GPS_getter.py
+cp ~/softwaredefinedradio/src/uav_components/daemon.py /uav/daemon.py
+cp ~/softwaredefinedradio/src/uav_components/uav_controller.py /uav/uav_controller.py
+cp ~/softwaredefinedradio/src/uav_components/watch_dog1.py /uav/watch_dog1.py
+cp ~/softwaredefinedradio/src/uav_components/watch_dog2.py /uav/watch_dog2.py
+cp ~/softwaredefinedradio/src/uav_components/wd_reset.py /uav/wd_reset.py
+cp ~/softwaredefinedradio/src/uav_components/uav_utils/telemetry.py /uav/telemetry.py
+cp ~/softwaredefinedradio/src/uav_components/uav_utils/GPS_getter.py /uav/GPS_getter.py
 cp ~/softwaredefinedradio/src/Data_Path/packetizer.py /uav/packetizer.py
 cp ~/softwaredefinedradio/src/Data_Path/txrx_d8psk.py /uav/txrx_d8psk.py
 cp ~/softwaredefinedradio/src/Data_Path/txrx_dqpsk.py /uav/txrx_dqpsk.py
