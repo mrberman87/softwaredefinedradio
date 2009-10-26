@@ -26,6 +26,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.cmd_qLock = threading.Lock()
 		self.gps = GPS_packet("GPSD,P=0 0,A=0,V=0,E=0")
 		self.go_home() #initialize the "GO HOME" type variables
+		#setting up the usb controller
+		self.dev = usb.core.find(idVendor=65534, idProduct=2)
+		self.dev.set_configuration()
 		self.temperature = '0'
 		self.batt = '0'
 		self.sigPower = '0'
@@ -37,7 +40,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.new_freq = 0
 		self.new_modulation = ''
 		self.new_timeout = 0
-		self.tsvr = txrx_controller(fc=440e6, centoff=11e3, foffset_tx=0, foffset_rx=50e3)
+		#this sets up the transceiver
+		self.tsvr = ''
+		self.set_params()
 	
 	
 	"""GUI responder methods: These are the only methods that should be
@@ -80,30 +85,38 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		commands in the command queue when there are items in it. If there
 		are no items in the queue, this thread sleeps, until notified of a
 		change in the queue."""
-		#self.update()
 		while True:
-			print "\ntest point\n"
 			self.pendingRequest.wait()	#sleep until a command is requested
 			
 			cmd = self.getNextCommand()
-
-			#figure out which command has been requested
-			if cmd.startswith('GPS'): data = 'GPS'
-			elif cmd.startswith('Image'): data = 'Image'
-			elif cmd.startswith('FFT'): data = 'FFT'
-			elif cmd.startswith('Batt'): data = 'Telemetry'
-			elif cmd.startswith('Settings'):
-				data = 'Settings'
-				tmp  = cmd.split(' ')
-				self.new_freq = int(tmp[1])
-				self.new_modulation = tmp[2]
-				self.new_timeout = int(tmp[3])
-				#self.new_handshake = int(tmp[4])
 			
-			rtn = self.send_data(data)
+			if not cmd.startswith('All'):
+				#figure out which command has been requested
+				if cmd.startswith('GPS'): data = 'GPS'
+				elif cmd.startswith('Image'): data = 'Image'
+				elif cmd.startswith('FFT'): data = 'FFT'
+				elif cmd.startswith('Telemetry'): data = 'Telemetry'
+				elif cmd.startswith('Settings'):
+					data = 'Settings'
+					tmp  = cmd.split(' ')
+					self.new_freq = int(tmp[1])
+					self.new_modulation = tmp[2]
+					self.new_timeout = int(tmp[3])
+					self.new_handshake = int(tmp[4])
+			
+				rtn = self.send_data(data)
+			else:
+				rtn_gps = self.send_data('GPS')
+				rtn_image = self.send_data('Image')
+				rtn_fft = self.send_data('FFT')
+				rtn_tele = self.send_data('Telemetry')
+				rtn = rtn_gps and rtn_image and rtn_fft and rtn_tele
+			
+			#FIXME let the user know that something wasnt properly communicated between the ground and UAV
+			#if not rtn:
+				#...
 			
 			#handle getting everything properly
-			#if rtn:
 			self.removeCompletedCommand()
 			self.update()
 				
@@ -114,22 +127,15 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	in a separate thread to keep the application responsive."""
 	
 	def send_data(self, data):
-		rx = True
-
-		if data == 'GPS': self.fname = 'gps.dat'
-		elif data == 'Image': self.fname = 'picture.jpg'
-		elif data == 'FFT': self.fname = 'fft.jpeg'
-		elif data == 'Telemetry': self.fname = 'tele.dat'
-		elif data == 'Settings': self.fname = 'settings.dat'
+		self.fname = data + '.dat'
 
 		if data == 'Settings':
 			#print things into a file to be sent up and change data to the file path
-			rx = False
 			fd = open(self.fname)
 			fd.write("settings\n")
 			if self.new_freq != self.freq: fd.write("Freq: " + self.new_freq + '\n')
 			if self.new_timeout != self.timeout: fd.write("Timeout: " + self.new_timeout + '\n')
-			#if self.new_handshake != self.handshake: fd.write("Hand_Max: " + self.new_handshake + '\n')
+			if self.new_handshake != self.handshake: fd.write("Hand_Max: " + self.new_handshake + '\n')
 			if self.new_modulation != self.modulation: fd.write("Version: " + self.new_modulation + '\n')
 			fd.close()
 		
@@ -138,32 +144,36 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			self.go_home = 0
 			#decode the data sent back down
 			if data == 'Settings':
-				self.freq = self.new_freq
-				self.modulation = self.new_modulation
-				self.timeout = self.new_timeout
-				#self.handshake = self.new_handshake
+				if self.new_modulation == self.modulation:
+					self.freq = self.new_freq
+					self.modulation = self.new_modulation
+					self.timeout = self.new_timeout
+					self.handshake = self.new_handshake
+					self.set_params()
+				else:
+					if self.new_freq != self.freq:
+						self.freq = self.new_freq
+						self.tsvr.set_frequency(self.freq)
+					elif self.new_timeout != self.timeout:
+						self.timeout = self.new_timeout
+						self.tsvr.set_frame_time_out(self.timeout)
+					elif self.new_handshake != self.handshake:
+						self.handshake = self.new_handshake
+						self.tsvr.set_hand_shaking_maximum(self.handshake)
+				return True
 		else:
 			#self.go_home = self.go_home + 1
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
+			return False
 		
 		if self.go_home >= 3:
 			#Going Home
 			rx = False
 			self.go_home()
+			#FIXME tell the user that this has occured somehow... possbily a popup
 		
 		if rx:
 			tmp = self.tsvr.receive()
-			
-			self.imageFileName = '2.jpg'
-			self.fftFileName = '1.jpg'
-			self.temperature = '100'
-			self.freq = '70'
-			self.batt = '13'
-			self.gps = GPS_packet("GPSD,P=5 6,A=7,V=8,E=9")
-			self.modulation = 'ASDF'
-			self.timeout = '35'
-			print "rx worked...\n"
-			return
 			
 			if tmp is True or tmp == 'Transmission Complete':
 				self.go_home = 0
@@ -181,9 +191,19 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				#self.go_home = self.go_home + 1
 				self.report_error(tx_rx = 'Transmitting', msg = tmp)
 	
+	#this sets parameters for the txrx_controller
+	#calling this will also initialze the controller
+	def set_params(self):
+		del self.tsvr
+		self.dev.reset()
+		time.sleep(2)
+		self.tsvr = txrx_controller(fc=self.freq, centoff=11e3, foffset_tx=0, foffset_rx=50e3, hand_shaking_max = self.handshake,
+			frame_time_out = self.timeout, work_directory=os.getcwd(), version = self.modulation)
+		time.sleep(2)
+	
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
-		#show this error message to the user in some fassion... possibly a popup message, or in the queue
+		#FIXME show this error message to the user in some fassion... possibly a popup message, or in the queue
 		print rtn
 	
 	def go_home(self):
@@ -191,6 +211,6 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.freq = '0'
 		self.modulation = 'BPSK'
 		self.timeout = '10' #(in seconds)
-		#self.handshake = 5
+		self.handshake = 5
 
 class QueueLimitException(Exception):pass
