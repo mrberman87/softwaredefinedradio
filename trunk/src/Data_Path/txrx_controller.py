@@ -26,7 +26,7 @@ class txrx_controller():
 		self.rx_osc_f_offset = -50e3
 		self.hand_shaking_count = 0
 		self.total_pkts = None
-		self.scheme = version
+		self.scheme = version.lower()
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
@@ -36,17 +36,17 @@ class txrx_controller():
 		self.tx_f_offset = foffset_tx
 		#If UAV:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
 		#if Ground:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
-		if   version == 'bpsk':
+		if   self.scheme == 'bpsk':
 			self.txrx_path = txrx_dbpsk.tx_rx_path(
 				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
 				cent_off=self.carrier_offset, f_c=self.fc)
 			self.txrx_path.start()
-		elif version == 'qpsk':
+		elif self.scheme == 'qpsk':
 			self.txrx_path = txrx_dqpsk.tx_rx_path(
 				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
 				cent_off=self.carrier_offset, f_c=self.fc)
 			self.txrx_path.start()
-		elif version == '8psk':
+		elif self.scheme == '8psk':
 			self.txrx_path = txrx_d8psk.tx_rx_path(
 				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
 				cent_off=self.carrier_offset, f_c=self.fc)
