@@ -11,6 +11,7 @@ import abstractmodel
 import sys
 import threading
 import Queue
+import usb, time
 sys.path.append("GPS") #includes GPS/ directory to use GPS_packet.py
 from GPS_packet import GPS_packet
 sys.path.append("../Data_Path")
@@ -27,8 +28,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.gps = GPS_packet("GPSD,P=0 0,A=0,V=0,E=0")
 		self.go_home() #initialize the "GO HOME" type variables
 		#setting up the usb controller
-		self.dev = usb.core.find(idVendor=65534, idProduct=2)
-		self.dev.set_configuration()
+                self.dev = usb.core.find(idVendor=65534, idProduct=2)
+                self.dev.set_configuration()
 		self.temperature = '0'
 		self.batt = '0'
 		self.sigPower = '0'
@@ -80,6 +81,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.cmd_qLock.release()
 		self.update()
 
+                self.dev = usb.core.find(idVendor=65534, idProduct=2)
+                self.dev.set_configuration()
 	def run(self):
 		"""This method is called when the thread is started. It executes
 		commands in the command queue when there are items in it. If there
