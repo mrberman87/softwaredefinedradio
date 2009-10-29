@@ -215,7 +215,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	
 	def go_home(self):
 		self.go_home = 0
-		self.freq = '0'
+		self.freq = 440e6
 		self.modulation = 'BPSK'
 		self.timeout = '10' #(in seconds)
 		self.handshake = 5

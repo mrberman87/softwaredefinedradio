@@ -250,7 +250,7 @@ class uav_controller():
        
         #this sets the "go home" variables
         def go_home(self):
-                self.freq = 440000000
+                self.freq = 440e6
                 self.rx_offset = -50e3
                 self.tx_offset = 100e3
                 self.time_0 = 35
