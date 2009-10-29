@@ -13,5 +13,5 @@ sudo echo deb-src http://gnuradio.org/ubuntu stable main >> /etc/apt/sources.lis
 #sudo echo deb-src http://gnuradio.org/ubuntu unstable main >> /etc/apt/sources.list
 
 sudo apt-get update
-sudo apt-get install -y gnuradio gnuradio-companion
+sudo apt-get install --force-yes gnuradio gnuradio-companion
 sudo addgroup whoami usrp
