@@ -14,6 +14,7 @@ import timeit, time, serial
 
 def Temp():
 	s = serial.Serial(0)
+	#print 1
 	push_low(s)
 	while(not s.getCTS()):
  		pass
@@ -26,7 +27,9 @@ def Temp():
 
 def Power():
  	s = serial.Serial(0)
+	
 	trigger_2(s) 
+	#print 2
 	#Pin number 6
 	while(not s.getDSR()):
 		pass
@@ -39,12 +42,14 @@ def Power():
 #the data from TTL--->serial and from serial--->TTL. Because of this a TTL low pulse (0 V) is serial(+12V) and TTL HIGH or 5V is serial (-12 ).
 #so if  the function, push_low sends a 1(+12Vserial) this will be a TTL(0V) which is the active low we want to trigger the circuit 
 def push_low(s):
+	#print 3
 	s.setRTS(1)
 	time.sleep(.001)
 	s.setRTS(0)
 	
 
 def trigger_2(s):
+	#print 4
 	s.setDTR(1)
 	time.sleep(.001)
 	s.setDTR(0)
@@ -53,37 +58,39 @@ def trigger_2(s):
 # The decode defenition is an equation derived from the temp file during testing. Tempurature values  of 0 to 300 degrees F "Voltages" were
 # simulated using voltages from 0-3.0V by increments of 0.1 Volts. The data was mapped to excel and the equation below was dervived. The
 # value is actually the unique pulse width for a given Tempurature. 
-def decode_data(value1):
-	Tempurature = 549.69*value1*value1 - 1194.4*value1 + 439.13
-	print "%d F" % Tempurature 
+def decode_temp(value1):
+	Tempurature = 331.62*value1*value1-890.86*value1+446.99
+	#print "%d F" % Tempurature
+	return value1 
 	
-def decode_data2(value2):
-	Batt=-58.743*value2+26.115
-	print "%.1f Volts" % Batt 
-	print '\n'
-	#print value2
+def decode_batt(value2):
+	#Batt=-18.957*value2+34.595 #'linear'
+	Batt=6.4873*value2*value2-31.89*value2+40.61
+	#print "%.1f Volts" % Batt 
+	#print '\n'
+	return value2
 
 #----------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 	t=timeit.Timer('Temp()', "from __main__ import Temp")
 	t2=timeit.Timer('Power()', "from __main__ import Power")
+	"""
 	while(True):
-		decode_data(t.timeit(number=1))
+		temp = decode_temp(t.timeit(number=1))
 		#time.sleep(.05)
-		decode_data2(t2.timeit(number=1))
-		time.sleep(1)
+		batt = decode_batt(t2.timeit(number=1))
+		#time.sleep(1)
+		print "%d F" % Tempurature
+		print "%.1f Volts" % Batt 
+	"""
+	temp = decode_temp(t.timeit(number=1))
+	batt = decode_batt(t2.timeit(number=1))
 		
-		
-#-----------------------------------------------------------------------------------------------
-#Output to file for circuit curve fitting (used only to get equation)
-#fd = open('temp.dat', "w")
-#fd.write(decode_data(t.timeit(number=1)))
-#fd.close()
-
-#fd = open('temp.dat', "a")
-	#fd.write(str(value) +'\n')
-	#fd.close()
-	
-
-
+	#-----------------------------------------------------------------------------------------------
+	#Output to file for circuit curve fitting (used only to get equation)
+	fd = open('misc.dat', "w")
+	fd.write('temp: %d' % temp)
+	fd.write('batt: %d' % batt)
+	fd.close()
+#"""
