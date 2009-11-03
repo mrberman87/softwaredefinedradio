@@ -28,8 +28,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.gps = GPS_packet("GPSD,P=0 0,A=0,V=0,E=0")
 		self.go_home() #initialize the "GO HOME" type variables
 		#setting up the usb controller
-                self.dev = usb.core.find(idVendor=65534, idProduct=2)
-                self.dev.set_configuration()
+		self.dev = usb.core.find(idVendor=65534, idProduct=2)
+		self.dev.set_configuration()
 		self.temperature = '0'
 		self.batt = '0'
 		self.sigPower = '0'
@@ -44,6 +44,10 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		#this sets up the transceiver
 		self.tsvr = ''
 		self.set_params()
+	
+	def __del__(self):
+		self.dev.reset()
+		sys.exit(0)
 	
 	
 	"""GUI responder methods: These are the only methods that should be
