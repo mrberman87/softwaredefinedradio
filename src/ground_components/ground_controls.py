@@ -35,9 +35,15 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.sigPower = '0'
 		self.cmd_list = []
 		self.MAX_COMMANDS=3
-		self.imageFileName = '1.jpg'
-		self.fftFileName = '2.jpg'
 		self.fname = ''
+		self.working_dir = os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components'
+		self.image = '/image.jpg'
+		self.fft = '/fft.jpg'
+		self.imageFileName = self.working_dir + self.image
+		self.fftFileName = self.working_dir + self.fft
+		self.gpsFileName = self.working_dir + '/gps.dat'
+		self.teleFileName = self.working_dir + '/tele.dat'
+		self.path = ''
 		self.new_freq = 0
 		self.new_modulation = ''
 		self.new_timeout = 0
@@ -47,7 +53,6 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	
 	def __del__(self):
 		self.dev.reset()
-		sys.exit(0)
 	
 	
 	"""GUI responder methods: These are the only methods that should be
@@ -84,9 +89,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			self.pendingRequest.clear()
 		self.cmd_qLock.release()
 		self.update()
-
-                self.dev = usb.core.find(idVendor=65534, idProduct=2)
-                self.dev.set_configuration()
+	
 	def run(self):
 		"""This method is called when the thread is started. It executes
 		commands in the command queue when there are items in it. If there
@@ -99,10 +102,18 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			
 			if not cmd.startswith('All'):
 				#figure out which command has been requested
-				if cmd.startswith('GPS'): data = 'GPS'
-				elif cmd.startswith('Image'): data = 'Image'
-				elif cmd.startswith('FFT'): data = 'FFT'
-				elif cmd.startswith('Telemetry'): data = 'Telemetry'
+				if cmd.startswith('GPS'):
+					data = 'GPS'
+					self.path = self.gpsFileName
+				elif cmd.startswith('Image'):
+					data = 'Image'
+					self.path = self.image
+				elif cmd.startswith('FFT'):
+					data = 'FFT'
+					self.path = self.fft
+				elif cmd.startswith('Telemetry'):
+					data = 'Telemetry'
+					self.path = self.teleFileName
 				elif cmd.startswith('Settings'):
 					data = 'Settings'
 					tmp  = cmd.split(' ')
@@ -125,7 +136,6 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			
 			#handle getting everything properly
 			self.removeCompletedCommand()
-			self.update()
 				
 
 
@@ -134,6 +144,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	in a separate thread to keep the application responsive."""
 	
 	def send_data(self, data):
+		print "Checking Data " + data
 		self.fname = data + '.dat'
 
 		if data == 'Settings':
@@ -147,6 +158,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			fd.close()
 		
 		tmp = self.tsvr.transmit(data)
+		print tmp
 		if tmp is True or tmp == 'Transmission Complete':
 			self.go_home = 0
 			#decode the data sent back down
@@ -186,24 +198,26 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			#...
 			return rtn
 		
-		if rx:
-			tmp = self.tsvr.receive()
-			
-			if tmp is True or tmp == 'Transmission Complete':
-				self.go_home = 0
-				#decode the data sent back down
-				if data == 'GPS':
-					f = open(self.fname)
-					self.gps = GPS_packet(f.readline())
-					f.close()
-				elif data == 'Telemetry':
-					f = open(self.fname)
-					self.temperature = int(f.readline().strip('\n').strip())
-					self.batt = int(f.readline().strip('\n').strip())
-					f.close()
-			else:
-				#self.go_home = self.go_home + 1
-				self.report_error(tx_rx = 'Transmitting', msg = tmp)
+		print "\n\nHERE IS THE PATH...\n\n"
+		print self.path
+		self.tsvr.set_rx_path(self.path)
+		print self.tsvr.rx_filename
+		tmp = self.tsvr.receive()
+		if tmp is True or tmp == 'Transmission Complete':
+			self.go_home = 0
+			#decode the data sent back down
+			if data == 'GPS':
+				f = open(self.gpsFileName)
+				self.gps = GPS_packet(f.readline())
+				f.close()
+			elif data == 'Telemetry':
+				f = open(self.teleFileName)
+				self.temperature = int(f.readline().strip('\n').strip())
+				self.batt = int(f.readline().strip('\n').strip())
+				f.close()
+		else:
+			#self.go_home = self.go_home + 1
+			self.report_error(tx_rx = 'Transmitting', msg = tmp)
 	
 	#this sets parameters for the txrx_controller
 	#calling this will also initialze the controller
@@ -211,8 +225,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		del self.tsvr
 		self.dev.reset()
 		time.sleep(2)
-		self.tsvr = txrx_controller(fc=self.freq, centoff=11e3, foffset_tx=0, foffset_rx=50e3, hand_shaking_max = self.handshake,
-			frame_time_out = self.timeout, work_directory=os.getcwd(), version = self.modulation)
+		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11e3, foffset_tx=0, foffset_rx=50e3, hand_shaking_max = int(self.handshake),
+			frame_time_out = int(self.timeout), work_directory=self.working_dir, version = self.modulation)
 		time.sleep(2)
 	
 	def report_error(self, tx_rx, msg):
@@ -223,9 +237,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	
 	def go_home(self):
 		self.go_home = 0
-		self.freq = 440e6
+		self.freq = '440000000'
 		self.modulation = 'BPSK'
-		self.timeout = 10 #(in seconds)
-		self.handshake = 5
+		self.timeout = '45' #(in seconds)
+		self.handshake = '5'
 
 class QueueLimitException(Exception):pass
