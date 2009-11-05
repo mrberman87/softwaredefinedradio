@@ -219,12 +219,13 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
 		#FIXME show this error message to the user in some fassion... possibly a popup message, or in the queue
 		print rtn
+		self.removeCompletedCommand()
 	
 	def go_home(self):
 		self.go_home = 0
 		self.freq = 440e6
 		self.modulation = 'BPSK'
-		self.timeout = '10' #(in seconds)
+		self.timeout = 10 #(in seconds)
 		self.handshake = 5
 
 class QueueLimitException(Exception):pass
