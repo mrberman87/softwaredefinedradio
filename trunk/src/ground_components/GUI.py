@@ -5,7 +5,7 @@
 import wx
 import ground_controls
 import os
-
+import usb
 class View(wx.Frame):
 	def __init__(self,parent,controller):
 		wx.Frame.__init__(self,parent, -1, 'Ground Control',size=(1000,700))
@@ -44,16 +44,19 @@ class View(wx.Frame):
 		param_grid.Add(wx.StaticText(parent,-1,'New Frequency'),wx.RIGHT,20)
 		freqTxt = wx.TextCtrl(parent,-1,name = 'freqEnter',
 								style = wx.TE_PROCESS_ENTER)
-		self.Bind(wx.EVT_TEXT_ENTER, self.controller.onFreqSelect, freqTxt)
+		#self.Bind(wx.EVT_TEXT_ENTER, self.controller.onFreqSelect, freqTxt)
 		param_grid.Add(freqTxt,wx.EXPAND|wx.ALL,20)
 
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
 		self.modChoices = wx.Choice(parent,-1,choices=['BPSK'])
-		self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, self.modChoices)
+		#self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, self.modChoices)
 		param_grid.Add(self.modChoices, wx.EXPAND|wx.ALL,20)
 
 		param_grid.Add(wx.StaticText(parent,-1,'New Timeout'),wx.RIGHT,20)
 		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
+		
+		b=self.buildOneButton(parent, 'Update Settings',self.controller.onButton)
+		param_grid.Add(b)
 		return param_grid
 		
 		
@@ -62,7 +65,7 @@ class View(wx.Frame):
 		binds the buttons to the parent given, then returns the gridsizer 
 		with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
-		labels = ['Image', 'GPS', 'FFT', 'Batt.', 'Temp.', 'All']
+		labels = ['Image', 'GPS', 'FFT', 'Telemetry', 'Clear', 'All']
 		for label in labels:
 			b = self.buildOneButton(parent, label, self.controller.onButton)
 			uav_grid.Add(b)
