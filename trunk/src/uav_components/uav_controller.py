@@ -16,9 +16,7 @@ class uav_controller():
 		self.log("Starting Up: pid = %d" % os.getpid())
 		#setting up the usb controller
 		self.dev = usb.core.find(idVendor=65534, idProduct=2)
-		time.sleep(1)
 		self.dev.set_configuration()
-		time.sleep(1)
 		self.dev.reset()
 		#starting threads to reset the watchdog timers
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
@@ -42,13 +40,14 @@ class uav_controller():
 		#This is the main controller section of code
 		while True:
 			#this condition deals with receiving things from the ground
+			print "Ready to GO!!!"
 			if rx:
 				tmp = self.trans.receive()
 				#this is reached when a transmission is completed normally, and the other
 				#side gets all of the data
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
-					self.clear_file(self.f_name_rx)
+					self.clear_file(self.working_dir + self.f_name_rx)
 					self.errors = 0
 				#this is reached when there is an error and either a timeout is reached, or
 				#the transmission cannot complete with the given number of hand shakes
@@ -70,6 +69,7 @@ class uav_controller():
 		       
 			#this condition deals with transmitting data back to the ground
 			if tx:
+				print "Transmitting: " + self.f_name_tx
 				tmp = self.trans.transmit(self.f_name_tx)
 				#this section is reached when the transmission completes as normal
 				if tmp is True or tmp == 'Transmission Complete':
@@ -88,7 +88,7 @@ class uav_controller():
 	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
 		self.f_name_tx = '/misc.dat'
-		path = self.working_dir + self.f_name_tx
+		path = self.f_name_tx
 		self.clear_file(path)
 		fd = open(path, 'w')
 		fd.write(msg)
@@ -96,6 +96,7 @@ class uav_controller():
        
 	#this method takes the command from the ground, and executes what it needs to in order to fulfill the command
 	def exec_command(self, command):
+		print "Got Command: " + command
 		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
 		if(command == "Settings"):
 			log = "Changing Settings:"
@@ -142,12 +143,7 @@ class uav_controller():
 			self.log("Taking Picture")
 			self.f_name_tx = "/pic.jpg"
 			self.pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.working_dir + self.f_name_tx), shell=True)
-			while self.pic.poll != None:
-				if time.time() - time_not > 5:
-					self.f_name_tx = "Error"
-					self.kill_pid(self.pic.pid)
-					break
-			time.sleep(2)
+			self.pic.wait()
 			return True
 		#this gets an FFT of the air
 		elif(command == "FFT"):
@@ -158,11 +154,7 @@ class uav_controller():
 			self.f_name_tx = "/fft_image.jpeg"
 			time_not = time.time()
 			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat, %s' % (self.working_dir, self.working_dir + self.f_name_tx), shell=True)
-			while self.fft.poll != None:
-				if time.time() - time_not > 10:
-					self.f_name_tx = "Error"
-					self.kill_pid(self.fft.pid)
-					break
+			self.fft.wait()
 			self.set_params()
 			return True
 		#this gets temprature and battery voltage as well as GPS location of the UAV
@@ -195,20 +187,22 @@ class uav_controller():
        
 	#this parses out what the command to be executed from the ground is
 	def get_command(self):
-		fd = open(self.f_name_rx, 'r')
+		fd = open(self.working_dir + self.f_name_rx, 'r')
 		tmp = fd.readline().strip('\n').strip()
 		fd.close()
 		return tmp
        
 	#this appends a log file with useful, timestamped information
 	def log(self, string):
+		print string
 		fd = open("log.dat", "a")
 		fd.write(str(time.ctime(time.time())) + "     " + string + '\n')
 		fd.close()
        
 	#this clears the contents of a given file
 	def clear_file(self, path):
-		p = subprocess.Popen('>%s' % path, shell=True)
+		
+		p = subprocess.Popen('echo \'\' > %s' % path, shell=True)
 		p.wait()
        
 	#this checks if a given pid exists on the system
@@ -242,21 +236,19 @@ class uav_controller():
 		#file name of what is going to be sent to the ground
 		self.f_name_tx = ''
 	       
+		#sets where the working direcotry is even if os.getcwd() is not here
+		self.working_dir = '/uav'
+	       
 		#file name of what has been sent to the air
 		self.f_name_rx = '/rx_data'
 	       
 		#this tracks the number of erroneous tries on the data link before going home
 		self.errors = 0
-	       
-		#sets where the working direcotry is even if os.getcwd() is not here
-		self.working_dir = '/uav'
        
 	#this sets the "go home" variables
 	def go_home(self):
 		self.freq = 440e6
-		self.rx_offset = -50e3
-		self.tx_offset = 100e3
-		self.time_0 = 35
+		self.time_0 = 45
 		self.hand_max = 5
 		self.version = 'bpsk'
        
@@ -265,11 +257,9 @@ class uav_controller():
 	def set_params(self):
 		del self.trans
 		self.dev.reset()
-		time.sleep(2)
 		self.trans = txrx_controller(hand_shaking_max = self.hand_max, frame_time_out = self.time_0,
-			work_directory=self.working_dir, version = self.version, fc = self.freq, centoff=0,
+			work_directory=self.working_dir, fc = self.freq, centoff=0,
 			foffset_tx=100e3, foffset_rx=-50e3, rx_file=self.f_name_rx)
-		time.sleep(2)
        
 	#this initializes files that the UAV controller may need in its operation
 	def init_files(self):
@@ -304,6 +294,7 @@ class uav_controller():
        
 	#this handles the book keeping of processes, and saving variables
 	def __del__(self):
+		self.dev.reset()
 		self.log("Closeing")
 		if self.pid_exists(self.pic.pid):
 			self.kill_pid(self.pic.pid)
