@@ -280,6 +280,7 @@ class txrx_controller():
 			pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
+		self.transmit_pkts("1010101010101010")
 
 	#Queue a packet in the transceiver flow graph
 	def transmit_pkts(self, msg):
