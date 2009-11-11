@@ -100,13 +100,13 @@ def make_packet(total_pkts, payload_count, event, payload, scheme, original_payl
 	whitener_offset=0
 
 	(packed_access_code, padded) = conv_1_0_string_to_packed_binary_string(default_access_code)
-	if scheme == 'bpsk':
+	if scheme.lower() == 'bpsk':
 		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_bpsk)
 		bits_per_symbol=1
-	elif scheme == 'qpsk':
+	elif scheme.lower() == 'qpsk':
 		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_qpsk)
 		bits_per_symbol=2
-	elif scheme == '8psk':
+	elif scheme.lower() == '8psk':
 		(packed_preamble, ignore) = conv_1_0_string_to_packed_binary_string(preamble_8psk)
 		bits_per_symbol=3
 

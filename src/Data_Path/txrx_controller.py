@@ -11,7 +11,7 @@ from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, fc, centoff, foffset_tx, foffset_rx, hand_shaking_max=5, frame_time_out=5, 
+	def __init__(self, fc, centoff, foffset_tx, foffset_rx, hand_shaking_max=5, frame_time_out=45, 
 			pay_load_length=128, work_directory = os.path.expanduser('~') + '/Desktop', 
 			version='bpsk', rx_file='/rx_data'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
@@ -30,13 +30,13 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		self.fc = fc
-		self.carrier_offset = centoff
-		self.rx_f_offset = foffset_rx
-		self.tx_f_offset = foffset_tx
+		self.fc = 440e6
+		self.carrier_offset = 11e3
+		self.rx_f_offset = 50e3
+		self.tx_f_offset = 0
 		#If UAV:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
 		#if Ground:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
-		if   self.scheme == 'bpsk':
+		if self.scheme == 'bpsk':
 			self.txrx_path = txrx_dbpsk.tx_rx_path(
 				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
 				cent_off=self.carrier_offset, f_c=self.fc)
@@ -120,7 +120,7 @@ class txrx_controller():
 						self.hand_shaking_count += 1
 						if self.frame_check():
 							return True
-				#Transmission Complete
+				#Transmission Coself.working_directorymplete
 				elif self.event == self.event_list[3]:
 					print "C : ", self.pkt_num
 					self.full_cleanup()
@@ -329,7 +329,7 @@ class txrx_controller():
 		if fc >= 400.025e6 and fc <= 499.975e6:
 			self.fc = fc
 		else:
-			return "Invalid Carrier Frequency."
+			return "Invalid Carrier Frself.working_directoryequency."
 
 		rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
 		tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
@@ -346,10 +346,8 @@ class txrx_controller():
 			return False
 
 	def set_rx_path(self, new_path):
-		if os.path.exists(new_path):
-			self.work_directory = new_path
-			return True
-		return False
+		self.working_directory = new_path
+		return True
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
