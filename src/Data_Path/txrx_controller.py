@@ -11,7 +11,7 @@ from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, fc, centoff, foffset_tx, foffset_rx, hand_shaking_max=5, frame_time_out=45, 
+	def __init__(self, fc, centoff, foffset_tx, foffset_rx, hand_shaking_max=15, frame_time_out=45, 
 			pay_load_length=128, work_directory = os.path.expanduser('~') + '/Desktop', 
 			version='bpsk', rx_file='/rx_data'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
@@ -30,10 +30,10 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		self.fc = 440e6
-		self.carrier_offset = 11e3
-		self.rx_f_offset = 50e3
-		self.tx_f_offset = 0
+		self.fc = fc
+		self.carrier_offset = centoff
+		self.rx_f_offset = foffset_rx
+		self.tx_f_offset = foffset_tx
 		#If UAV:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
 		#if Ground:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
 		if self.scheme == 'bpsk':
