@@ -21,8 +21,6 @@ class uav_controller():
 			self.dev.reset()
 		except:
 			pass
-			#os.system('python /uav/uav_controller.py')
-			#sys.exit(0)
 		#starting threads to reset the watchdog timers
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
 		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
@@ -64,13 +62,15 @@ class uav_controller():
 				elif tmp == 'Error':
 					tx = True
 					self.errors = self.errors + 1
-		       
+			"""
 			#this condition deals with getting errors with receiving
 			if self.errors > 3:
 				self.log("Had more than 3 errors, going home!")
 				self.send_error("going home")
 				going_home = True
 				self.errors = 0
+			"""
+			
 			#this condition deals with transmitting data back to the ground
 			if tx:
 				print "Transmitting: " + self.f_name_tx
@@ -269,8 +269,6 @@ class uav_controller():
 			subprocess.Popen('touch fft_image.jpeg', shell=True)
 		if(not os.path.exists("misc.dat")):
 			subprocess.Popen('touch misc.dat', shell=True)
-		if(not os.path.exists("gps.dat")):
-			subprocess.Popen('touch gps.dat', shell=True)
 		if(not os.path.exists("log.dat")):
 			subprocess.Popen('touch log.dat', shell=True)
 		if(not os.path.exists("RC.dat")):
