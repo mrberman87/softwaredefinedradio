@@ -112,7 +112,7 @@ class View(wx.Frame):
 		
 		dv_border = wx.StaticBox(cmd_panel, -1, 'Data Viewer')
 		data_view_sizer =  wx.StaticBoxSizer(dv_border, orient=wx.HORIZONTAL)
-		dv_txt = wx.TextCtrl(cmd_panel, -1, style=wx.TE_MULTILINE)
+		dv_txt = wx.TextCtrl(cmd_panel, -1, name = 'dataViewTextBox', style=wx.TE_MULTILINE)
 		data_view_sizer.Add(dv_txt,1,wx.EXPAND)
 
 		hbox1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -210,13 +210,17 @@ class Controller(wx.App):
 		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
 		self.model = ground_controls.ground_controls()
+		try:
+			self.logFile = open("log.dat")
+		except IOError:
+			self.logFile = open("/dev/null")
 		
 		#add listeners to model that are responsible for updating the view
 		listeners = [self.imageListener, self.modSchemeListener,
 					self.gpsListener, self.sensorListener,
 					self.sensorListener, self.queueListener,
 					self.frequencyListener, self.fftListener,
-					self.timeoutListener]
+					self.timeoutListener, self.rawDataListener]
 		for l in listeners:
 			self.model.addListener(l)
 		
@@ -315,6 +319,14 @@ class Controller(wx.App):
 		"""updatate frequency data in the view"""
 		freq_txt = self.view.FindWindowByName('timeoutTextBox')
 		freq_txt.SetValue(self.model.timeout)
+
+	def rawDataListener(self):
+		"""Load messages from log file as they come. Do not want to keep
+		reading the entire file to add one line, so the log file stays open."""
+		rd_txt_box = self.view.FindWindowByName('dataViewTextBox')
+		new_stuff = self.logFile.read()
+		old_stuff = rd_txt_box.GetValue()
+		rd_txt_box.SetValue(old_stuff + new_stuff)
 
 		
 if __name__ =="__main__":
