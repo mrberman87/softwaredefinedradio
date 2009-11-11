@@ -41,8 +41,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.fft = '/fft.jpg'
 		self.imageFileName = self.working_dir + self.image
 		self.fftFileName = self.working_dir + self.fft
-		self.gpsFileName = self.working_dir + '/gps.dat'
-		self.teleFileName = self.working_dir + '/tele.dat'
+		self.gpsFileName = '/GPS.txt'
+		self.teleFileName = '/sensors.txt'
 		self.path = ''
 		self.new_freq = 0
 		self.new_modulation = ''
@@ -144,7 +144,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	in a separate thread to keep the application responsive."""
 	
 	def send_data(self, data):
-		print "Checking Data " + data
+		print "Checking Data: " + data
 		self.fname = data + '.dat'
 
 		if data == 'Settings':
@@ -200,20 +200,20 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		
 		print "\n\nHERE IS THE PATH...\n\n"
 		print self.path
-		self.tsvr.set_rx_path(self.path)
-		print self.tsvr.rx_filename
+		self.tsvr.set_rx_filename(self.path)
+		print self.tsvr.working_directory +  self.tsvr.rx_filename
 		tmp = self.tsvr.receive()
 		if tmp is True or tmp == 'Transmission Complete':
 			self.go_home = 0
 			#decode the data sent back down
 			if data == 'GPS':
-				f = open(self.gpsFileName)
+				f = open(self.working_dir + self.gpsFileName, 'r')
 				self.gps = GPS_packet(f.readline())
 				f.close()
 			elif data == 'Telemetry':
-				f = open(self.teleFileName)
-				self.temperature = int(f.readline().strip('\n').strip())
-				self.batt = int(f.readline().strip('\n').strip())
+				f = open(self.working_dir + self.teleFileName, 'r')
+				self.temperature = f.readline().strip('\n').strip()
+				self.batt = f.readline().strip('\n').strip()
 				f.close()
 		else:
 			#self.go_home = self.go_home + 1
@@ -238,7 +238,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	def go_home(self):
 		self.go_home = 0
 		self.freq = '440000000'
-		self.modulation = 'BPSK'
+		self.modulation = 'bpsk'
 		self.timeout = '45' #(in seconds)
 		self.handshake = '5'
 
