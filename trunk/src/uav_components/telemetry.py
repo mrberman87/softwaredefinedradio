@@ -1,12 +1,13 @@
+#!/usr/bin/env python
 #  						RS232 PIN ASSIGNMENT FOR DB-9                                      
 #                         ****************************       PIN:1..........CD			PIN:6..........DSR			
 #                          **1 ** 2  ** 3 ** 4 ** 5**        PIN:2..........RD 			PIN:7..........RTS
 #		            ************************         PIN:3..........TD			PIN:8..........CTS
 #                             * 6 **  7 ** 8 ** 9 *          PIN:4..........DTR			PIN:9..........RING IND.
 #                              ******************            PIN:5......... SIG GND
-#!/usr/bin/env python
+#
 
-import timeit, time, serial
+import timeit, time, serial, sys
 #------------------------------------------------------------------------------------------------
 #The Temp function is the element in which the imported module "time" will time. In this case test is the time that 
 #the CTS line is low.
@@ -55,35 +56,33 @@ def trigger_2(s):
 # value is actually the unique pulse width for a given Tempurature. 
 def decode_data(value1):
 	Tempurature = 549.69*value1*value1 - 1194.4*value1 + 439.13
-	print "%d F" % Tempurature 
+	print "%d F" % Tempurature
+	return Tempurature
 	
 def decode_data2(value2):
 	Batt=-58.743*value2+26.115
 	print "%.1f Volts" % Batt 
 	print '\n'
-	#print value2
+	return Batt
 
+from optparse import OptionParser
 #----------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
+	#tmp = sys.argv[1]
+	#if tmp.tolower() == 'test':
 	t=timeit.Timer('Temp()', "from __main__ import Temp")
 	t2=timeit.Timer('Power()', "from __main__ import Power")
-	while(True):
-		decode_data(t.timeit(number=1))
-		#time.sleep(.05)
-		decode_data2(t2.timeit(number=1))
-		time.sleep(1)
+	#while(True):
+	temp = decode_data(t.timeit(number=1))
+	batt = decode_data2(t2.timeit(number=1))
+	#time.sleep(1)
 		
 		
 #-----------------------------------------------------------------------------------------------
 #Output to file for circuit curve fitting (used only to get equation)
-#fd = open('temp.dat', "w")
-#fd.write(decode_data(t.timeit(number=1)))
-#fd.close()
-
-#fd = open('temp.dat', "a")
-	#fd.write(str(value) +'\n')
-	#fd.close()
+	fd = open('/uav/misc.dat', 'w')
+	fd.write("%d\n%d" % (temp, batt))
 	
 
 
