@@ -306,22 +306,13 @@ class txrx_controller():
 ########################################################################################
 #				USER TOOLS					       #
 ########################################################################################
-	def set_payload_length(self, new_length):
-		try:
-			self.payload_length = int(new_length)
-		except:
-			return False
-	
-	def set_hand_shaking_maximum(self, new_max):
-		try:
-			self.hand_shaking_maximum = int(new_max)
-		except:
-			return False
-
 	def set_frame_time_out(self, new_timeout):
-		try:
-			self.frame_timeout = int(new_timeout)
-		except:
+		if new_timeout >= 35:
+			try:
+				self.frame_timeout = int(new_timeout)
+			except:
+				return False
+		else:
 			return False
 
 	def set_frequency(self, fc):
