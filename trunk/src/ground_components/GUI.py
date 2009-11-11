@@ -261,26 +261,25 @@ class Controller(wx.App):
 		cmdTextBox.SetValue(cmdString)
 
 	def imageListener(self):
-		#pass
 		imageViewer = self.view.FindWindowByLabel('Image Viewer')		
 		dc = wx.ClientDC(imageViewer)
-		img = wx.Image(self.model.imageFileName)
-		(x,y)= imageViewer.GetClientSizeTuple()
-		#bmp.SetHeight(x)
-		#bmp.SetWidth(y)
-		scaledIMG= img.Scale(x - 10 , y - 20)
-		bmp=wx.BitmapFromImage(scaledIMG)
-		dc.DrawBitmap(bmp,10,20,False)
+		if os.path.isfile(self.model.imageFileName):
+			img = wx.Image(self.model.imageFileName)
+			(x,y)= imageViewer.GetClientSizeTuple()
+			scaledIMG= img.Scale(x - 10 , y - 20)
+			bmp=wx.BitmapFromImage(scaledIMG)
+			dc.DrawBitmap(bmp,10,20,False)
+	
+
 	def fftListener(self):
 		fftViewer = self.view.FindWindowByLabel('Frequency Spectrum Viewer')		
 		dc = wx.ClientDC(fftViewer)
-		fft= wx.Image(self.model.fftFileName)
-		(x,y)= fftViewer.GetClientSizeTuple()
-		#bmp.SetHeight(x)
-		#bmp.SetWidth(y)
-		scaledIMG= fft.Scale(x - 10 , y - 20)
-		bmp=wx.BitmapFromImage(scaledIMG)
-		dc.DrawBitmap(bmp,10,20,False)
+		if os.path.isfile(self.model.fftFileName):
+			fft= wx.Image(self.model.fftFileName)
+			(x,y)= fftViewer.GetClientSizeTuple()
+			scaledIMG= fft.Scale(x - 10 , y - 20)
+			bmp=wx.BitmapFromImage(scaledIMG)
+			dc.DrawBitmap(bmp,10,20,False)
 
 	
 	def frequencyListener(self):
