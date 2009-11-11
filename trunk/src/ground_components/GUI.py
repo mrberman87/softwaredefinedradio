@@ -53,9 +53,10 @@ class View(wx.Frame):
 		param_grid.Add(self.modChoices, wx.EXPAND|wx.ALL,20)
 
 		param_grid.Add(wx.StaticText(parent,-1,'New Timeout'),wx.RIGHT,20)
-		param_grid.Add(wx.TextCtrl(parent,-1),wx.EXPAND|wx.ALL,20)
+		timeoutbox = wx.TextCtrl(parent,-1, name = "timeOutEnter")
+		param_grid.Add(timeoutbox ,wx.EXPAND|wx.ALL,20)
 		
-		b=self.buildOneButton(parent, 'Update Settings',self.controller.onButton)
+		b=self.buildOneButton(parent, 'Update Settings',self.controller.onUpdateSettings)
 		param_grid.Add(b)
 		return param_grid
 		
@@ -247,7 +248,16 @@ class Controller(wx.App):
 			self.model.addToQueue(cmd)
 		except ground_controls.QueueLimitException:
 			"""pop up a diaglog box with message"""
-		
+
+	def onUpdateSettings(self, event):
+		"""Update frequency, modulation scheme, and timeout in the model"""
+		newFreq = self.view.FindWindowByName("freqEnter").GetValue()
+		newMod = self.view.modChoices.GetStringSelection()
+		newTimeout = self.view.FindWindowByName("timeOutEnter").GetValue()
+		cmdString = "Settings " + newFreq + " " + newMod + " " + newTimeout
+		print cmdString
+		self.model.addToQueue(cmdString)
+
 		
 		
 	"""______Listener methods update data in the view. They are all ran 
