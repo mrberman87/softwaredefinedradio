@@ -43,8 +43,8 @@ class GPS_packet:
 				'P=?' for a string.
 				'''
 				self.write_parse_error()
-				lat = None
-				lon = None
+				lat = 0
+				lon = 0
 
 			try:
 				self.lat = abs(float(lat))	#don't want negative signs
