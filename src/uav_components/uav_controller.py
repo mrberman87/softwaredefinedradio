@@ -15,9 +15,14 @@ class uav_controller():
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
 		self.log("Starting Up: pid = %d" % os.getpid())
 		#setting up the usb controller
-		self.dev = usb.core.find(idVendor=65534, idProduct=2)
-		self.dev.set_configuration()
-		self.dev.reset()
+		try:
+			self.dev = usb.core.find(idVendor=65534, idProduct=2)
+			self.dev.set_configuration()
+			self.dev.reset()
+		except:
+			pass
+			#os.system('python /uav/uav_controller.py')
+			#sys.exit(0)
 		#starting threads to reset the watchdog timers
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
 		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
@@ -27,8 +32,8 @@ class uav_controller():
 		#self.check_saved_vars()
 		#set_params will initialize self.trans, it is just being allocated here
 		self.trans = None
-		#the next line is to set the link to d8psk outright for testing
-		self.version = '8psk'
+		#the next line is to set the link to 8psk outright for testing
+		self.version = 'bpsk'
 		self.set_params()
 		self.gps = GPS_getter()
 	       
@@ -36,7 +41,7 @@ class uav_controller():
 		rx = True
 		tx = True
 		going_home = False
-	       
+		
 		#This is the main controller section of code
 		while True:
 			#this condition deals with receiving things from the ground
@@ -66,7 +71,6 @@ class uav_controller():
 				self.send_error("going home")
 				going_home = True
 				self.errors = 0
-		       
 			#this condition deals with transmitting data back to the ground
 			if tx:
 				print "Transmitting: " + self.f_name_tx
@@ -148,12 +152,10 @@ class uav_controller():
 		#this gets an FFT of the air
 		elif(command == "FFT"):
 			self.log("Getting FFT Data")
-			del self.trans
 			self.dev.reset()
-			time.sleep(2)
 			self.f_name_tx = "/fft_image.jpeg"
 			time_not = time.time()
-			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat, %s' % (self.working_dir, self.working_dir + self.f_name_tx), shell=True)
+			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat %s' % (self.working_dir, self.working_dir + self.f_name_tx), shell=True)
 			self.fft.wait()
 			self.set_params()
 			return True
@@ -162,11 +164,7 @@ class uav_controller():
 			self.log("Getting Telemetry Data")
 			self.tel = subprocess.Popen('python telemetry.py', shell=True)
 			self.f_name_tx = "/misc.dat"
-			while self.tel.poll != None:
-				if time.time() - time_not > 5:
-					self.f_name_tx = "Error"
-					self.kill_pid(self.tel.pid)
-					break
+			self.tel.wait()
 			return True
 		elif(command == "GPS"):
 			self.log("Getting GPS Data")
@@ -201,9 +199,9 @@ class uav_controller():
        
 	#this clears the contents of a given file
 	def clear_file(self, path):
-		
-		p = subprocess.Popen('echo \'\' > %s' % path, shell=True)
-		p.wait()
+		fd = open (path, 'w')
+		fd.write("")
+		fd.close()
        
 	#this checks if a given pid exists on the system
 	#if it is a zombie, it will kill it
@@ -266,9 +264,9 @@ class uav_controller():
 		#This method makes sure that all files needed for this
 		#program are exist.
 		if(not os.path.exists("pic.jpg")):
-			subprocess.Popen('touch fft_image.jpeg', shell=True)
+			subprocess.Popen('touch pic.jpg', shell=True)
 		if(not os.path.exists("fft_image.jpeg")):
-			subprocess.Popen('touch sensor.dat', shell=True)
+			subprocess.Popen('touch fft_image.jpeg', shell=True)
 		if(not os.path.exists("misc.dat")):
 			subprocess.Popen('touch misc.dat', shell=True)
 		if(not os.path.exists("gps.dat")):
