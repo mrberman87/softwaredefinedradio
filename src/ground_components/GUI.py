@@ -254,6 +254,11 @@ class Controller(wx.App):
 		newFreq = self.view.FindWindowByName("freqEnter").GetValue()
 		newMod = self.view.modChoices.GetStringSelection()
 		newTimeout = self.view.FindWindowByName("timeOutEnter").GetValue()
+
+		if (not newTimeout):
+			newTimeout = "#"
+		if (not newFreq):
+			newFreq = "#"
 		cmdString = "Settings " + newFreq + " " + newMod + " " + newTimeout
 		print cmdString
 		self.model.addToQueue(cmdString)
