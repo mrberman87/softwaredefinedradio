@@ -53,11 +53,11 @@ default_access_code = \
 preamble = \
   conv_packed_binary_string_to_1_0_string('\xA4\xF2')
 preamble_bpsk = \
-  conv_packed_binary_string_to_1_0_string('\x55\x55')
+  conv_packed_binary_string_to_1_0_string('\x55\x55\x55')
 preamble_qpsk = \
-  conv_packed_binary_string_to_1_0_string('\x1E\x1E\x1E\x1E')
+  conv_packed_binary_string_to_1_0_string('\x1E\x1E\x1E\x1E\x1E\x1E')
 preamble_8psk = \
-  conv_packed_binary_string_to_1_0_string('\x2D\x6F\x60\x2D\x6F\x60\x2D\x6F\x60')
+  conv_packed_binary_string_to_1_0_string('\x2D\x6F\x60\x2D\x6F\x60\x2D\x6F\x60\x2D\x6F\x60')
 
 def is_1_0_string(s):
     if not isinstance(s, str):
