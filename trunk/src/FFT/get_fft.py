@@ -3,8 +3,8 @@
 import subprocess, os, sys, time
 
 if __name__ == '__main__':
-	to_path = sys.argv[1]
-	from_path = sys.argv[2]
+	from_path = sys.argv[1]
+	to_path = sys.argv[2]
 	p = subprocess.Popen('> %s' % from_path, shell=True)
 	p.wait()
 	p = subprocess.Popen('python FFT_data_aq.py %s' % from_path, shell=True)
