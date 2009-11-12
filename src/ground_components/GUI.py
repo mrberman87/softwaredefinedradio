@@ -48,7 +48,7 @@ class View(wx.Frame):
 		param_grid.Add(freqTxt,wx.EXPAND|wx.ALL,20)
 
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
-		self.modChoices = wx.Choice(parent,-1,choices=['BPSK'])
+		self.modChoices = wx.Choice(parent,-1,choices=['BPSK','QPSK','8PSK'])
 		#self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, self.modChoices)
 		param_grid.Add(self.modChoices, wx.EXPAND|wx.ALL,20)
 
