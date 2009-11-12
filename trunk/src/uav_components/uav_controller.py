@@ -38,7 +38,6 @@ class uav_controller():
 		#initialize local variables specific to controlling the transceiver
 		rx = True
 		tx = True
-		going_home = False
 		
 		#This is the main controller section of code
 		while True:
@@ -46,30 +45,19 @@ class uav_controller():
 			print "Ready to GO!!!"
 			if rx:
 				tmp = self.trans.receive()
+				print tmp
 				#this is reached when a transmission is completed normally, and the other
 				#side gets all of the data
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
-					self.clear_file(self.working_dir + self.f_name_rx)
-					self.errors = 0
+					#self.clear_file(self.working_dir + self.f_name_rx)
 				#this is reached when there is an error and either a timeout is reached, or
 				#the transmission cannot complete with the given number of hand shakes
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
-					self.send_error(tmp)
-					tx = True
-					self.errors = self.errors + 1
+					tx = False
 				#this is reached when there is a general error from the ground
 				elif tmp == 'Error':
 					tx = True
-					self.errors = self.errors + 1
-			"""
-			#this condition deals with getting errors with receiving
-			if self.errors > 3:
-				self.log("Had more than 3 errors, going home!")
-				self.send_error("going home")
-				going_home = True
-				self.errors = 0
-			"""
 			
 			#this condition deals with transmitting data back to the ground
 			if tx:
@@ -78,12 +66,6 @@ class uav_controller():
 				#this section is reached when the transmission completes as normal
 				if tmp is True or tmp == 'Transmission Complete':
 					rx = True
-					self.errors = 0
-					#this handles the "go home" situation due to too many errors
-					if going_home:
-						self.go_home()
-						self.set_params()
-						going_home = False
 				#this section is reached when there is a problem sending the information to the other
 				#side of the link
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
@@ -102,8 +84,11 @@ class uav_controller():
 	def exec_command(self, command):
 		print "Got Command: " + command
 		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
-		if(command == "Settings"):
+		if(command == "settings"):
 			log = "Changing Settings:"
+			tmp_freq = None
+			tmp_time_0 = None
+			tmp_version = None
 			fd = open(self.working_dir + self.f_name_rx, 'r')
 			#this for loop goes through the file and pulls out only what is sent to be changed
 			for l in fd:
@@ -117,36 +102,29 @@ class uav_controller():
 					if tmp_time_0 != None:
 						self.time_0 = int(tmp_time_0)
 						log = log + " Timeout = %d" % self.time_0
-				if l.startswith("Hand_Max:"):
-					junk, tmp_hand_max = l.split()
-					if tmp_hand_max != None:
-						self.hand_max = int(tmp_hand_max)
-						log = log + " Handshaking Max = %d" % self.hand_max
 				if l.startswith("Version:"):
 					junk, tmp_version = l.split()
 					if tmp_version != None:
-						self.version = tmp_version
+						self.version = tmp_version.lower()
 						log = log + " Modulation Scheme = %s" % self.version
 			fd.close()
 		       
 			#this deals with a modulation scheme change
-			if tmp_version != None:
+			if tmp_version != None or tmp_freq != None:
 				self.set_params()
 			#this deals with the change of any other variable
 			else:
-				if tmp_freq != None:
-					self.trans.set_frequency(self.freq)
+				#if tmp_freq != None:
+				#	self.trans.set_frequency(self.freq)
 				if tmp_time_0 != None:
 					self.trans.set_frame_time_out(self.time_0)
-				if tmp_hand_max != None:
-					self.trans.set_hand_shaking_maximum(self.hand_max)
 			self.log(log)
 			return False
 		#this takes a picture
 		elif(command == "Image"):
 			self.log("Taking Picture")
 			self.f_name_tx = "/pic.jpg"
-			self.pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.working_dir + self.f_name_tx), shell=True)
+			self.pic = subprocess.Popen('uvccapture -q100 -v -o%s' % (self.working_dir + self.f_name_tx), shell=True)
 			self.pic.wait()
 			return True
 		#this gets an FFT of the air
