@@ -68,7 +68,7 @@ class txrx_controller():
 			except:
 				return False
 		else:
-			temp_data = data_source	
+			temp_data = data_source
 		self.make_pkts(0, temp_data)
 		temp = self.receive()
 		return temp
@@ -324,7 +324,6 @@ class txrx_controller():
 
 		rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
 		tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
-		print "New Transmission Freq: %d, New Receive Freq: %d", tx_freq, rx_freq
 		try:
 			self.txrx_path.usrp_simple_source_x_0.set_frequency(
 				rx_freq, verbose=False)

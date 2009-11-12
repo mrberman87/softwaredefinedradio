@@ -50,6 +50,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		#this sets up the transceiver
 		self.tsvr = ''
 		self.set_params()
+		os.system("touch Settings.dat")
 	
 	def __del__(self):
 		self.dev.reset()
@@ -118,9 +119,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 					data = 'Settings'
 					tmp  = cmd.split(' ')
 					self.new_freq = int(tmp[1])
-					self.new_modulation = tmp[2]
+					self.new_modulation = tmp[2].lower()
 					self.new_timeout = int(tmp[3])
-					self.new_handshake = int(tmp[4])
 			
 				rtn = self.send_data(data)
 			else:
@@ -144,59 +144,46 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	in a separate thread to keep the application responsive."""
 	
 	def send_data(self, data):
-		print "Checking Data: " + data
-		self.fname = data + '.dat'
+		self.fname = data
 
 		if data == 'Settings':
 			#print things into a file to be sent up and change data to the file path
-			fd = open(self.fname)
+			self.fname = '/' + data + '.dat'
+			fd = open(self.working_dir + self.fname, 'w')
 			fd.write("settings\n")
-			if self.new_freq != self.freq: fd.write("Freq: " + self.new_freq + '\n')
-			if self.new_timeout != self.timeout: fd.write("Timeout: " + self.new_timeout + '\n')
-			if self.new_handshake != self.handshake: fd.write("Hand_Max: " + self.new_handshake + '\n')
-			if self.new_modulation != self.modulation: fd.write("Version: " + self.new_modulation + '\n')
+			if self.new_freq != int(self.freq):
+				fd.write("Freq: " + str(self.new_freq) + '\n')
+			if self.new_timeout != int(self.timeout):
+				fd.write("Timeout: " + str(self.new_timeout) + '\n')
+			if self.new_modulation.lower() != self.modulation.lower():
+				fd.write("Version: " + self.new_modulation + '\n')
 			fd.close()
 		
-		tmp = self.tsvr.transmit(data)
+		print "Path: ", self.tsvr.working_directory + self.fname
+		tmp = self.tsvr.transmit(self.fname)
 		print tmp
 		if tmp is True or tmp == 'Transmission Complete':
 			self.go_home = 0
 			#decode the data sent back down
 			if data == 'Settings':
-				if self.new_modulation == self.modulation:
-					self.freq = self.new_freq
+				print "Checking Settings..."
+				if self.new_modulation.lower() != self.modulation.lower() or str(self.new_freq) != self.freq:
+					self.freq = str(self.new_freq)
 					self.modulation = self.new_modulation
-					self.timeout = self.new_timeout
-					self.handshake = self.new_handshake
+					self.timeout = str(self.new_timeout)
 					self.set_params()
 				else:
-					if self.new_freq != self.freq:
-						self.freq = self.new_freq
-						self.tsvr.set_frequency(self.freq)
-					elif self.new_timeout != self.timeout:
-						self.timeout = self.new_timeout
-						self.tsvr.set_frame_time_out(self.timeout)
-					elif self.new_handshake != self.handshake:
-						self.handshake = self.new_handshake
-						self.tsvr.set_hand_shaking_maximum(self.handshake)
+					#if str(self.new_freq) != self.freq:
+					#	self.freq = str(self.new_freq)
+					#	self.tsvr.set_frequency(int(self.freq))
+					if str(self.new_timeout) != self.timeout:
+						self.timeout = str(self.new_timeout)
+						self.tsvr.set_frame_time_out(int(self.timeout))
 				return True
 		else:
 			#self.go_home = self.go_home + 1
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 			return False
-		
-		if self.go_home >= 3:
-			#Going Home
-			rtn = True
-			#tmp = self.tsvr.transmit("Going Home")
-			#if not (tmp is True or tmp == 'Transmission Complete'):
-			#	rtn = False
-			#	#let user know of forcefull "GO HOME" state
-			#	...
-			self.go_home()
-			#FIXME tell the user that this has occured somehow... possbily a popup
-			#...
-			return rtn
 		
 		print "\n\nHERE IS THE PATH...\n\n"
 		print self.path
@@ -225,7 +212,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		del self.tsvr
 		self.dev.reset()
 		time.sleep(2)
-		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11e3, foffset_tx=0, foffset_rx=50e3, hand_shaking_max = int(self.handshake),
+		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11e3, foffset_tx=0, foffset_rx=50e3,
 			frame_time_out = int(self.timeout), work_directory=self.working_dir, version = self.modulation)
 		time.sleep(2)
 	
