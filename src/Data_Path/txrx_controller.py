@@ -23,7 +23,6 @@ class txrx_controller():
 		self.data_split_for_pkts = list()
 		self.pkts_for_resend = list()
 		self.rx_filename = rx_file
-		self.rx_osc_f_offset = -50e3
 		self.hand_shaking_count = 0
 		self.total_pkts = None
 		self.scheme = version.lower()
@@ -307,37 +306,32 @@ class txrx_controller():
 #				USER TOOLS					       #
 ########################################################################################
 	def set_frame_time_out(self, new_timeout):
-		if new_timeout >= 35:
-			try:
-				self.frame_timeout = int(new_timeout)
-			except:
-				return False
+		if int(new_timeout) >= 35:
+			self.frame_timeout = int(new_timeout)
 		else:
-			return False
+			print "Invalid New Timeout. txrx_controller line 313"
 
 	def set_frequency(self, fc):
-
-		if fc >= 400.025e6 and fc <= 499.975e6:
+		fc = int(fc)
+		if (fc >= 400025000) and (fc <= 499975000):
 			self.fc = fc
+			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
+			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
+			try:
+				self.txrx_path.usrp_simple_source_x_0.set_frequency(
+					rx_freq, verbose=False)
+			except:
+				print "Unable to change receive frequency. txrx_controller line 328"
+			try:
+				self.txrx_path.usrp_simple_sink_x_0.set_frequency(
+					tx_freq, verbose=False)
+			except:
+				print "Unable to change transmit frequency. txrx_controller line 333"
 		else:
-			return "Invalid Carrier Frself.working_directoryequency."
-
-		rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
-		tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
-		try:
-			self.txrx_path.usrp_simple_source_x_0.set_frequency(
-				rx_freq, verbose=False)
-		except:
-			return False
-		try:
-			self.txrx_path.usrp_simple_sink_x_0.set_frequency(
-				tx_freq, verbose=False)
-		except:
-			return False
+			print "Invalid Fc (Not within bounds: Fc >= 440025000 and Fc <= 499975000). txrx_controller line 335"
 
 	def set_rx_path(self, new_path):
 		self.working_directory = new_path
-		return True
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
