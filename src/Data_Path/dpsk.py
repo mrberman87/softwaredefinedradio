@@ -1,20 +1,4 @@
 #!/usr/bin/env python
-##################################################
-# Gnuradio Python Flow Graph
-# Title: Transmit and Receive Path
-# Author: Charles Judah
-# Generated: Tue Aug 11 13:17:45 2009
-##################################################
-
-##################################################
-#	     Operating Frequencies		 #
-##################################################
-#	USRP 1		#	USRP 2		 #
-#			#			 #
-# Tx:	fc		#	fc + 100e3	 #
-# Rx:	fc + 50e3	#	fc - 50e3	 #
-#			#			 #
-##################################################
 
 from gnuradio import blks2
 from gnuradio import gr
@@ -26,16 +10,17 @@ from optparse import OptionParser
 
 class tx_rx_path(gr.top_block):
 
-	def __init__(self, f_offset_rx, f_offset_tx, cent_off, f_c):
+	def __init__(self, fc, centoff, foffset_tx, foffset_rx, scheme):
 		gr.top_block.__init__(self, "Transmit and Receive Path")
 
 		##################################################
 		# Variables
 		##################################################
-		self.filter_offset_rx = f_offset_rx
-		self.filter_offset_tx = f_offset_tx
-		self.center_f_offset = cent_off
-		self.fc = f_c
+		self.filter_offset_rx = foffset_rx
+		self.filter_offset_tx = foffset_tx
+		self.center_f_offset = centoff
+		self.scheme = scheme
+		self.fc = fc
 		self.sps = 8
 
 		##################################################
@@ -45,24 +30,65 @@ class tx_rx_path(gr.top_block):
 			1, 256e3, 25e3, 5e3, firdes.WIN_HAMMING, 6.76))
 		self.low_pass_filter_1 = gr.fir_filter_ccf(1, firdes.low_pass(
 			1, 256e3, 25e3, 5e3, firdes.WIN_HAMMING, 6.76))
-		self.blks2_qamx_demod_0 = blks2.qam16_demod(
-			samples_per_symbol=8,
-			excess_bw=0.35,
-			costas_alpha=0.175,
-			gain_mu=0.03,
-			mu=0.05,
-			omega_relative_limit=0.005,
-			gray_code=True,
-			verbose=False,
-			log=False,
-		)
-		self.blks2_qamx_mod_0 = blks2.qam16_mod(
-			samples_per_symbol=8,
-			excess_bw=0.35,
-			gray_code=True,
-			verbose=False,
-			log=False,
-		)
+		if self.scheme == 'bpsk':
+			self.dbpsk_demod = blks2.dbpsk_demod(
+				samples_per_symbol=self.sps,
+				excess_bw=0.35,
+				costas_alpha=0.175,
+				gain_mu=0.175,
+				mu=0.5,
+				omega_relative_limit=0.005,
+				gray_code=True,
+				verbose=False,
+				log=False,
+			)
+			self.dbpsk_mod = blks2.dbpsk_mod(
+				samples_per_symbol=self.sps,
+				excess_bw=0.35,
+				gray_code=True,
+				verbose=False,
+				log=False,
+			)
+		elif self.scheme == 'qpsk':
+			self.dqpsk_demod = blks2.dqpsk_demod(
+				samples_per_symbol=self.sps,
+				excess_bw=0.40,
+				costas_alpha=0.175,
+				gain_mu=0.175,
+				mu=0.5,
+				omega_relative_limit=0.005,
+				gray_code=True,
+				verbose=False,
+				log=False,
+			)
+			self.dqpsk_mod = blks2.dqpsk_mod(
+				samples_per_symbol=self.sps,
+				excess_bw=0.40,
+				gray_code=True,
+				verbose=False,
+				log=False,
+			)
+		"""
+		elif self.scheme == '8psk':
+			self.d8psk_demod = blks2.d8psk_demod(
+				samples_per_symbol=self.sps,
+				excess_bw=0.45,
+				costas_alpha=0.175,
+				gain_mu=0.175,
+				mu=0.5,
+				omega_relative_limit=0.005,
+				gray_code=True,
+				verbose=False,
+				log=False,
+			)
+			self.d8psk_mod = blks2.d8psk_mod(
+				samples_per_symbol=self.sps,
+				excess_bw=0.45,
+				gray_code=True,
+				verbose=False,
+				log=False,
+			)
+		"""
 		self.blks2_packet_decoder_0 = grc_blks2.packet_demod_b(grc_blks2.packet_decoder(
 				access_code="",
 				threshold=-1,
@@ -91,14 +117,33 @@ class tx_rx_path(gr.top_block):
 		# Connections
 		##################################################
 		#Transmitter
-		self.connect((self.gr_message_source_0, 0), (self.blks2_qamx_mod_0, 0))
-		self.connect((self.blks2_qamx_mod_0, 0), (self.gr_multiply_const_vxx_0, 0))
+		if self.scheme == 'bpsk':
+			self.connect((self.gr_message_source_0, 0), (self.dbpsk_mod, 0))
+			self.connect((self.dbpsk_mod, 0), (self.gr_multiply_const_vxx_0, 0))
+		elif self.scheme == 'qpsk':
+			self.connect((self.gr_message_source_0, 0), (self.dqpsk_mod, 0))
+			self.connect((self.dqpsk_mod, 0), (self.gr_multiply_const_vxx_0, 0))
+		"""
+		elif self.scheme == '8psk':
+			self.connect((self.gr_message_source_0, 0), (self.d8psk_mod, 0))
+			self.connect((self.d8psk_mod, 0), (self.gr_multiply_const_vxx_0, 0))
+		"""
 		self.connect((self.gr_multiply_const_vxx_0, 0), (self.low_pass_filter_0, 0))
 		self.connect((self.low_pass_filter_0, 0), (self.usrp_simple_sink_x_0, 0))
+
 		#Receiver
 		self.connect((self.usrp_simple_source_x_0, 0), (self.gr_multiply_xx_0, 0))
 		self.connect((self.gr_sig_source_x_0_0, 0), (self.gr_multiply_xx_0, 1))
 		self.connect((self.gr_multiply_xx_0, 0), (self.low_pass_filter_1, 0))
-		self.connect((self.low_pass_filter_1, 0), (self.blks2_qamx_demod_0, 0))
-		self.connect((self.blks2_qamx_demod_0, 0), (self.blks2_packet_decoder_0, 0))
+		if self.scheme == 'bpsk':
+			self.connect((self.low_pass_filter_1, 0), (self.dbpsk_demod, 0))
+			self.connect((self.dbpsk_demod, 0), (self.blks2_packet_decoder_0, 0))
+		elif self.scheme == 'qpsk':
+			self.connect((self.low_pass_filter_1, 0), (self.dqpsk_demod, 0))
+			self.connect((self.dqpsk_demod, 0), (self.blks2_packet_decoder_0, 0))
+		"""
+		elif self.scheme == '8psk':
+			self.connect((self.low_pass_filter_1, 0), (self.d8psk_demod, 0))
+			self.connect((self.d8psk_demod, 0), (self.blks2_packet_decoder_0, 0))
+		"""
 		self.connect((self.blks2_packet_decoder_0, 0), (self.gr_message_sink_0, 0))

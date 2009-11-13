@@ -1,23 +1,20 @@
 #!/usr/bin/env python
 
-#Version 2.02
-
-import txrx_dbpsk
-import txrx_dqpsk
-import txrx_d8psk 
+import dpsk
 import time, os
 import packetizer
 from gnuradio import gr
 
 class txrx_controller():
 
-	def __init__(self, fc, centoff, foffset_tx, foffset_rx, hand_shaking_max=15, frame_time_out=45, 
-			pay_load_length=128, work_directory = os.path.expanduser('~') + '/Desktop', 
+	def __init__(self, fc, centoff, foffset_tx, foffset_rx, frame_time_out=45, 
+			work_directory = os.path.expanduser('~') + '/Desktop', 
 			version='bpsk', rx_file='/rx_data'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E']
-		self.hand_shaking_maximum = hand_shaking_max
+		self.version_list = ['bpsk', 'qpsk']
+		self.hand_shaking_maximum = 15
 		self.working_directory = work_directory
-		self.payload_length = pay_load_length
+		self.payload_length = 128
 		self.frame_timeout = frame_time_out
 		self.new_transmission_data = list()
 		self.data_split_for_pkts = list()
@@ -25,7 +22,10 @@ class txrx_controller():
 		self.rx_filename = rx_file
 		self.hand_shaking_count = 0
 		self.total_pkts = None
-		self.scheme = version.lower()
+		if version.lower() in self.version_list:
+			self.scheme = version.lower()
+		else:
+			self.scheme = 'bpsk'
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
@@ -35,21 +35,9 @@ class txrx_controller():
 		self.tx_f_offset = foffset_tx
 		#If UAV:	rx = -50e3,	tx = 100e3, 	cent = 0, 	fc = 440e6
 		#if Ground:	rx =  50e3,	tx = 0,		cent = 11e3,	fc = 440e6
-		if self.scheme == 'bpsk':
-			self.txrx_path = txrx_dbpsk.tx_rx_path(
-				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
-				cent_off=self.carrier_offset, f_c=self.fc)
-			self.txrx_path.start()
-		elif self.scheme == 'qpsk':
-			self.txrx_path = txrx_dqpsk.tx_rx_path(
-				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
-				cent_off=self.carrier_offset, f_c=self.fc)
-			self.txrx_path.start()
-		elif self.scheme == '8psk':
-			self.txrx_path = txrx_d8psk.tx_rx_path(
-				f_offset_rx=self.rx_f_offset, f_offset_tx=self.tx_f_offset, 
-				cent_off=self.carrier_offset, f_c=self.fc)
-			self.txrx_path.start()
+		self.txrx_path = dpsk.tx_rx_path(self.fc, self.carrier_offset, 
+			self.tx_f_offset, self.rx_f_offset, self.scheme)
+		self.txrx_path.start()
 
 ########################################################################################
 #					TRANSMITTER				       #
