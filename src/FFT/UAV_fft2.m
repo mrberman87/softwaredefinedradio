@@ -3,7 +3,7 @@ function UAV_fft2 (real_path, imag_path, to_path)
   real_data = read_float_binary(real_path, 1024);
   imaginary_data = read_float_binary(imag_path, 1024);
   data = combine_real_imaginary(real_data, imaginary_data);
-  plot(linspace(-256e3/2, 256e3/2, 1024), 20*log10(abs(fftshift(fft(data)))));
+  plot(linspace(-256e3/2, 256e3/2, 1024), 20*log10(abs(fftshift((1/1024)*fft(data)))));
   print(to_path)
   quit()
   
