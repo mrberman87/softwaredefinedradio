@@ -10,6 +10,7 @@
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
 from grc_gnuradio import usrp as grc_usrp
+from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 import time, sys
 
