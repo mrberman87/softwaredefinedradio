@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Wed Oct 14 20:20:39 2009</timestamp>
+  <timestamp>Wed Nov 11 09:35:53 2009</timestamp>
   <block>
     <key>variable</key>
     <param>
@@ -113,55 +113,16 @@
       <value>True</value>
     </param>
     <param>
+      <key>verbose</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>log</key>
+      <value>False</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(410, 254)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>options</key>
-    <param>
-      <key>id</key>
-      <value>FFT_data_aq</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>FFT_data_aq</value>
-    </param>
-    <param>
-      <key>author</key>
-      <value>UAV Group</value>
-    </param>
-    <param>
-      <key>description</key>
-      <value>gnuradio flow graph</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>1280, 1024</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>wx_gui</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -199,6 +160,10 @@
       <value>10</value>
     </param>
     <param>
+      <key>y_divs</key>
+      <value>10</value>
+    </param>
+    <param>
       <key>ref_level</key>
       <value>50</value>
     </param>
@@ -224,6 +189,10 @@
     </param>
     <param>
       <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>notebook</key>
       <value></value>
     </param>
     <param>
@@ -278,7 +247,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/student/Documents/RC.dat</value>
+      <value>/home/michael/Desktop/RC.dat</value>
     </param>
     <param>
       <key>type</key>
@@ -291,6 +260,57 @@
     <param>
       <key>_coordinate</key>
       <value>(806, 103)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>options</key>
+    <param>
+      <key>id</key>
+      <value>FFT_data_aq</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>FFT_data_aq</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>UAV Group</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value>gnuradio flow graph</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>1280, 1024</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>no_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>run</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
