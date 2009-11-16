@@ -1,53 +1,32 @@
-function UAV_fft2 (from_path, to_path)
+function UAV_fft2 (real_path, imag_path, to_path)
   
-  data = read_complex_binary(from_path, 1024);
-  plotfft(data,256e3)
+  real_data = read_float_binary(real_path, 1024);
+  imaginary_data = read_float_binary(imag_path, 1024);
+  data = combine_real_imaginary(real_data, imaginary_data);
+  plot(linspace(-256e3/2, 256e3/2, 1024), 20*log10(abs(fftshift(fft(data)))));
   print(to_path)
-  keyboard;
+  quit()
   
 endfunction
 
-function v = read_complex_binary (filename, count)
+function v = read_float_binary (filename, count)
 
-  m = nargchk (1,2,nargin);
-  if (m)
-    usage (m);
-  end
-
-  if (nargin < 2)
-    count = Inf;
-  end
+  %% usage: read_float_binary (filename, [count])
+  %%  open filename and return the contents, treating them as
+  %%  32 bit floats
 
   f = fopen (filename, 'rb');
   if (f < 0)
     v = 0;
   else
-    t = fread (f, [2, count], 'float');
+    v = fread (f, count, 'float');
     fclose (f);
-    v = t(1,:) + t(2,:)*i;
-    [r, c] = size (v);
-    v = reshape (v, c, r);
   end
 endfunction
 
-function plotfft (data, sample_rate)
-
-  if (nargin == 1)
-    sample_rate = 1.0;
-  endif;
-
-  if ((m = nargchk (1,2,nargin)))
-    usage (m);
-  endif;
-
-  len = length(data);
-  #s = fft (data*kaiser(len, 5));
-  s = fft(data);
-
-  incr = sample_rate/len;
-  min_x = -sample_rate/2;
-  max_x = sample_rate/2 - incr;
-  plot (min_x:incr:max_x, 20*log10(abs(fftshift(s))));
-
+function data = combine_real_imaginary(real_data, imaginary_data)
+  data = zeros(1,1024);
+  for i = 1:1024
+	data(i) = real_data(i) + imaginary_data(i)*j;
+  end
 endfunction
-

@@ -17,40 +17,40 @@ class FFT_data_aq(gr.top_block):
 
         def __init__(self):
                 gr.top_block.__init__(self, "FFT_data_aq")
-                self.path = sys.argv[1]
-
-                ##################################################
-                # Variables
-                ##################################################
-                self.samp_rate = samp_rate = 32000
-                self.freq_offset = freq_offset = 0
+                self.real_path = sys.argv[1]
+		self.imag_path = sys.argv[2]
+		self.freq = sys.argv[3]
 
                 ##################################################
                 # Blocks
                 ##################################################
-                self.gr_file_sink_0 = gr.file_sink(gr.sizeof_gr_complex*1, self.path)
-                self.usrp_simple_source_x_0 = grc_usrp.simple_source_c(which=0, side="A", rx_ant="TX/RX")
-                self.usrp_simple_source_x_0.set_decim_rate(250)
-                self.usrp_simple_source_x_0.set_frequency((440e6 + freq_offset), verbose=True)
-                self.usrp_simple_source_x_0.set_gain(-1)
+		self.complex_to_float = gr.complex_to_float(1)
+		self.valve = grc_blks2.valve(item_size=gr.sizeof_gr_complex*1, open=bool(True))
+                self.real_sink = gr.file_sink(gr.sizeof_float*1, self.real_path)
+                self.imag_sink = gr.file_sink(gr.sizeof_float*1, self.imag_path)
+                self.usrp_source = grc_usrp.simple_source_c(which=0, side="A", rx_ant="TX/RX")
+                self.usrp_source.set_decim_rate(250)
+                self.usrp_source.set_frequency(440e6, verbose=True)
+                self.usrp_source.set_gain(40)
 
                 ##################################################
                 # Connections
                 ##################################################
-                self.connect((self.usrp_simple_source_x_0, 0), (self.gr_file_sink_0, 0))
+                self.connect((self.usrp_source, 0), (self.valve, 0))
+                self.connect((self.valve, 0), (self.complex_to_float, 0))
+                self.connect((self.complex_to_float, 0), (self.real_sink, 0))
+                self.connect((self.complex_to_float, 1), (self.imag_sink, 0))
 
-        def set_samp_rate(self, samp_rate):
-                self.samp_rate = samp_rate
-
-        def set_freq_offset(self, freq_offset):
-                self.freq_offset = freq_offset
-                self.usrp_simple_source_x_0.set_frequency((440e6 + self.freq_offset))
+	def take_data(self):
+		self.valve.set_open(bool(False))
+		time.sleep(1)
+		self.valve.set_open(bool(True))
 
 if __name__ == '__main__':
         parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
         (options, args) = parser.parse_args()
         tb = FFT_data_aq()
         tb.start()
-        time.sleep(2)
+	tb.take_data()
         tb.stop()
 
