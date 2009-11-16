@@ -1,0 +1,6 @@
+sudo passwd root
+	changes root password
+
+gksu gdmsetup
+	go to security tab
+	check "allow local system admin login"

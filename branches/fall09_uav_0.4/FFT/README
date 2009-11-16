@@ -1,0 +1,21 @@
+README for UAV_fft2.m
+
+General Purpose:
+
+This m file is used in octave for our purposes to take complex data represented using a binary alphabet 
+and convert it into useable data for Octave to perform the FFT command and plot. Once the plot is formed,
+the file then creates a JPEG image ofthe plot. Currently the image is being sent to the users Desktop
+and being labeled FFT_image.jpeg
+
+General Usage:
+
+Under the octave command line:
+This m file requires 3 inputs. I left them this way so they can still be configured easily later if we
+choose to change the amount of points for the FFT or the file name of the source data.
+
+UAV_fft2('filename', FFT Size 2^n ,Sampling Frequency into File)
+
+1. The Filename will need to contain the full path if not in the same folder as the m file.
+2. The FFT size will be 1024 for our purposes.
+3. The sampling frequency is the 256e3 which is the base sample rate coming out of the USRP at a decimation
+	rate of 250.
