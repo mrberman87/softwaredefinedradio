@@ -51,13 +51,21 @@ class uav_controller():
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
 					#self.clear_file(self.working_dir + self.f_name_rx)
+					self.home = 0
 				#this is reached when there is an error and either a timeout is reached, or
 				#the transmission cannot complete with the given number of hand shakes
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
 					tx = False
+					self.home = self.home + 1
 				#this is reached when there is a general error from the ground
 				elif tmp == 'Error':
 					tx = True
+					self.home = self.home + 1
+			
+			if self.home > 3:
+				tx = False
+				self.go_home()
+				self.set_params()
 			
 			#this condition deals with transmitting data back to the ground
 			if tx:
@@ -66,10 +74,12 @@ class uav_controller():
 				#this section is reached when the transmission completes as normal
 				if tmp is True or tmp == 'Transmission Complete':
 					rx = True
+					self.home = 0
 				#this section is reached when there is a problem sending the information to the other
 				#side of the link
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
 					rx = False
+					self.home = self.home + 1
        
 	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
@@ -225,8 +235,8 @@ class uav_controller():
 	def go_home(self):
 		self.freq = 440e6
 		self.time_0 = 45
-		self.hand_max = 5
 		self.version = 'bpsk'
+		self.home = 0
        
 	#this sets parameters for the txrx_controller
 	#calling this will also initialze the controller

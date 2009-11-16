@@ -121,7 +121,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 					self.new_freq = int(tmp[1])
 					self.new_modulation = tmp[2].lower()
 					self.new_timeout = int(tmp[3])
-			
+				
 				rtn = self.send_data(data)
 			else:
 				rtn_gps = self.send_data('GPS')
@@ -150,7 +150,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			#print things into a file to be sent up and change data to the file path
 			self.fname = '/' + data + '.dat'
 			fd = open(self.working_dir + self.fname, 'w')
-			fd.write("settings\n")
+			fd.write("Settings\n")
 			if self.new_freq != int(self.freq):
 				fd.write("Freq: " + str(self.new_freq) + '\n')
 			if self.new_timeout != int(self.timeout):
