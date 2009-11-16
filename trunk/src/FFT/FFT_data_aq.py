@@ -21,23 +21,31 @@ class FFT_data_aq(gr.top_block):
                 self.real_path = sys.argv[1]
 		self.imag_path = sys.argv[2]
 		self.freq = sys.argv[3]
+		fd = open(self.real_path, 'w')
+		fd.write('')
+		fd.close()
+		fd = open(self.imag_path, 'w')
+		fd.write('')
+		fd.close()
 
                 ##################################################
                 # Blocks
                 ##################################################
 		self.complex_to_float = gr.complex_to_float(1)
+		self.throttle = gr.throttle(gr.sizeof_gr_complex*1, 256e3)
 		self.valve = grc_blks2.valve(item_size=gr.sizeof_gr_complex*1, open=bool(True))
                 self.real_sink = gr.file_sink(gr.sizeof_float*1, self.real_path)
                 self.imag_sink = gr.file_sink(gr.sizeof_float*1, self.imag_path)
                 self.usrp_source = grc_usrp.simple_source_c(which=0, side="A", rx_ant="TX/RX")
                 self.usrp_source.set_decim_rate(250)
-                self.usrp_source.set_frequency(440e6, verbose=True)
-                self.usrp_source.set_gain(40)
+                self.usrp_source.set_frequency((440e6-50e3), verbose=False)
+                self.usrp_source.set_gain(0)
 
                 ##################################################
                 # Connections
                 ##################################################
-                self.connect((self.usrp_source, 0), (self.valve, 0))
+                self.connect((self.usrp_source, 0), (self.throttle, 0))
+		self.connect((self.throttle, 0), (self.valve, 0))
                 self.connect((self.valve, 0), (self.complex_to_float, 0))
                 self.connect((self.complex_to_float, 0), (self.real_sink, 0))
                 self.connect((self.complex_to_float, 1), (self.imag_sink, 0))
