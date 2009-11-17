@@ -22,6 +22,8 @@ class FFT_data_aq(gr.top_block):
 		self.imag_path = sys.argv[2]
 		self.freq = sys.argv[3]
 		self.freq = int(self.freq[:-2])
+		if self.freq < 400e6 or self.freq > 500e6:
+			self.freq = 440e6
 		fd = open(self.real_path, 'w')
 		fd.write('')
 		fd.close()
@@ -34,7 +36,7 @@ class FFT_data_aq(gr.top_block):
                 ##################################################
 		self.complex_to_float = gr.complex_to_float(1)
 		self.throttle = gr.throttle(gr.sizeof_gr_complex*1, 256e3)
-		self.valve = grc_blks2.valve(item_size=gr.sizeof_gr_complex*1, open=bool(True))
+		#self.valve = grc_blks2.valve(item_size=gr.sizeof_gr_complex*1, open=bool(True))
                 self.real_sink = gr.file_sink(gr.sizeof_float*1, self.real_path)
                 self.imag_sink = gr.file_sink(gr.sizeof_float*1, self.imag_path)
                 self.usrp_source = grc_usrp.simple_source_c(which=0, side="A", rx_ant="RX2")
@@ -46,21 +48,23 @@ class FFT_data_aq(gr.top_block):
                 # Connections
                 ##################################################
                 self.connect((self.usrp_source, 0), (self.throttle, 0))
-		self.connect((self.throttle, 0), (self.valve, 0))
-                self.connect((self.valve, 0), (self.complex_to_float, 0))
+		#self.connect((self.throttle, 0), (self.valve, 0))
+                #self.connect((self.valve, 0), (self.complex_to_float, 0))
+                self.connect((self.throttle, 0), (self.complex_to_float, 0))
                 self.connect((self.complex_to_float, 0), (self.real_sink, 0))
                 self.connect((self.complex_to_float, 1), (self.imag_sink, 0))
 
-	def take_data(self):
-		self.valve.set_open(bool(False))
-		time.sleep(1)
-		self.valve.set_open(bool(True))
+	#def take_data(self):
+		#self.valve.set_open(bool(False))
+		#time.sleep(1)
+		#self.valve.set_open(bool(True))
 
 if __name__ == '__main__':
         parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
         (options, args) = parser.parse_args()
         tb = FFT_data_aq()
         tb.start()
-	tb.take_data()
+	time.sleep(2)
+	#tb.take_data()
         tb.stop()
 

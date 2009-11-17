@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	#FIXME add the sys.argv[#] statements back to the subprocess call below
 	#to allow for variable file paths for both the real and imaginary USRP data
 	p = subprocess.Popen('python FFT_data_aq.py %s %s %s' % (real_path, imag_path, fc), shell=True)
-	os.waitpid(p.pid, 0)
+	p.wait()
 	p = subprocess.Popen("octave", stdin=subprocess.PIPE, shell=True)
 	os.write(p.stdin.fileno(), 'UAV_fft2(\'%s\',\'%s\',\'%s\')\n' % (real_path, imag_path, to_path))
 	time.sleep(1)
