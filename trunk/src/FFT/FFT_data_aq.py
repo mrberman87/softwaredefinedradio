@@ -21,6 +21,7 @@ class FFT_data_aq(gr.top_block):
                 self.real_path = sys.argv[1]
 		self.imag_path = sys.argv[2]
 		self.freq = sys.argv[3]
+		self.freq = int(self.freq[:-2])
 		fd = open(self.real_path, 'w')
 		fd.write('')
 		fd.close()
@@ -36,10 +37,10 @@ class FFT_data_aq(gr.top_block):
 		self.valve = grc_blks2.valve(item_size=gr.sizeof_gr_complex*1, open=bool(True))
                 self.real_sink = gr.file_sink(gr.sizeof_float*1, self.real_path)
                 self.imag_sink = gr.file_sink(gr.sizeof_float*1, self.imag_path)
-                self.usrp_source = grc_usrp.simple_source_c(which=0, side="A", rx_ant="TX/RX")
+                self.usrp_source = grc_usrp.simple_source_c(which=0, side="A", rx_ant="RX2")
                 self.usrp_source.set_decim_rate(250)
-                self.usrp_source.set_frequency((440e6-50e3), verbose=False)
-                self.usrp_source.set_gain(0)
+                self.usrp_source.set_frequency(self.freq, verbose=False)
+                self.usrp_source.set_gain(40)
 
                 ##################################################
                 # Connections
