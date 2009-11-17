@@ -100,39 +100,51 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			self.pendingRequest.wait()	#sleep until a command is requested
 			
 			cmd = self.getNextCommand()
+			print cmd
 			
-			if not cmd.startswith('All'):
-				#figure out which command has been requested
-				if cmd.startswith('GPS'):
-					data = 'GPS'
-					self.path = self.gpsFileName
-				elif cmd.startswith('Image'):
-					data = 'Image'
-					self.path = self.image
-				elif cmd.startswith('FFT'):
-					data = 'FFT'
-					self.path = self.fft
-				elif cmd.startswith('Telemetry'):
-					data = 'Telemetry'
-					self.path = self.teleFileName
-				elif cmd.startswith('Settings'):
-					data = 'Settings'
-					tmp  = cmd.split(' ')
+			#figure out which command has been requested
+			if cmd.startswith('GPS'):
+				data = 'GPS'
+				self.path = self.gpsFileName
+			elif cmd.startswith('Image'):
+				data = 'Image'
+				self.path = self.image
+			elif cmd.startswith('FFT'):
+				data = 'FFT'
+				self.path = self.fft
+			elif cmd.startswith('Telemetry'):
+				data = 'Telemetry'
+				self.path = self.teleFileName
+			elif cmd.startswith('Settings'):
+				data = 'Settings'
+				tmp  = cmd.split(' ')
+				if tmp[1] != '#':
 					self.new_freq = int(tmp[1])
-					self.new_modulation = tmp[2].lower()
+				else:
+					self.new_freq = ''
+				self.new_modulation = tmp[2].lower()
+				if tmp[3] != '#':
 					self.new_timeout = int(tmp[3])
-				
-				rtn = self.send_data(data)
-			else:
-				rtn_gps = self.send_data('GPS')
-				rtn_image = self.send_data('Image')
-				rtn_fft = self.send_data('FFT')
-				rtn_tele = self.send_data('Telemetry')
-				rtn = rtn_gps and rtn_image and rtn_fft and rtn_tele
+				else:
+					self.new_timeout = ''
+			elif cmd.startswith('Go Home'):
+				self.go_home()
+				self.set_params()
+				self.removeCompletedCommand()
+				self.removeCompletedCommand()
+				self.removeCompletedCommand()
+				continue
+			elif cmd.starts('Clear'):
+				self.removeCompletedCommand()
+				self.removeCompletedCommand()
+				self.removeCompletedCommand()
+			
+			self.tsvr.set_rx_filename(self.path)
+			rtn = self.send_data(data)
 			
 			#FIXME let the user know that something wasnt properly communicated between the ground and UAV
 			#if not rtn:
-				#...
+			#...
 			
 			#handle getting everything properly
 			self.removeCompletedCommand()
@@ -151,9 +163,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			self.fname = '/' + data + '.dat'
 			fd = open(self.working_dir + self.fname, 'w')
 			fd.write("Settings\n")
-			if self.new_freq != int(self.freq):
+			if self.new_freq != int(float(self.freq)) and self.new_freq != '':
 				fd.write("Freq: " + str(self.new_freq) + '\n')
-			if self.new_timeout != int(self.timeout):
+			if self.new_timeout != int(self.timeout) and self.new_timeout != '':
 				fd.write("Timeout: " + str(self.new_timeout) + '\n')
 			if self.new_modulation.lower() != self.modulation.lower():
 				fd.write("Version: " + self.new_modulation + '\n')
@@ -163,35 +175,36 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		tmp = self.tsvr.transmit(self.fname)
 		print tmp
 		if tmp is True or tmp == 'Transmission Complete':
-			self.go_home = 0
 			#decode the data sent back down
 			if data == 'Settings':
 				print "Checking Settings..."
-				if self.new_modulation.lower() != self.modulation.lower() or str(self.new_freq) != self.freq:
-					self.freq = str(self.new_freq)
+				if self.new_modulation.lower() != self.modulation.lower():
+					if str(self.new_freq) != '':
+						self.freq = str(self.new_freq)
+					if str(self.new_timeout) != '':
+						self.timeout = str(self.new_timeout)				
 					self.modulation = self.new_modulation
-					self.timeout = str(self.new_timeout)
 					self.set_params()
 				else:
-					#if str(self.new_freq) != self.freq:
-					#	self.freq = str(self.new_freq)
-					#	self.tsvr.set_frequency(int(self.freq))
-					if str(self.new_timeout) != self.timeout:
+					if str(self.new_freq) != self.freq and str(self.new_freq) != '':
+						self.freq = str(self.new_freq)
+						self.tsvr.set_frequency(int(self.freq))
+					if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
 						self.timeout = str(self.new_timeout)
 						self.tsvr.set_frame_time_out(int(self.timeout))
 				return True
 		else:
-			#self.go_home = self.go_home + 1
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 			return False
 		
 		print "\n\nHERE IS THE PATH...\n\n"
 		print self.path
 		self.tsvr.set_rx_filename(self.path)
-		print self.tsvr.working_directory +  self.tsvr.rx_filename
+		if data == "Settings":
+			return
+		print self.tsvr.working_directory +self.tsvr.rx_filename
 		tmp = self.tsvr.receive()
 		if tmp is True or tmp == 'Transmission Complete':
-			self.go_home = 0
 			#decode the data sent back down
 			if data == 'GPS':
 				f = open(self.working_dir + self.gpsFileName, 'r')
@@ -203,7 +216,6 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				self.batt = f.readline().strip('\n').strip()
 				f.close()
 		else:
-			#self.go_home = self.go_home + 1
 			self.report_error(tx_rx = 'Transmitting', msg = tmp)
 	
 	#this sets parameters for the txrx_controller
@@ -212,8 +224,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		del self.tsvr
 		self.dev.reset()
 		time.sleep(2)
-		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11e3, foffset_tx=0, foffset_rx=50e3,
-			frame_time_out = int(self.timeout), work_directory=self.working_dir, version = self.modulation)
+		print "New Modulation: ", self.modulation.lower()
+		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11.195e3, foffset_tx=0, foffset_rx=50e3,
+			frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
 		time.sleep(2)
 	
 	def report_error(self, tx_rx, msg):
@@ -223,10 +236,14 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.removeCompletedCommand()
 	
 	def go_home(self):
-		self.go_home = 0
 		self.freq = '440000000'
 		self.modulation = 'bpsk'
 		self.timeout = '45' #(in seconds)
-		self.handshake = '5'
 
 class QueueLimitException(Exception):pass
+
+class autoPopulateQueue(threading.Thread):
+	def __init__(self):
+		
+
+
