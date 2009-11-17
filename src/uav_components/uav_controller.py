@@ -6,13 +6,17 @@ from txrx_controller import *
 from GPS_getter import *
 from wd_reset import *
 
-class uav_controller():
+class uav_controller(Daemon):
 	def run(self):
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
 		#changing the system name of this program when it's running
 		libc = ctypes.CDLL('libc.so.6')
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
+		#intializing the system
+		self.init_vars()
+		self.init_files()
+		os.chdir(self.working_dir)
 		self.log("Starting Up: pid = %d" % os.getpid())
 		#setting up the usb controller
 		try:
@@ -24,9 +28,6 @@ class uav_controller():
 		#starting threads to reset the watchdog timers
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
 		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
-		#intializing the system
-		self.init_vars()
-		self.init_files()
 		#self.check_saved_vars()
 		#set_params will initialize self.trans, it is just being allocated here
 		self.trans = None
@@ -57,15 +58,18 @@ class uav_controller():
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
 					tx = False
 					self.home = self.home + 1
+					self.log(tmp)
 				#this is reached when there is a general error from the ground
 				elif tmp == 'Error':
 					tx = True
 					self.home = self.home + 1
+					self.log(tmp)
 			
-			if self.home > 3:
+			if self.home >= 2:
 				tx = False
 				self.go_home()
 				self.set_params()
+				self.log("Going Home...")
 			
 			#this condition deals with transmitting data back to the ground
 			if tx:
@@ -80,6 +84,7 @@ class uav_controller():
 				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
 					rx = False
 					self.home = self.home + 1
+					self.log(tmp)
        
 	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
@@ -94,8 +99,8 @@ class uav_controller():
 	def exec_command(self, command):
 		print "Got Command: " + command
 		#this changes the communication link's settings (ie - frequency, modulation scheme, etc.)
-		if(command == "settings"):
-			log = "Changing Settings:"
+		if(command == "Settings"):
+			to_log = "Changing Settings:"
 			tmp_freq = None
 			tmp_time_0 = None
 			tmp_version = None
@@ -106,29 +111,29 @@ class uav_controller():
 					junk, tmp_freq = l.split()
 					if tmp_freq != None:
 						self.freq = int(tmp_freq)
-						log = log + " Freq = %d" % self.freq
+						to_log = to_log + " Freq = %d" % self.freq
 				if l.startswith("Timeout:"):
 					junk, tmp_time_0 = l.split()
 					if tmp_time_0 != None:
 						self.time_0 = int(tmp_time_0)
-						log = log + " Timeout = %d" % self.time_0
+						to_log = to_log + " Timeout = %d" % self.time_0
 				if l.startswith("Version:"):
 					junk, tmp_version = l.split()
 					if tmp_version != None:
 						self.version = tmp_version.lower()
-						log = log + " Modulation Scheme = %s" % self.version
+						to_log = to_log + " Modulation Scheme = %s" % self.version
 			fd.close()
 		       
 			#this deals with a modulation scheme change
-			if tmp_version != None or tmp_freq != None:
+			if tmp_version != None:
 				self.set_params()
 			#this deals with the change of any other variable
 			else:
-				#if tmp_freq != None:
-				#	self.trans.set_frequency(self.freq)
+				if tmp_freq != None:
+					self.trans.set_frequency(self.freq)
 				if tmp_time_0 != None:
 					self.trans.set_frame_time_out(self.time_0)
-			self.log(log)
+			self.log(to_log)
 			return False
 		#this takes a picture
 		elif(command == "Image"):
@@ -141,9 +146,10 @@ class uav_controller():
 		elif(command == "FFT"):
 			self.log("Getting FFT Data")
 			self.dev.reset()
-			self.f_name_tx = "/fft_image.jpeg"
+			self.f_name_tx = "/fft.jpeg"
 			time_not = time.time()
-			self.fft = subprocess.Popen('python get_fft.py %s/RC.dat %s' % (self.working_dir, self.working_dir + self.f_name_tx), shell=True)
+			self.fft = subprocess.Popen('python get_fft.py %s %s %d %s' % (self.working_dir+'/real',
+				self.working_dir+'/imaginary', self.freq, self.working_dir + self.f_name_tx), shell=True)
 			self.fft.wait()
 			self.set_params()
 			return True
@@ -243,9 +249,10 @@ class uav_controller():
 	def set_params(self):
 		del self.trans
 		self.dev.reset()
-		self.trans = txrx_controller(hand_shaking_max = self.hand_max, frame_time_out = self.time_0,
+		self.trans = txrx_controller(frame_time_out = self.time_0,
 			work_directory=self.working_dir, fc = self.freq, centoff=0,
-			foffset_tx=100e3, foffset_rx=-50e3, rx_file=self.f_name_rx)
+			foffset_tx=100e3, foffset_rx=-50e3, rx_file=self.f_name_rx,
+			version = self.version)
        
 	#this initializes files that the UAV controller may need in its operation
 	def init_files(self):
@@ -253,16 +260,20 @@ class uav_controller():
 		#program are exist.
 		if(not os.path.exists("pic.jpg")):
 			subprocess.Popen('touch pic.jpg', shell=True)
-		if(not os.path.exists("fft_image.jpeg")):
-			subprocess.Popen('touch fft_image.jpeg', shell=True)
+		if(not os.path.exists("fft.jpeg")):
+			subprocess.Popen('touch fft.jpeg', shell=True)
 		if(not os.path.exists("misc.dat")):
 			subprocess.Popen('touch misc.dat', shell=True)
 		if(not os.path.exists("log.dat")):
 			subprocess.Popen('touch log.dat', shell=True)
-		if(not os.path.exists("RC.dat")):
-			subprocess.Popen('touch RC.dat', shell=True)
+		if(not os.path.exists("imaginary")):
+			subprocess.Popen('touch imaginary', shell=True)
+		if(not os.path.exists("real")):
+			subprocess.Popen('touch real', shell=True)
 		if(not os.path.exists("rx_data")):
 			subprocess.Popen('touch rx_data', shell=True)
+		if(not os.path.exists("log.dat")):
+			subprocess.Popen('touch log.dat', shell=True)
        
 	#this loads up variables that were saved from the previous run of this process
 	def check_saved_vars(self):
@@ -301,8 +312,6 @@ class uav_controller():
 
 
 if __name__ == '__main__':
-	uav_controller().run()
-	"""
 	#this sets up this controller as a daemon to run in the background
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
@@ -318,4 +327,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 	else:
 		print "usage: %s start|stop|restart" % sys.argv[0]
-		sys.exit(2)"""
+		sys.exit(2)
