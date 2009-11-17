@@ -10,7 +10,7 @@ class txrx_controller():
 	def __init__(self, fc, centoff, foffset_tx, foffset_rx, frame_time_out=45, 
 			work_directory = os.path.expanduser('~') + '/Desktop', 
 			version='bpsk', rx_file='/rx_data'):
-		self.event_list = ['N', 'I', 'P', 'C', 'E']
+		self.event_list = ['N', 'I', 'P', 'C', 'E', 'K']
 		self.version_list = ['bpsk', 'qpsk']
 		self.hand_shaking_maximum = 15
 		self.working_directory = work_directory
@@ -22,10 +22,7 @@ class txrx_controller():
 		self.rx_filename = rx_file
 		self.hand_shaking_count = 0
 		self.total_pkts = None
-		if version.lower() in self.version_list:
-			self.scheme = version.lower()
-		else:
-			self.scheme = 'bpsk'
+		self.scheme = version
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
@@ -52,11 +49,13 @@ class txrx_controller():
 				fo = open(self.working_directory + data_source, 'r')
 				temp_data = fo.read()
 				fo.close()
+				self.make_pkts(0, temp_data)
 			except:
 				return False
+		elif data_source.lower() == 'ka':
+			self.make_pkts(5)
 		else:
-			temp_data = data_source
-		self.make_pkts(0, temp_data)
+			self.make_pkts(0, data_source)
 		temp = self.receive()
 		return temp
 
@@ -76,7 +75,7 @@ class txrx_controller():
 					self.slice_packet(queue_item)
 				#New Transmission Event
 				if self.event == self.event_list[0]:
-					print "N : ", self.pkt_num
+					#print "N : ", self.pkt_num
 					if faking_frame_completion:
 						self.rcvd_new_transmission(True)
 					else:
@@ -88,7 +87,7 @@ class txrx_controller():
 							return True
 				#Incomplete Transmission Event
 				elif self.event == self.event_list[1]:
-					print "I : ", self.pkt_num
+					#print "I : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_incomplete_transmission()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -99,7 +98,7 @@ class txrx_controller():
 						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
-					print "P : ", self.pkt_num
+					#print "P : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_packet_resend()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -107,15 +106,23 @@ class txrx_controller():
 						self.hand_shaking_count += 1
 						if self.frame_check():
 							return True
-				#Transmission Coself.working_directorymplete
+				#Transmission Complete
 				elif self.event == self.event_list[3]:
-					print "C : ", self.pkt_num
-					self.full_cleanup()
-					return True
+					if self.payload == self.event_list[3]:
+						print "C : ", self.payload
+						self.full_cleanup()
+						return True
+					elif self.payload == self.event_list[5]:
+						print "C : ", self.payload
+						self.full_cleanup()
+						return 'ka'
 				#Error Event
 				elif self.event == self.event_list[4]:
 					self.full_cleanup()
 					return 'Error'
+				elif self.event == self.event_list[5]:
+					self.make_pkts(3, temp_data=self.event_list[5])
+					self.full_cleanup()						
 				#Unknown Event
 				else:
 					self.event_cleanup()
@@ -259,15 +266,24 @@ class txrx_controller():
 				counter += 1
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
-			pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
-				self.event_list[event_index], scheme = self.scheme)
+			if temp_data == '':
+				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
+					self.event_list[event_index], scheme = self.scheme)
+			else:
+				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
+					temp_data, scheme = self.scheme)
 			self.transmit_pkts(pkt)
 		#Transmitting Error Event
 		elif event_index == 4:
 			pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
-		self.transmit_pkts("1010101010101010")
+		#Tranmitting Keep Alive Event
+		elif event_index == 5:
+			pkt = packetizer.make_packet(1, 0, self.event_list[event_index],
+				self.event_list[event_index], scheme = self.scheme)
+			self.transmit_pkts(pkt)
+		self.transmit_pkts("1010101010101010")		
 
 	#Queue a packet in the transceiver flow graph
 	def transmit_pkts(self, msg):

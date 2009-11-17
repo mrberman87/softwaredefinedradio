@@ -48,7 +48,7 @@ class View(wx.Frame):
 		param_grid.Add(freqTxt,wx.EXPAND|wx.ALL,20)
 
 		param_grid.Add(wx.StaticText(parent,-1,'New Modulation'),wx.RIGHT,20)
-		self.modChoices = wx.Choice(parent,-1,choices=['BPSK','QPSK','8PSK'])
+		self.modChoices = wx.Choice(parent,-1,choices=['BPSK','QPSK'])
 		#self.Bind(wx.EVT_CHOICE, self.controller.onModSelect, self.modChoices)
 		param_grid.Add(self.modChoices, wx.EXPAND|wx.ALL,20)
 
@@ -66,7 +66,7 @@ class View(wx.Frame):
 		binds the buttons to the parent given, then returns the gridsizer 
 		with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
-		labels = ['Image', 'GPS', 'FFT', 'Telemetry', 'Clear', 'All']
+		labels = ['Image', 'GPS', 'FFT', 'Telemetry', 'Clear', 'Go Home']
 		for label in labels:
 			b = self.buildOneButton(parent, label, self.controller.onButton)
 			uav_grid.Add(b)
@@ -153,9 +153,9 @@ class View(wx.Frame):
 		data_grid= wx.GridSizer(5,4,2,2)
 		
 		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP', 'BATT',
-					'SIG POWER','FREQ','MOD', 'TIMEOUT', 'GND SPEED']
+					'FREQ','MOD', 'TIMEOUT', 'GND SPEED']
 		txtBoxNames = ['lat', 'lon','alt','temp','batt',
-						'sigPower','freq','mod','timeout', 'gndSpeed']
+						'freq','mod','timeout', 'gndSpeed']
 						
 		"""add text boxes and labels to data grid. Text boxes can be
 		referenced by name. ex: latTextBox would be the name to reference
@@ -260,7 +260,7 @@ class Controller(wx.App):
 		if (not newFreq):
 			newFreq = "#"
 		cmdString = "Settings " + newFreq + " " + newMod + " " + newTimeout
-		print cmdString
+		#print cmdString
 		self.model.addToQueue(cmdString)
 
 		
@@ -282,23 +282,23 @@ class Controller(wx.App):
 	def imageListener(self):
 		imageViewer = self.view.FindWindowByLabel('Image Viewer')		
 		dc = wx.ClientDC(imageViewer)
-		if os.path.isfile(self.model.imageFileName):
-			img = wx.Image(self.model.imageFileName)
-			(x,y)= imageViewer.GetClientSizeTuple()
-			scaledIMG= img.Scale(x - 10 , y - 20)
-			bmp=wx.BitmapFromImage(scaledIMG)
-			dc.DrawBitmap(bmp,10,20,False)
+		#if os.path.isfile(self.model.imageFileName):
+		img = wx.Image(self.model.imageFileName)
+		(x,y)= imageViewer.GetClientSizeTuple()
+		scaledIMG= img.Scale(x - 10 , y - 20)
+		bmp=wx.BitmapFromImage(scaledIMG)
+		dc.DrawBitmap(bmp,10,20,False)
 	
 
 	def fftListener(self):
 		fftViewer = self.view.FindWindowByLabel('Frequency Spectrum Viewer')		
 		dc = wx.ClientDC(fftViewer)
-		if os.path.isfile(self.model.fftFileName):
-			fft= wx.Image(self.model.fftFileName)
-			(x,y)= fftViewer.GetClientSizeTuple()
-			scaledIMG= fft.Scale(x - 10 , y - 20)
-			bmp=wx.BitmapFromImage(scaledIMG)
-			dc.DrawBitmap(bmp,10,20,False)
+		#if os.path.isfile(self.model.fftFileName):
+		fft= wx.Image(self.model.fftFileName)
+		(x,y)= fftViewer.GetClientSizeTuple()
+		scaledIMG= fft.Scale(x - 10 , y - 20)
+		bmp=wx.BitmapFromImage(scaledIMG)
+		dc.DrawBitmap(bmp,10,20,False)
 
 	
 	def frequencyListener(self):
