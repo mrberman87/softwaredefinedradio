@@ -51,6 +51,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.tsvr = ''
 		self.set_params()
 		os.system("touch Settings.dat")
+		self.link_check = autoLinkCheck(self).start()
 	
 	def __del__(self):
 		self.dev.reset()
@@ -59,6 +60,12 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	"""GUI responder methods: These are the only methods that should be
 	called by the GUI"""	
 	def addToQueue(self, cmd):
+		if cmd == 'Clear':
+			self.cmd_qLock.acquire()
+			self.cmd_list = self.cmd_list[:1]
+			self.cmd_qLock.release()
+			self.update()
+			return
 		self.cmd_qLock.acquire()
 		if len(self.cmd_list) > 2:
 			self.cmd_qLock.release()
@@ -134,10 +141,12 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				self.removeCompletedCommand()
 				self.removeCompletedCommand()
 				continue
-			elif cmd.starts('Clear'):
+			elif cmd.startswith('Clear'):
 				self.removeCompletedCommand()
 				self.removeCompletedCommand()
 				self.removeCompletedCommand()
+			elif cmd.startswith('Keep'):
+				data = 'ka'
 			
 			self.tsvr.set_rx_filename(self.path)
 			rtn = self.send_data(data)
@@ -157,7 +166,10 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	
 	def send_data(self, data):
 		self.fname = data
-
+		
+		if data == 'ka':
+			return self.keep_alive()
+		
 		if data == 'Settings':
 			#print things into a file to be sent up and change data to the file path
 			self.fname = '/' + data + '.dat'
@@ -197,12 +209,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 			return False
 		
-		print "\n\nHERE IS THE PATH...\n\n"
-		print self.path
 		self.tsvr.set_rx_filename(self.path)
 		if data == "Settings":
 			return
-		print self.tsvr.working_directory +self.tsvr.rx_filename
 		tmp = self.tsvr.receive()
 		if tmp is True or tmp == 'Transmission Complete':
 			#decode the data sent back down
@@ -239,11 +248,32 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.freq = '440000000'
 		self.modulation = 'bpsk'
 		self.timeout = '45' #(in seconds)
+	
+	def keep_alive(self):
+		self.tsvr.set_frame_time_out(3)
+		for i in range(int((int(self.timeout)*2)/3)):
+			temp = self.tsvr.transmit('ka')
+			if temp == 'ka':
+				self.tsvr.set_frame_time_out(int(self.timeout))
+				return 'Link Alive.'
+		self.addToQueue('Go Home')
 
 class QueueLimitException(Exception):pass
 
-class autoPopulateQueue(threading.Thread):
-	def __init__(self):
-		
-
+class autoLinkCheck(threading.Thread):
+	def __init__(self, ground_controller):
+		threading.Thread.__init__(self)
+		self.grnd = ground_controller
+		self.KA_timer = 10
+	
+	def run(self):
+		while True:
+			time.sleep(self.KA_timer)
+			self.grnd.cmd_qLock.acquire()
+			tmp = len(self.grnd.cmd_list)
+			self.grnd.cmd_qLock.release()
+			if not tmp > 0:
+				self.grnd.addToQueue('Keep Alive')
+				self.grnd.update()
+				#self.KA_timer = int(self.grnd.timeout)*2 + 5
 
