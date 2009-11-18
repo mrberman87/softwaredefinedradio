@@ -196,8 +196,8 @@ class txrx_controller():
 			except:
 				pass
 			self.make_pkts(3)
-			self.full_cleanup()
-			time.sleep(1)
+			self.full_cleanup()		
+			time.sleep(1.5)
 			return True
 		else:
 			self.make_pkts(1)
