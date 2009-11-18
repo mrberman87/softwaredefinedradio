@@ -234,7 +234,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.dev.reset()
 		time.sleep(2)
 		print "New Modulation: ", self.modulation.lower()
-		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11.195e3, foffset_tx=0, foffset_rx=50e3,
+		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11.245e3, foffset_tx=0, foffset_rx=50e3,
 			frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
 		time.sleep(2)
 	
