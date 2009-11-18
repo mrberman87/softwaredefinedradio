@@ -310,10 +310,7 @@ class txrx_controller():
 #				USER TOOLS					       #
 ########################################################################################
 	def set_frame_time_out(self, new_timeout):
-		if int(new_timeout) >= 35:
-			self.frame_timeout = int(new_timeout)
-		else:
-			print "Invalid New Timeout. txrx_controller line 313"
+		self.frame_timeout = int(new_timeout)
 
 	def set_frequency(self, fc):
 		fc = int(fc)
