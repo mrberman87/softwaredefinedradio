@@ -197,6 +197,7 @@ class txrx_controller():
 				pass
 			self.make_pkts(3)
 			self.full_cleanup()
+			time.sleep(1)
 			return True
 		else:
 			self.make_pkts(1)
@@ -272,12 +273,6 @@ class txrx_controller():
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
 			if temp_data == '':
-				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
-					'Buffer', scheme = self.scheme)
-				self.transmit_pkts(pkt)
-				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
-					'Buffer', scheme = self.scheme)
-				self.transmit_pkts(pkt)
 				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 					self.event_list[event_index], scheme = self.scheme)
 			else:

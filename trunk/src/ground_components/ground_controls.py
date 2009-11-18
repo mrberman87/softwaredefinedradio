@@ -186,25 +186,27 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		print "Path: ", self.tsvr.working_directory + self.fname
 		tmp = self.tsvr.transmit(self.fname)
 		print tmp
-		if tmp is True or tmp == 'Transmission Complete':
+		if tmp == True or tmp == 'Transmission Complete':
 			#decode the data sent back down
 			if data == 'Settings':
 				print "Checking Settings..."
-				if self.new_modulation.lower() != self.modulation.lower():
-					if str(self.new_freq) != '':
-						self.freq = str(self.new_freq)
-					if str(self.new_timeout) != '':
-						self.timeout = str(self.new_timeout)				
-					self.modulation = self.new_modulation
-					self.set_params()
-				else:
-					if str(self.new_freq) != self.freq and str(self.new_freq) != '':
-						self.freq = str(self.new_freq)
-						self.tsvr.set_frequency(int(self.freq))
-					if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
-						self.timeout = str(self.new_timeout)
-						self.tsvr.set_frame_time_out(int(self.timeout))
-				return True
+				temp = self.tsvr.transmit('Execute')
+				if temp == True:
+					if self.new_modulation.lower() != self.modulation.lower():
+						if str(self.new_freq) != '':
+							self.freq = str(self.new_freq)
+						if str(self.new_timeout) != '':
+							self.timeout = str(self.new_timeout)				
+						self.modulation = self.new_modulation
+						self.set_params()
+					else:
+						if str(self.new_freq) != self.freq and str(self.new_freq) != '':
+							self.freq = str(self.new_freq)
+							self.tsvr.set_frequency(int(self.freq))
+						if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
+							self.timeout = str(self.new_timeout)
+							self.tsvr.set_frame_time_out(int(self.timeout))
+					return True
 		else:
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 			return False
@@ -213,7 +215,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		if data == "Settings":
 			return
 		tmp = self.tsvr.receive()
-		if tmp is True or tmp == 'Transmission Complete':
+		if tmp == True or tmp == 'Transmission Complete':
 			#decode the data sent back down
 			if data == 'GPS':
 				f = open(self.working_dir + self.gpsFileName, 'r')
@@ -234,7 +236,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.dev.reset()
 		time.sleep(2)
 		print "New Modulation: ", self.modulation.lower()
-		self.tsvr = txrx_controller(fc=int(self.freq), centoff=11.245e3, foffset_tx=0, foffset_rx=50e3,
+		self.tsvr = txrx_controller(fc=int(self.freq), centoff=3.31e3, foffset_tx=0, foffset_rx=50e3,
 			frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
 		time.sleep(2)
 	
