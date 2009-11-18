@@ -190,23 +190,23 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			#decode the data sent back down
 			if data == 'Settings':
 				print "Checking Settings..."
-				temp = self.tsvr.transmit('Execute')
-				if temp == True:
-					if self.new_modulation.lower() != self.modulation.lower():
-						if str(self.new_freq) != '':
-							self.freq = str(self.new_freq)
-						if str(self.new_timeout) != '':
-							self.timeout = str(self.new_timeout)				
-						self.modulation = self.new_modulation
-						self.set_params()
-					else:
-						if str(self.new_freq) != self.freq and str(self.new_freq) != '':
-							self.freq = str(self.new_freq)
-							self.tsvr.set_frequency(int(self.freq))
-						if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
-							self.timeout = str(self.new_timeout)
-							self.tsvr.set_frame_time_out(int(self.timeout))
-					return True
+				#temp = self.tsvr.transmit('Execute')
+				#if temp == True:
+				if self.new_modulation.lower() != self.modulation.lower():
+					if str(self.new_freq) != '':
+						self.freq = str(self.new_freq)
+					if str(self.new_timeout) != '':
+						self.timeout = str(self.new_timeout)				
+					self.modulation = self.new_modulation
+					self.set_params()
+				else:
+					if str(self.new_freq) != self.freq and str(self.new_freq) != '':
+						self.freq = str(self.new_freq)
+						self.tsvr.set_frequency(int(self.freq))
+					if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
+						self.timeout = str(self.new_timeout)
+						self.tsvr.set_frame_time_out(int(self.timeout))
+				return True
 		else:
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 			return False
@@ -235,11 +235,10 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		del self.tsvr
 		self.dev.reset()
 		time.sleep(2)
-		print "New Modulation: ", self.modulation.lower()
 		self.tsvr = txrx_controller(fc=int(self.freq), centoff=3.31e3, foffset_tx=0, foffset_rx=50e3,
 			frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
 		time.sleep(2)
-	
+
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
 		#FIXME show this error message to the user in some fassion... possibly a popup message, or in the queue
