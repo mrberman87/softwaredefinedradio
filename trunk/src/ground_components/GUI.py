@@ -165,7 +165,8 @@ class View(wx.Frame):
 			label = txtLabels[i]
 			boxName = txtBoxNames[i] + "TextBox"
 			data_grid.Add(wx.StaticText(rightPanel,-1,label),wx.RIGHT,20)
-			myTxtCtrl = wx.TextCtrl(rightPanel,-1, name = boxName)		
+			roStyle = wx.TE_READONLY
+			myTxtCtrl = wx.TextCtrl(rightPanel,-1, style=roStyle,name = boxName)		
 			data_grid.Add(myTxtCtrl,wx.EXPAND|wx.ALL,20)
 		
 		sizer2a.Add(data_grid,1,wx.EXPAND)
