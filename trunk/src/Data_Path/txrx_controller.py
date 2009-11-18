@@ -75,7 +75,7 @@ class txrx_controller():
 					self.slice_packet(queue_item)
 				#New Transmission Event
 				if self.event == self.event_list[0]:
-					print "N : ", self.pkt_num
+					#print "N : ", self.pkt_num
 					if faking_frame_completion:
 						self.rcvd_new_transmission(True)
 					else:
@@ -87,7 +87,7 @@ class txrx_controller():
 							return True
 				#Incomplete Transmission Event
 				elif self.event == self.event_list[1]:
-					print "I : ", self.pkt_num
+					#print "I : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_incomplete_transmission()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -98,7 +98,7 @@ class txrx_controller():
 						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
-					print "P : ", self.pkt_num
+					#print "P : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_packet_resend()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -116,6 +116,10 @@ class txrx_controller():
 						print "C : ", self.payload
 						self.full_cleanup()
 						return 'ka'
+					else:
+						self.txrx_path.msg_queue_out.flush()
+						self.full_cleanup()
+						return True
 				#Error Event
 				elif self.event == self.event_list[4]:
 					self.full_cleanup()
@@ -125,6 +129,7 @@ class txrx_controller():
 					self.full_cleanup()						
 				#Unknown Event
 				else:
+					print "Unknown Event: ", self.event
 					self.event_cleanup()
 			#Used to keep the total number of receives to a maximum
 			if self.hand_shaking_count == self.hand_shaking_maximum:
@@ -267,10 +272,10 @@ class txrx_controller():
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
 			if temp_data == '':
-				pkt = packetizer.make_packet(1, 0, 'Buffer', 
+				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 					'Buffer', scheme = self.scheme)
 				self.transmit_pkts(pkt)
-				pkt = packetizer.make_packet(1, 0, 'Buffer', 
+				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
 					'Buffer', scheme = self.scheme)
 				self.transmit_pkts(pkt)
 				pkt = packetizer.make_packet(1, 0, self.event_list[event_index], 
