@@ -52,6 +52,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.set_params()
 		os.system("touch Settings.dat")
 		self.link_check = autoLinkCheck(self).start()
+		self.update()
 	
 	def __del__(self):
 		self.dev.reset()
@@ -211,9 +212,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
 			return False
 		
-		self.tsvr.set_rx_filename(self.path)
 		if data == "Settings":
 			return
+		self.tsvr.set_rx_filename(self.path)
 		tmp = self.tsvr.receive()
 		if tmp == True or tmp == 'Transmission Complete':
 			#decode the data sent back down
@@ -276,5 +277,4 @@ class autoLinkCheck(threading.Thread):
 			if not tmp > 0:
 				self.grnd.addToQueue('Keep Alive')
 				self.grnd.update()
-				#self.KA_timer = int(self.grnd.timeout)*2 + 5
 
