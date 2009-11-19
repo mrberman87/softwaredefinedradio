@@ -87,8 +87,9 @@ class View(wx.Frame):
 
 		cmd_border= wx.StaticBox(param_data_panel, -1, 'Command Queue')
 		cmd_queue_sizer = wx.StaticBoxSizer(cmd_border,orient=wx.HORIZONTAL)
+		p_style = wx.TE_MULTILINE | wx.TE_READONLY
 		p_txt = wx.TextCtrl(param_data_panel, -1,
-							name = 'cmdTextBox', style=wx.TE_MULTILINE)
+							name = 'cmdTextBox', style=p_style)
 		cmd_queue_sizer.Add(p_txt,1,wx.EXPAND)
 
 		hbox2 =wx.BoxSizer(wx.HORIZONTAL)
@@ -113,7 +114,8 @@ class View(wx.Frame):
 		
 		dv_border = wx.StaticBox(cmd_panel, -1, 'Data Viewer')
 		data_view_sizer =  wx.StaticBoxSizer(dv_border, orient=wx.HORIZONTAL)
-		dv_txt = wx.TextCtrl(cmd_panel, -1, name = 'dataViewTextBox', style=wx.TE_MULTILINE)
+		dv_style = wx.TE_MULTILINE | wx.TE_READONLY
+		dv_txt = wx.TextCtrl(cmd_panel, -1, name = 'dataViewTextBox', style=dv_style)
 		data_view_sizer.Add(dv_txt,1,wx.EXPAND)
 
 		hbox1 = wx.BoxSizer(wx.HORIZONTAL)
