@@ -214,6 +214,7 @@ class Controller(wx.App):
 		self.view = View(parent = None, controller = self)
 		self.view.Show(True)
 		self.model = ground_controls.ground_controls()
+		self.logLineCount=0
 		try:
 			self.logFile = open("log.dat")
 		except IOError:
@@ -341,16 +342,12 @@ class Controller(wx.App):
 	def rawDataListener(self):
 		"""Load messages from log file as they come. Do not want to keep
 		reading the entire file to add one line, so the log file stays open."""
+		logFile=open("log.dat")
 		rd_txt_box = self.view.FindWindowByName('dataViewTextBox')
-		new_lines = self.logFile.readlines()
-		if new_lines:
-			new_stuff = ''
-			for line in new_lines:
-				new_stuff = line + new_stuff
-
-			old_stuff = rd_txt_box.GetValue()
-			rd_txt_box.SetValue(new_stuff + old_stuff)
-
+		new_stuff = logFile.read()
+		#old_stuff = rd_txt_box.GetValue()
+		rd_txt_box.SetValue(new_stuff)
+		logFile.close()
 		
 if __name__ =="__main__":
 	app = Controller()
