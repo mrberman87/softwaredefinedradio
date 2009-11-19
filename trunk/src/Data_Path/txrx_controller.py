@@ -161,6 +161,7 @@ class txrx_controller():
 
 	#Handler of individual packets tagged with Incomplete Transmission Event
 	def rcvd_incomplete_transmission(self):
+		failed_pkts = list()
 		if len(self.payload) <= self.payload_length:
 			failed_pkts = self.payload.split(':')
 		else:
@@ -169,14 +170,17 @@ class txrx_controller():
 			for i in range(count):
 				if self.payload.count(':') > 0:
 					index = self.payload.index(':')
-					if int(self.payload[:index]) < max_pkts:
-						failed_pkts.append(int(self.payload[:index]))
-						self.payload = self.payload[index+1:]
-					else:
+					try:
+						if int(self.payload[:index]) < max_pkts:
+							failed_pkts.append(self.payload[:index])
+							self.payload = self.payload[index+1:]
+						else:
+							self.payload = self.payload[index+1:]
+					except ValueError:
 						self.payload = self.payload[index+1:]
 				else:
 					if int(self.payload) < max_pkts:
-						failed_pkts.append(int(self.payload.pop(0)))
+						failed_pkts.append(self.payload.pop(0))
 		for i in range(len(failed_pkts)):
 			self.pkts_for_resend.append(failed_pkts.pop(0))
 
