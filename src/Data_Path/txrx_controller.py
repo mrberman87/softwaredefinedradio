@@ -176,7 +176,7 @@ class txrx_controller():
 						self.payload = self.payload[index+1:]
 				else:
 					if int(self.payload) < max_pkts:
-						failed_pkts.append(int(self.payload.pop(0))
+						failed_pkts.append(int(self.payload.pop(0)))
 		for i in range(len(failed_pkts)):
 			self.pkts_for_resend.append(failed_pkts.pop(0))
 
