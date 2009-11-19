@@ -154,8 +154,8 @@ class View(wx.Frame):
 		sizer2a = wx.StaticBoxSizer(cdv_border, orient=wx.VERTICAL)
 		data_grid= wx.GridSizer(5,4,2,2)
 		
-		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP', 'BATT',
-					'FREQ','MOD', 'TIMEOUT', 'GND SPEED']
+		txtLabels = ['LAT', 'LONG', 'ALT', 'TEMP (Deg)', 'BATT (V)',
+					'FREQ (Hz)','MOD', 'TIMEOUT (s)', 'GND SPEED (kn)']
 		txtBoxNames = ['lat', 'lon','alt','temp','batt',
 						'freq','mod','timeout', 'gndSpeed']
 						
