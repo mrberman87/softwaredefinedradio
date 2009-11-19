@@ -163,15 +163,21 @@ class txrx_controller():
 	def rcvd_incomplete_transmission(self):
 		if len(self.payload) <= self.payload_length:
 			failed_pkts = self.payload.split(':')
-			num_failed_pkts = len(failed_pkts)
 		else:
-			max_splits = self.payload_length/4
-			failed_pkts = self.payload.split(':', max_splits)
-			if len(failed_pkts[-1]) > 3:
-				failed_pkts.pop()
-
-			num_failed_pkts = len(failed_pkts)
-		for i in range(num_failed_pkts):
+			count = self.payload.count(':')
+			max_pkts = len(self.data_split_for_pkts)
+			for i in range(count):
+				if self.payload.count(':') > 0:
+					index = self.payload.index(':')
+					if int(self.payload[:index]) < max_pkts:
+						failed_pkts.append(int(self.payload[:index]))
+						self.payload = self.payload[index+1:]
+					else:
+						self.payload = self.payload[index+1:]
+				else:
+					if int(self.payload) < max_pkts:
+						failed_pkts.append(int(self.payload.pop(0))
+		for i in range(len(failed_pkts)):
 			self.pkts_for_resend.append(failed_pkts.pop(0))
 
 
@@ -270,6 +276,7 @@ class txrx_controller():
 					scheme = self.scheme, original_payload_count = i)
 				self.transmit_pkts(pkt)
 				counter += 1
+			self.pkts_for_resend = list()
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
 			if temp_data == '':
