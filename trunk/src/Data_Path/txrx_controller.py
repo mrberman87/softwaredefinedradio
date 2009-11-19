@@ -26,9 +26,12 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
-		fd = open('/home/gnuradio/softwaredefinedradio/src/ground_components/log.dat', 'w')
+		fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat', 'w')
 		fd.write('')
 		fd.close()
+		#fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log2.dat', 'w')
+		#fd.write('')
+		#fd.close()
 		self.fc = fc
 		self.carrier_offset = centoff
 		self.rx_f_offset = foffset_rx
@@ -253,9 +256,13 @@ class txrx_controller():
 #				COMMON TOOLS					       #
 ########################################################################################
 	def write_log(self, data):
-		fd = open('/home/gnuradio/softwaredefinedradio/src/ground_components/log.dat','a')
-		fd.write('\n' + str(data))
-		fd.close()
+		if str(data) != '':
+			fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat','a')
+			fd.write(str(data) + '\n')
+			fd.close()
+			#fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat', 'w')
+			#fd.write(str(data) + '\n')
+			#fd.close()
 		
 	def make_pkts(self, event_index, temp_data=''):
 		#Transmitting New Transmission
