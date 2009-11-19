@@ -275,12 +275,16 @@ class txrx_controller():
 			counter = 0
 			total_pkts = len(self.pkts_for_resend)
 			for i in self.pkts_for_resend:
-				payload = self.data_split_for_pkts[int(i)]
-				pkt = packetizer.make_packet(total_pkts, counter, 
-					self.event_list[event_index],  payload, 
-					scheme = self.scheme, original_payload_count = i)
-				self.transmit_pkts(pkt)
-				counter += 1
+				try:
+					payload = self.data_split_for_pkts[int(i)]
+					pkt = packetizer.make_packet(total_pkts, counter, 
+						self.event_list[event_index],  payload, 
+						scheme = self.scheme, original_payload_count = i)
+					self.transmit_pkts(pkt)
+					counter += 1
+				except IndexError:
+					print "\n\n###   i is %s at failed index txrx_controller line 286   ###\n\n" % i
+					pass
 			self.pkts_for_resend = list()
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
@@ -332,7 +336,7 @@ class txrx_controller():
 
 	def set_frequency(self, fc):
 		fc = int(fc)
-		if (fc >= 400025000) and (fc <= 499975000):
+		if (fc >= 420025000) and (fc <= 449975000):
 			self.fc = fc
 			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
 			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
