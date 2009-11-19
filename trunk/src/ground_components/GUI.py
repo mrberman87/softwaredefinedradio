@@ -346,7 +346,10 @@ class Controller(wx.App):
 		rd_txt_box = self.view.FindWindowByName('dataViewTextBox')
 		new_stuff = logFile.read()
 		#old_stuff = rd_txt_box.GetValue()
+		#rd_txt_box.SetValue(new_stuff)
 		rd_txt_box.SetValue(new_stuff)
+		rd_txt_box.ShowPosition(rd_txt_box.GetLastPosition())
+		
 		logFile.close()
 		
 if __name__ =="__main__":
