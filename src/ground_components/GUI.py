@@ -66,7 +66,7 @@ class View(wx.Frame):
 		binds the buttons to the parent given, then returns the gridsizer 
 		with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
-		labels = ['Image', 'GPS', 'FFT', 'Telemetry', 'Clear', 'Go Home']
+		labels = ['Image', 'GPS', 'Spectrum', 'Telemetry', 'Clear', 'Go Home']
 		for label in labels:
 			b = self.buildOneButton(parent, label, self.controller.onButton)
 			uav_grid.Add(b)
@@ -345,7 +345,7 @@ class Controller(wx.App):
 		new_lines = self.logFile.readlines()
 		new_stuff = ''
 		for line in new_lines:
-			new_stuff = line '@:-0'+ new_stuff
+			new_stuff = line + '@:-0'+ new_stuff
 		old_stuff = rd_txt_box.GetValue()
 		rd_txt_box.SetValue(new_stuff + old_stuff)
 

@@ -38,7 +38,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.fname = ''
 		self.working_dir = os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components'
 		self.image = '/image.jpg'
-		self.fft = '/fft.jpg'
+		self.fft = '/fft.png'
 		self.imageFileName = self.working_dir + self.image
 		self.fftFileName = self.working_dir + self.fft
 		self.gpsFileName = '/GPS.txt'
@@ -86,6 +86,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.update()
 		if len(self.cmd_list) > 0:
 			self.pendingRequest.set()
+		self.update()
 		return cmd
 	
 	def removeCompletedCommand(self):
@@ -104,11 +105,12 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		commands in the command queue when there are items in it. If there
 		are no items in the queue, this thread sleeps, until notified of a
 		change in the queue."""
+		self.update()
 		while True:
 			self.pendingRequest.wait()	#sleep until a command is requested
 			
 			cmd = self.getNextCommand()
-			print cmd
+			#print cmd
 			
 			#figure out which command has been requested
 			if cmd.startswith('GPS'):
@@ -117,7 +119,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			elif cmd.startswith('Image'):
 				data = 'Image'
 				self.path = self.image
-			elif cmd.startswith('FFT'):
+			elif cmd.startswith('Spectrum'):
 				data = 'FFT'
 				self.path = self.fft
 			elif cmd.startswith('Telemetry'):
@@ -137,7 +139,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 					self.new_timeout = ''
 			elif cmd.startswith('Go Home'):
 				self.go_home()
-				self.set_params()
+				self.set_params(self.tsvr.scheme != self.modulation)
 				self.removeCompletedCommand()
 				self.removeCompletedCommand()
 				self.removeCompletedCommand()
@@ -172,7 +174,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			return self.keep_alive()
 		
 		if data == 'Settings':
-			#print things into a file to be sent up and change data to the file path
+			##print things into a file to be sent up and change data to the file path
 			self.fname = '/' + data + '.dat'
 			fd = open(self.working_dir + self.fname, 'w')
 			fd.write("Settings\n")
@@ -184,29 +186,21 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				fd.write("Version: " + self.new_modulation + '\n')
 			fd.close()
 		
-		print "Path: ", self.tsvr.working_directory + self.fname
+		#print "Path: ", self.tsvr.working_directory + self.fname
 		tmp = self.tsvr.transmit(self.fname)
-		print tmp
+		#print tmp
 		if tmp == True or tmp == 'Transmission Complete':
 			#decode the data sent back down
 			if data == 'Settings':
-				print "Checking Settings..."
-				#temp = self.tsvr.transmit('Execute')
-				#if temp == True:
-				if self.new_modulation.lower() != self.modulation.lower():
-					if str(self.new_freq) != '':
-						self.freq = str(self.new_freq)
-					if str(self.new_timeout) != '':
-						self.timeout = str(self.new_timeout)				
-					self.modulation = self.new_modulation
-					self.set_params()
-				else:
-					if str(self.new_freq) != self.freq and str(self.new_freq) != '':
-						self.freq = str(self.new_freq)
-						self.tsvr.set_frequency(int(self.freq))
-					if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
-						self.timeout = str(self.new_timeout)
-						self.tsvr.set_frame_time_out(int(self.timeout))
+				#print "Checking Settings..."
+				if str(self.new_freq) != self.freq and str(self.new_freq) != '':
+					self.freq = str(self.new_freq)
+				if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
+					self.timeout = str(self.new_timeout)
+				new_mod = self.new_modulation.lower() != self.modulation.lower()
+				if new_mod:
+					self.modulation = self.new_modulation.lower()
+				self.set_params(new_mod)
 				return True
 		else:
 			self.report_error(tx_rx = 'Receiving', msg = tmp)
@@ -232,18 +226,22 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	
 	#this sets parameters for the txrx_controller
 	#calling this will also initialze the controller
-	def set_params(self):
-		del self.tsvr
-		self.dev.reset()
-		time.sleep(2)
-		self.tsvr = txrx_controller(fc=int(self.freq), centoff=3.31e3, foffset_tx=0, foffset_rx=50e3,
-			frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
-		time.sleep(2)
+	def set_params(self, new_mod=True):
+		if new_mod:
+			del self.tsvr
+			self.dev.reset()
+			time.sleep(2)
+			self.tsvr = txrx_controller(fc=int(self.freq), centoff=11.16e3, foffset_tx=0, foffset_rx=50e3,
+				frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
+			time.sleep(2)
+		else:
+			self.tsvr.set_frame_time_out(int(self.timeout))
+			self.tsvr.set_frequency(int(self.freq))
 
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
 		#FIXME show this error message to the user in some fassion... possibly a popup message, or in the queue
-		print rtn
+		#print rtn
 		self.removeCompletedCommand()
 	
 	def go_home(self):
