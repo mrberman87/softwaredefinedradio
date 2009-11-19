@@ -342,9 +342,12 @@ class Controller(wx.App):
 		"""Load messages from log file as they come. Do not want to keep
 		reading the entire file to add one line, so the log file stays open."""
 		rd_txt_box = self.view.FindWindowByName('dataViewTextBox')
-		new_stuff = self.logFile.read()
+		new_lines = self.logFile.readlines()
+		new_stuff = ''
+		for line in new_lines:
+			new_stuff = line + new_stuff
 		old_stuff = rd_txt_box.GetValue()
-		rd_txt_box.SetValue(new_stuff + "\n" + old_stuff)
+		rd_txt_box.SetValue(new_stuff + old_stuff)
 
 		
 if __name__ =="__main__":
