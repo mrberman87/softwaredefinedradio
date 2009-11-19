@@ -22,7 +22,9 @@ class uav_controller():
 		#setting up the usb controller
 		try:
 			self.dev = usb.core.find(idVendor=65534, idProduct=2)
+			time.sleep(1)
 			self.dev.set_configuration()
+			time.sleep(1)
 			self.dev.reset()
 		except:
 			pass
@@ -45,10 +47,9 @@ class uav_controller():
 			#this condition deals with receiving things from the ground
 			print "Ready to GO!!!"
 			if rx:
-				tmp = self.trans.receive()
-				print tmp
 				#this is reached when a transmission is completed normally, and the other
 				#side gets all of the data
+				tmp = self.trans.receive()
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
 					self.clear_file(self.working_dir + self.f_name_rx)
@@ -61,14 +62,14 @@ class uav_controller():
 					self.log(tmp)
 				#this is reached when there is a general error from the ground
 				elif tmp == 'Error':
-					tx = True
+					tx = False
 					self.home = self.home + 1
 					self.log(tmp)
 			
 			if self.home >= 2:
 				tx = False
 				self.go_home()
-				self.set_params()
+				self.set_params(self.trans.scheme!=self.version)
 				self.log("Going Home...")
 			
 			#this condition deals with transmitting data back to the ground
@@ -123,16 +124,7 @@ class uav_controller():
 						self.version = tmp_version.lower()
 						to_log = to_log + " Modulation Scheme = %s" % self.version
 			fd.close()
-		       
-			#this deals with a modulation scheme change
-			if tmp_version != None:
-				self.set_params()
-			#this deals with the change of any other variable
-			else:
-				if tmp_freq != None:
-					self.trans.set_frequency(self.freq)
-				if tmp_time_0 != None:
-					self.trans.set_frame_time_out(self.time_0)
+			self.set_params(tmp_version != None)
 			self.log(to_log)
 			return False
 		#this takes a picture
@@ -146,7 +138,7 @@ class uav_controller():
 		elif(command == "FFT"):
 			self.log("Getting FFT Data")
 			self.dev.reset()
-			self.f_name_tx = "/fft.jpeg"
+			self.f_name_tx = "/fft.png"
 			time_not = time.time()
 			self.fft = subprocess.Popen('python get_fft.py %s %s %d %s' % (self.working_dir+'/real',
 				self.working_dir+'/imaginary', self.freq, self.working_dir + self.f_name_tx), shell=True)
@@ -158,12 +150,10 @@ class uav_controller():
 			self.log("Getting Telemetry Data")
 			self.f_name_tx = "/misc.dat"
 			self.clear_file(self.working_dir + self.f_name_tx)
-			print "starting temp...\n"
 			time.sleep(1.5)
 			self.temp = subprocess.Popen('python temp.py', shell=True)
 			self.temp.wait()
 			time.sleep(1.5)
-			print "starting batt...\n"
 			self.batt = subprocess.Popen('python batt.py', shell=True)
 			self.batt.wait()
 			return True
@@ -231,16 +221,12 @@ class uav_controller():
 	#this initializes class level variables
 	def init_vars(self):
 		self.go_home()
-	       
 		#file name of what is going to be sent to the ground
 		self.f_name_tx = ''
-	       
 		#sets where the working direcotry is even if os.getcwd() is not here
 		self.working_dir = '/uav'
-	       
 		#file name of what has been sent to the air
 		self.f_name_rx = '/rx_data'
-	       
 		#this tracks the number of erroneous tries on the data link before going home
 		self.errors = 0
        
@@ -253,22 +239,26 @@ class uav_controller():
        
 	#this sets parameters for the txrx_controller
 	#calling this will also initialze the controller
-	def set_params(self):
-		del self.trans
-		self.dev.reset()
-		self.trans = txrx_controller(frame_time_out = self.time_0,
-			work_directory=self.working_dir, fc = self.freq, centoff=0,
-			foffset_tx=100e3, foffset_rx=-50e3, rx_file=self.f_name_rx,
-			version = self.version)
-       
+	def set_params(self, new_mod = True):
+		if new_mod:
+			del self.trans
+			self.dev.reset()
+			self.trans = txrx_controller(frame_time_out = self.time_0,
+				work_directory=self.working_dir, fc = self.freq, centoff=0,
+				foffset_tx=100e3, foffset_rx=-50e3, rx_file=self.f_name_rx,
+				version = self.version)
+		else:
+			self.trans.set_frame_time_out(self.time_0)
+			self.trans.set_frequency(self.freq)
+	
 	#this initializes files that the UAV controller may need in its operation
 	def init_files(self):
 		#This method makes sure that all files needed for this
 		#program are exist.
 		if(not os.path.exists("pic.jpg")):
 			subprocess.Popen('touch pic.jpg', shell=True)
-		if(not os.path.exists("fft.jpeg")):
-			subprocess.Popen('touch fft.jpeg', shell=True)
+		if(not os.path.exists("fft.png")):
+			subprocess.Popen('touch fft.png', shell=True)
 		if(not os.path.exists("misc.dat")):
 			subprocess.Popen('touch misc.dat', shell=True)
 		if(not os.path.exists("log.dat")):
@@ -301,7 +291,9 @@ class uav_controller():
 
 
 if __name__ == '__main__':
+	#for running as a stand along within a shell
 	uav_controller().run()
+	exit()
 	"""
 	#this sets up this controller as a daemon to run in the background
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
