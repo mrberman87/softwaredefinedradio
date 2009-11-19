@@ -26,6 +26,9 @@ class txrx_controller():
 		self.pkt_num = None
 		self.payload = ''
 		self.event = ''
+		fd = open('/home/gnuradio/softwaredefinedradio/src/ground_components/log.dat', 'w')
+		fd.write('')
+		fd.close()
 		self.fc = fc
 		self.carrier_offset = centoff
 		self.rx_f_offset = foffset_rx
@@ -75,7 +78,7 @@ class txrx_controller():
 					self.slice_packet(queue_item)
 				#New Transmission Event
 				if self.event == self.event_list[0]:
-					#print "N : ", self.pkt_num
+					##print "N : ", self.pkt_num
 					if faking_frame_completion:
 						self.rcvd_new_transmission(True)
 					else:
@@ -87,7 +90,7 @@ class txrx_controller():
 							return True
 				#Incomplete Transmission Event
 				elif self.event == self.event_list[1]:
-					#print "I : ", self.pkt_num
+					##print "I : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_incomplete_transmission()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -98,7 +101,7 @@ class txrx_controller():
 						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
-					#print "P : ", self.pkt_num
+					##print "P : ", self.pkt_num
 					if faking_frame_completion is False:
 						self.rcvd_packet_resend()
 					if self.pkt_num == (self.total_pkts - 1):
@@ -109,11 +112,13 @@ class txrx_controller():
 				#Transmission Complete
 				elif self.event == self.event_list[3]:
 					if self.payload == self.event_list[3]:
-						print "C : ", self.payload
+						#print "C : ", self.payload
+						self.write_log("C : " + self.payload)
 						self.full_cleanup()
 						return True
 					elif self.payload == self.event_list[5]:
-						print "C : ", self.payload
+						#print "C : ", self.payload
+						self.write_log("C : " + self.payload)
 						self.full_cleanup()
 						return 'ka'
 					else:
@@ -129,15 +134,18 @@ class txrx_controller():
 					self.full_cleanup()						
 				#Unknown Event
 				else:
-					print "Unknown Event: ", self.event
+					self.write_log('Unknown Event: ' + self.event)
+					#print "Unknown Event: ", self.event
 					self.event_cleanup()
 			#Used to keep the total number of receives to a maximum
 			if self.hand_shaking_count == self.hand_shaking_maximum:
 				self.full_cleanup()
+				self.write_log('Handshaking Maximum Reached')
 				return 'Handshaking Maximum Reached'
 			#Used to give control back to the outside controller
 			if int(time.time() - time_0) >= self.frame_timeout:
 				self.full_cleanup()
+				self.write_log('Timeout')
 				return 'Timeout'
 			#Used to fake a frame completion for handshaking
 			if (self.event in self.event_list) and (int(time.time() - time_0) >= 5):
@@ -177,7 +185,8 @@ class txrx_controller():
 						else:
 							self.payload = self.payload[index+1:]
 					except ValueError:
-						print "Value Error on typecast of character to Integer txrx_controller line 180"
+						self.write_log('Value Error on typecast')
+						#print "Value Error on typecast of character to Integer txrx_controller line 180"
 						self.payload = self.payload[index+1:]
 				else:
 					if int(self.payload) < max_pkts:
@@ -198,7 +207,8 @@ class txrx_controller():
 	#Check the received frame to see if all packets are accounted for
 	def frame_check(self):
 		temp = self.new_transmission_data.count('Failed')
-		print "Number of Failed Packets: ", temp
+		#print "Number of Failed Packets: ", temp
+		self.write_log("Number of Failed Packets: " + str(temp))
 		if temp == 0:
 			try:
 				fo = open(self.working_directory + self.rx_filename, 'w')
@@ -242,6 +252,11 @@ class txrx_controller():
 ########################################################################################
 #				COMMON TOOLS					       #
 ########################################################################################
+	def write_log(self, data):
+		fd = open('/home/gnuradio/softwaredefinedradio/src/ground_components/log.dat','a')
+		fd.write('\n' + str(data))
+		fd.close()
+		
 	def make_pkts(self, event_index, temp_data=''):
 		#Transmitting New Transmission
 		if event_index == 0:
@@ -283,7 +298,8 @@ class txrx_controller():
 					self.transmit_pkts(pkt)
 					counter += 1
 				except IndexError:
-					print "\n\n###   i is %s at failed index txrx_controller line 286   ###\n\n" % i
+					self.write_log("i is %s at failed index" % i)
+					##print "\n\n###   i is %s at failed index txrx_controller line 286   ###\n\n" % i
 					pass
 			self.pkts_for_resend = list()
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
@@ -344,20 +360,22 @@ class txrx_controller():
 				self.txrx_path.usrp_simple_source_x_0.set_frequency(
 					rx_freq, verbose=False)
 			except:
-				print "Unable to change receive frequency. txrx_controller line 328"
+				self.write_log('Unable to change TX frequency')
+				#print "Unable to change receive frequency. txrx_controller line 328"
 			try:
 				self.txrx_path.usrp_simple_sink_x_0.set_frequency(
 					tx_freq, verbose=False)
 			except:
-				print "Unable to change transmit frequency. txrx_controller line 333"
+				self.write_log('Unable to change RX frequency')
+				#print "Unable to change transmit frequency. txrx_controller line 333"
 		else:
-			print "Invalid Fc (Not within bounds: Fc >= 440025000 and Fc <= 499975000). txrx_controller line 335"
+			self.write_log('Frequency not within FCC regs.')
+			#print "Invalid Fc (Not within bounds: Fc >= 420025000 and Fc <= 449975000). txrx_controller line 335"
 
 	def set_rx_path(self, new_path):
 		self.working_directory = new_path
+		self.write_log(self.working_directory)
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
-
-	def get_mod(self):
-		return self.scheme
+		self.write_log(self.rx_filename)
