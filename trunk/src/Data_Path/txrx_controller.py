@@ -177,6 +177,7 @@ class txrx_controller():
 						else:
 							self.payload = self.payload[index+1:]
 					except ValueError:
+						print "Value Error on typecast of character to Integer txrx_controller line 180"
 						self.payload = self.payload[index+1:]
 				else:
 					if int(self.payload) < max_pkts:
@@ -300,7 +301,7 @@ class txrx_controller():
 			pkt = packetizer.make_packet(1, 0, self.event_list[event_index],
 				self.event_list[event_index], scheme = self.scheme)
 			self.transmit_pkts(pkt)
-		self.transmit_pkts("1010101010101010")		
+		self.transmit_pkts(16*'\x55')		
 
 	#Queue a packet in the transceiver flow graph
 	def transmit_pkts(self, msg):
