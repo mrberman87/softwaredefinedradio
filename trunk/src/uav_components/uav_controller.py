@@ -6,7 +6,8 @@ from txrx_controller import *
 from GPS_getter import *
 from wd_reset import *
 
-class uav_controller(Daemon):
+#class uav_controller(Daemon):
+class uav_controller():
 	def run(self):
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
@@ -28,7 +29,6 @@ class uav_controller(Daemon):
 		#starting threads to reset the watchdog timers
 		self.wd1 = wd_reset('/uav/daemon_pids/wd1_controller.wd', 5).start()
 		self.wd2 = wd_reset('/uav/daemon_pids/wd2_controller.wd', 5).start()
-		#self.check_saved_vars()
 		#set_params will initialize self.trans, it is just being allocated here
 		self.trans = None
 		#the next line is to set the link to 8psk outright for testing
@@ -51,7 +51,7 @@ class uav_controller(Daemon):
 				#side gets all of the data
 				if tmp is True or tmp == 'Transmission Complete':
 					tx = self.exec_command(self.get_command())
-					#self.clear_file(self.working_dir + self.f_name_rx)
+					self.clear_file(self.working_dir + self.f_name_rx)
 					self.home = 0
 				#this is reached when there is an error and either a timeout is reached, or
 				#the transmission cannot complete with the given number of hand shakes
@@ -156,9 +156,16 @@ class uav_controller(Daemon):
 		#this gets temprature and battery voltage as well as GPS location of the UAV
 		elif(command == "Telemetry"):
 			self.log("Getting Telemetry Data")
-			self.tel = subprocess.Popen('python telemetry.py', shell=True)
 			self.f_name_tx = "/misc.dat"
-			self.tel.wait()
+			self.clear_file(self.working_dir + self.f_name_tx)
+			print "starting temp...\n"
+			time.sleep(1.5)
+			self.temp = subprocess.Popen('python temp.py', shell=True)
+			self.temp.wait()
+			time.sleep(1.5)
+			print "starting batt...\n"
+			self.batt = subprocess.Popen('python batt.py', shell=True)
+			self.batt.wait()
 			return True
 		elif(command == "GPS"):
 			self.log("Getting GPS Data")
@@ -275,18 +282,6 @@ class uav_controller(Daemon):
 		if(not os.path.exists("log.dat")):
 			subprocess.Popen('touch log.dat', shell=True)
        
-	#this loads up variables that were saved from the previous run of this process
-	def check_saved_vars(self):
-		path = self.working_dir + '/saved_vars'
-		if not os.path.exists(path):
-			return
-		fd = open(path, 'r')
-		self.freq = int(fd.readline().strip('\n').strip())
-		self.version = fd.readline().strip('\n').strip()
-		fd.close()
-		os.remove(path)
-		return
-       
 	#this handles the book keeping of processes, and saving variables
 	def __del__(self):
 		self.dev.reset()
@@ -295,23 +290,19 @@ class uav_controller(Daemon):
 			self.kill_pid(self.pic.pid)
 		if self.pid_exists(self.fft.pid):
 			self.kill_pid(self.fft.pid)
-		if self.pid_exists(self.tel.pid):
-			self.kill_pid(self.tel.pid)
+		if self.pid_exists(self.temp.pid):
+			self.kill_pid(self.temp.pid)
+		if self.pid_exists(self.batt.pid):
+			self.kill_pid(self.batt.pid)
 		if self.pid_exists(self.merg.pid):
 			self.kill_pid(self.merg.pid)
 		if self.pid_exists(self.comm.pid):
 			self.kill_pid(self.comm.pid)
-	       
-		"""path = self.working_dir + '/saved_vars'
-		p = subprocess.Popen('touch %s' % path, shell=True)
-		os.waitpid(p.pid, 0)
-		fd = open(path, 'w')
-		fd.write("%d\n" % self.freq)
-		fd.write("%s\n" % self.version)
-		fd.close()"""
 
 
 if __name__ == '__main__':
+	uav_controller().run()
+	"""
 	#this sets up this controller as a daemon to run in the background
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
@@ -327,4 +318,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 	else:
 		print "usage: %s start|stop|restart" % sys.argv[0]
-		sys.exit(2)
+		sys.exit(2)"""
