@@ -44,48 +44,51 @@ class uav_controller():
 		
 		#This is the main controller section of code
 		while True:
-			#this condition deals with receiving things from the ground
-			print "Ready to GO!!!"
-			if rx:
-				#this is reached when a transmission is completed normally, and the other
-				#side gets all of the data
-				tmp = self.trans.receive()
-				if tmp is True or tmp == 'Transmission Complete':
-					tx = self.exec_command(self.get_command())
-					self.clear_file(self.working_dir + self.f_name_rx)
-					self.home = 0
-				#this is reached when there is an error and either a timeout is reached, or
-				#the transmission cannot complete with the given number of hand shakes
-				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
+			try:
+				#this condition deals with receiving things from the ground
+				print "Ready to GO!!!"
+				if rx:
+					#this is reached when a transmission is completed normally, and the other
+					#side gets all of the data
+					tmp = self.trans.receive()
+					if tmp is True or tmp == 'Transmission Complete':
+						tx = self.exec_command(self.get_command())
+						self.clear_file(self.working_dir + self.f_name_rx)
+						self.home = 0
+					#this is reached when there is an error and either a timeout is reached, or
+					#the transmission cannot complete with the given number of hand shakes
+					elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout':
+						tx = False
+						self.home = self.home + 1
+						self.log(tmp)
+					#this is reached when there is a general error from the ground
+					elif tmp == 'Error':
+						tx = False
+						self.home = self.home + 1
+						self.log(tmp)
+				
+				if self.home >= 2:
 					tx = False
-					self.home = self.home + 1
-					self.log(tmp)
-				#this is reached when there is a general error from the ground
-				elif tmp == 'Error':
-					tx = False
-					self.home = self.home + 1
-					self.log(tmp)
-			
-			if self.home >= 2:
-				tx = False
-				self.go_home()
-				self.set_params(self.trans.scheme!=self.version)
-				self.log("Going Home...")
-			
-			#this condition deals with transmitting data back to the ground
-			if tx:
-				print "Transmitting: " + self.f_name_tx
-				tmp = self.trans.transmit(self.f_name_tx)
-				#this section is reached when the transmission completes as normal
-				if tmp is True or tmp == 'Transmission Complete':
-					rx = True
-					self.home = 0
-				#this section is reached when there is a problem sending the information to the other
-				#side of the link
-				elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
-					rx = False
-					self.home = self.home + 1
-					self.log(tmp)
+					self.go_home()
+					self.set_params(self.trans.scheme!=self.version)
+					self.log("Going Home...")
+				
+				#this condition deals with transmitting data back to the ground
+				if tx:
+					print "Transmitting: " + self.f_name_tx
+					tmp = self.trans.transmit(self.f_name_tx)
+					#this section is reached when the transmission completes as normal
+					if tmp is True or tmp == 'Transmission Complete':
+						rx = True
+						self.home = 0
+					#this section is reached when there is a problem sending the information to the other
+					#side of the link
+					elif tmp == 'Handshaking Maximum Reached' or tmp == 'Timeout' or tmp == 'Error':
+						rx = False
+						self.home = self.home + 1
+						self.log(tmp)
+			except:
+				sys.exit(0)
        
 	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
@@ -292,9 +295,8 @@ class uav_controller():
 
 if __name__ == '__main__':
 	#for running as a stand along within a shell
-	uav_controller().run()
-	exit()
-	"""
+	#uav_controller().run()
+	
 	#this sets up this controller as a daemon to run in the background
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
@@ -310,4 +312,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 	else:
 		print "usage: %s start|stop|restart" % sys.argv[0]
-		sys.exit(2)"""
+		sys.exit(2)
