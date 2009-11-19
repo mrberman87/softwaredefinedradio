@@ -6,8 +6,7 @@ from txrx_controller import *
 from GPS_getter import *
 from wd_reset import *
 
-#class uav_controller(Daemon):
-class uav_controller():
+class uav_controller(Daemon):
 	def run(self):
 		#set priority
 		os.system("renice 0 %d" % os.getpid())
@@ -16,8 +15,8 @@ class uav_controller():
 		libc.prctl(15, 'UAV Controller', 0, 0, 0)
 		#intializing the system
 		self.init_vars()
-		self.init_files()
 		os.chdir(self.working_dir)
+		self.init_files()
 		self.log("Starting Up: pid = %d" % os.getpid())
 		#setting up the usb controller
 		try:
@@ -42,9 +41,9 @@ class uav_controller():
 		rx = True
 		tx = True
 		
-		#This is the main controller section of code
-		while True:
-			try:
+		try:
+			#This is the main controller section of code
+			while True:
 				#this condition deals with receiving things from the ground
 				print "Ready to GO!!!"
 				if rx:
@@ -66,13 +65,13 @@ class uav_controller():
 						tx = False
 						self.home = self.home + 1
 						self.log(tmp)
-				
+			
 				if self.home >= 2:
 					tx = False
 					self.go_home()
 					self.set_params(self.trans.scheme!=self.version)
 					self.log("Going Home...")
-				
+			
 				#this condition deals with transmitting data back to the ground
 				if tx:
 					print "Transmitting: " + self.f_name_tx
@@ -87,8 +86,8 @@ class uav_controller():
 						rx = False
 						self.home = self.home + 1
 						self.log(tmp)
-			except:
-				sys.exit(0)
+		except:
+			sys.exit(0)
        
 	#this method sets up the transmittion of an erroneous message
 	def send_error(self, msg):
@@ -296,7 +295,6 @@ class uav_controller():
 if __name__ == '__main__':
 	#for running as a stand along within a shell
 	#uav_controller().run()
-	
 	#this sets up this controller as a daemon to run in the background
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
