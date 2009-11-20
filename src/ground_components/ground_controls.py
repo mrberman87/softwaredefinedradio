@@ -228,18 +228,21 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	#calling this will also initialze the controller
 	def set_params(self, new_mod=True):
 		if new_mod:
+			self.write_log('Reseting Device changing scheme')
 			del self.tsvr
 			self.dev.reset()
 			time.sleep(2)
-			self.tsvr = txrx_controller(fc=int(self.freq), centoff=11.16e3, foffset_tx=0, foffset_rx=50e3,
+			self.tsvr = txrx_controller(fc=int(self.freq), centoff=self.calc_offset(), foffset_tx=0, foffset_rx=50e3,
 				frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
 			time.sleep(2)
 		else:
+			self.write_log('Reseting Freq/Timeout')
 			self.tsvr.set_frame_time_out(int(self.timeout))
-			self.tsvr.set_frequency(int(self.freq))
+			self.tsvr.set_frequency(int(self.freq), self.calc_offset())
 
 	def report_error(self, tx_rx, msg):
 		rtn = "There was an error while " + tx_rx + " a transmission.\nThe error was as follows: \"" + msg + "\""
+		self.write_log(rtn)
 		#FIXME show this error message to the user in some fassion... possibly a popup message, or in the queue
 		#print rtn
 		self.removeCompletedCommand()
@@ -248,6 +251,17 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.freq = '440000000'
 		self.modulation = 'bpsk'
 		self.timeout = '45' #(in seconds)
+
+	def calc_offset(self):
+		offset = abs(int(-31.84e-6*int(self.freq)+2865.3))
+		self.write_log("Center Frequency Offset: " + str(offset))
+		return offset
+
+	def write_log(self, data):
+		if str(data) != '':
+			fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat','a')
+			fd.write(str(data) + '\n')
+			fd.close()
 	
 	def keep_alive(self):
 		self.tsvr.set_frame_time_out(3)
@@ -256,6 +270,8 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			if temp == 'ka':
 				self.tsvr.set_frame_time_out(int(self.timeout))
 				return 'Link Alive.'
+		self.write_log('Going Home')
+		self.update()
 		self.addToQueue('Go Home')
 
 class QueueLimitException(Exception):pass
