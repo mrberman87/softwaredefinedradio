@@ -354,7 +354,7 @@ class txrx_controller():
 	def set_frame_time_out(self, new_timeout):
 		self.frame_timeout = int(new_timeout)
 
-	def set_frequency(self, fc, offset):
+	def set_frequency(self, fc, offset=self.self.carrier_offset):
 		fc = int(fc)
 		if (fc >= 420025000) and (fc <= 449975000):
 			self.fc = fc
