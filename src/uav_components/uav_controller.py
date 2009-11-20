@@ -65,13 +65,13 @@ class uav_controller(Daemon):
 						tx = False
 						self.home = self.home + 1
 						self.log(tmp)
-			
+	
 				if self.home >= 2:
 					tx = False
 					self.go_home()
 					self.set_params(self.trans.scheme!=self.version)
 					self.log("Going Home...")
-			
+	
 				#this condition deals with transmitting data back to the ground
 				if tx:
 					print "Transmitting: " + self.f_name_tx
@@ -273,29 +273,12 @@ class uav_controller(Daemon):
 			subprocess.Popen('touch rx_data', shell=True)
 		if(not os.path.exists("log.dat")):
 			subprocess.Popen('touch log.dat', shell=True)
-       
-	#this handles the book keeping of processes, and saving variables
-	def __del__(self):
-		self.dev.reset()
-		self.log("Closeing")
-		if self.pid_exists(self.pic.pid):
-			self.kill_pid(self.pic.pid)
-		if self.pid_exists(self.fft.pid):
-			self.kill_pid(self.fft.pid)
-		if self.pid_exists(self.temp.pid):
-			self.kill_pid(self.temp.pid)
-		if self.pid_exists(self.batt.pid):
-			self.kill_pid(self.batt.pid)
-		if self.pid_exists(self.merg.pid):
-			self.kill_pid(self.merg.pid)
-		if self.pid_exists(self.comm.pid):
-			self.kill_pid(self.comm.pid)
-
 
 if __name__ == '__main__':
 	#for running as a stand along within a shell
 	#uav_controller().run()
 	#this sets up this controller as a daemon to run in the background
+	
 	daemon = uav_controller('/uav/daemon_pids/uav_controller.pid')
 	if len(sys.argv) == 2:
 		if 'start' == sys.argv[1]:
