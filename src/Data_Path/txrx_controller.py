@@ -260,9 +260,6 @@ class txrx_controller():
 			fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat','a')
 			fd.write(str(data) + '\n')
 			fd.close()
-			#fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat', 'w')
-			#fd.write(str(data) + '\n')
-			#fd.close()
 		
 	def make_pkts(self, event_index, temp_data=''):
 		#Transmitting New Transmission
@@ -357,10 +354,11 @@ class txrx_controller():
 	def set_frame_time_out(self, new_timeout):
 		self.frame_timeout = int(new_timeout)
 
-	def set_frequency(self, fc):
+	def set_frequency(self, fc, offset):
 		fc = int(fc)
 		if (fc >= 420025000) and (fc <= 449975000):
 			self.fc = fc
+			self.carrier_offset = offset
 			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
 			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
 			try:
