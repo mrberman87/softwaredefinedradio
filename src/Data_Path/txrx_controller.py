@@ -101,7 +101,6 @@ class txrx_controller():
 						self.hand_shaking_count += 1	
 						self.make_pkts(2)
 						self.event_cleanup()
-						self.pkts_for_resend = list()
 				#Packet Resend Event
 				elif self.event == self.event_list[2]:
 					##print "P : ", self.pkt_num
@@ -176,27 +175,14 @@ class txrx_controller():
 		if len(self.payload) <= self.payload_length:
 			failed_pkts = self.payload.split(':')
 		else:
-			count = self.payload.count(':')
-			max_pkts = len(self.data_split_for_pkts)
-			for i in range(count):
-				if self.payload.count(':') > 0:
-					index = self.payload.index(':')
-					try:
-						if int(self.payload[:index]) < max_pkts:
-							failed_pkts.append(self.payload[:index])
-							self.payload = self.payload[index+1:]
-						else:
-							self.payload = self.payload[index+1:]
-					except ValueError:
-						self.write_log('Value Error on typecast')
-						#print "Value Error on typecast of character to Integer txrx_controller line 180"
-						self.payload = self.payload[index+1:]
-				else:
-					if int(self.payload) < max_pkts:
-						failed_pkts.append(self.payload.pop(0))
-		for i in range(len(failed_pkts)):
-			self.pkts_for_resend.append(failed_pkts.pop(0))
-
+			failed_pkts = self.payload.split(':')
+			failed_pkts = failed_pkts[:30]
+		num_pkts = len(failed_pkts)
+		for i in range(num_pkts):
+			if failed_pkts[0].isdigit():
+				self.pkts_for_resend.append(failed_pkts.pop(0))
+			else:
+				failed_pkts.pop(0)
 
 	#Handler of individual packets tagged with Packet Resend Event
 	def rcvd_packet_resend(self):
@@ -246,11 +232,9 @@ class txrx_controller():
 
 	#Remove, Total Number of Packets in the Frame, Packet Number, Event, and Payload
 	def slice_packet(self, pkt):
-		pkt = pkt.split(':', 3)
-		self.total_pkts = int(pkt.pop(0))
-		self.pkt_num = int(pkt.pop(0))
-		self.event = pkt.pop(0)
-		self.payload = pkt.pop(0)
+		self.total_pkts, self.pkt_num, self.event, self.payload = pkt.split(':', 3)
+		self.total_pkts = int(self.total_pkts)
+		self.pkt_num = int(self.pkt_num)
 
 ########################################################################################
 #				COMMON TOOLS					       #
@@ -277,7 +261,9 @@ class txrx_controller():
 		#Transmitting Incomplete Transmission
 		elif event_index == 1:
 			bad_pkts = self.bad_pkt_indices()
-			max_items_per_packet = self.payload_length/4
+			#This assumes pkt numbers in the 3 digit range to comply
+			#with payload length of 128
+			max_items_per_packet = 32
 			total_pkts = len(bad_pkts)/max_items_per_packet + 1
 			if len(bad_pkts)%(max_items_per_packet) == 0:
 				total_pkts -= 1
@@ -300,11 +286,11 @@ class txrx_controller():
 						self.event_list[event_index],  payload, 
 						scheme = self.scheme, original_payload_count = i)
 					self.transmit_pkts(pkt)
-					counter += 1
 				except IndexError:
 					self.write_log("i is %s at failed index" % i)
 					##print "\n\n###   i is %s at failed index txrx_controller line 286   ###\n\n" % i
 					pass
+				counter += 1
 			self.pkts_for_resend = list()
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
 		elif event_index == 3:
@@ -354,11 +340,12 @@ class txrx_controller():
 	def set_frame_time_out(self, new_timeout):
 		self.frame_timeout = int(new_timeout)
 
-	def set_frequency(self, fc, offset=self.self.carrier_offset):
+	def set_frequency(self, fc, offset=''):
 		fc = int(fc)
 		if (fc >= 420025000) and (fc <= 449975000):
 			self.fc = fc
-			self.carrier_offset = offset
+			if offset != '':
+				self.carrier_offset = offset
 			rx_freq = self.fc + self.carrier_offset + self.rx_f_offset
 			tx_freq = self.fc + self.carrier_offset + self.tx_f_offset
 			try:
