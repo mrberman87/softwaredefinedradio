@@ -12,24 +12,27 @@ Step 2: Transmit data over the USRP
 		Frame Packet:
 		['Total number of packets in frame':'Packet number':'Frame event']
 		
-		Example:	'123:0:EW'
+		Example:	'123:0:N'
 
 			+ All packets hold a 'total number of packets number for the case of lost packets
 			+ Packet number for the frame packet is always 0
 			+ Frame events are always 2 characters long
 			+ The frame events always have different characters for ease of determination
 			+ Frame Event:
-				- New Transmission:		'EW'
-				- Packet Resend:		'PR'
-				- Incomplete Transmission:	'IN'
-				- Event Unknown:		'UV'
-				- Transmission Complete:	'TC'
+				- New Transmission:		'N'
+				- Incomplete Transmission:	'I'
+				- Packet Resend:		'P'
+				- Transmission Complete:	'C'
+				- Error Event:			'E'
+				- Keep Alive:			'K'
 
 					~ New Transmission: First attempt at sending frame
 					~ Packet Resend: Received list of lost packets, sending lost packets 
 						from initial frame
 					~ Incomplete Transmission: Transmitter of incomplete transmission, must
 						resend lost packets
-					~ Event Unknown: At minimum first packet was lost during transmission
 					~ Transmission Complete: All packets from New Transmission are 
 						accounted for
+					~ Error Event: Something happend to software, letting other side know
+						an error occured
+					~ Keep Alive: To keep current settings alive and maintain link integrity
