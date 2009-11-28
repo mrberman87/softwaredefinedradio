@@ -111,7 +111,7 @@ class txrx_controller():
 						self.hand_shaking_count += 1
 						if self.frame_check():
 							return True
-				#Transmission Complete
+				#Transmission Complete Event
 				elif self.event == self.event_list[3]:
 					if self.payload == self.event_list[3]:
 						#print "C : ", self.payload
@@ -131,6 +131,7 @@ class txrx_controller():
 				elif self.event == self.event_list[4]:
 					self.full_cleanup()
 					return 'Error'
+				#Keep Alive Event
 				elif self.event == self.event_list[5]:
 					self.make_pkts(3, temp_data=self.event_list[5])
 					self.full_cleanup()						
@@ -172,11 +173,20 @@ class txrx_controller():
 	#Handler of individual packets tagged with Incomplete Transmission Event
 	def rcvd_incomplete_transmission(self):
 		failed_pkts = list()
-		if len(self.payload) <= self.payload_length:
-			failed_pkts = self.payload.split(':')
-		else:
-			failed_pkts = self.payload.split(':')
-			failed_pkts = failed_pkts[:30]
+		failed_pkts = self.payload.split(':')
+		#Two possible fixes for when two packets are concatinated by
+		#a timing issue in the operating system. 
+		#1. Keep what we know is good missing packet numbers and trash
+		#	the rest. (Commented currently)
+		#2. Remove the information that should have been removed previously
+		#	as a new packet by popping and just add the supposed good
+		#	missing packet numbers to the list for retransmission.
+		if len(failed_pkts) > 32:
+			#failed_pkts = failed_pkts[:31]
+			self.write_log(self.payload)
+			failed_pkts.pop(31)
+			failed_pkts.pop(31)
+			failed_pkts.pop(31)
 		num_pkts = len(failed_pkts)
 		for i in range(num_pkts):
 			if failed_pkts[0].isdigit():
@@ -262,7 +272,7 @@ class txrx_controller():
 		elif event_index == 1:
 			bad_pkts = self.bad_pkt_indices()
 			#This assumes pkt numbers in the 3 digit range to comply
-			#with payload length of 128
+			#with payload length of 128 bytes
 			max_items_per_packet = 32
 			total_pkts = len(bad_pkts)/max_items_per_packet + 1
 			if len(bad_pkts)%(max_items_per_packet) == 0:
@@ -286,10 +296,9 @@ class txrx_controller():
 						self.event_list[event_index],  payload, 
 						scheme = self.scheme, original_payload_count = i)
 					self.transmit_pkts(pkt)
-				except IndexError:
+				except:
 					self.write_log("i is %s at failed index" % i)
 					##print "\n\n###   i is %s at failed index txrx_controller line 286   ###\n\n" % i
-					pass
 				counter += 1
 			self.pkts_for_resend = list()
 		#Transmitting: Transmission Complete, Error Event, Ready to Send, Clear to Send in order
