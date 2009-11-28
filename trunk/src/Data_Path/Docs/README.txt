@@ -17,16 +17,8 @@ tb = txrx_controller.txrx_controller()
 	tb.receive()
 
 	This will return something when it is done. If you are receiving a new frame, then it will
-	return the data that was received. If you transmitted a new frame and are awaiting confirmation
-	that the handshaking is complete, then once that occurs it will return True.
-
-
-
-
-
-
-
-
+	return the data that was received in a file. If you transmitted a new frame and are awaiting
+	confirmation that the handshaking is complete, then once that occurs it will return True.
 
 
 

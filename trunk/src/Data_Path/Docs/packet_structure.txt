@@ -1,0 +1,54 @@
+This file is to help explain the fields and packet structure
+used in the UAV project.
+
+First, the structure in sudo code is:
+
+	Field 1	       Field 2	  Field 3	Field 4		      Field 5		  Field 6
+[USRP Sample padding][preamble][access code][packet header][whitened crc32 added payload][EoP byte]
+
+Each of the fields is sent to the Modulator in a packed binary format: '\x55'
+which represents '01010101' in binary.
+
+The lengths of each of the fields are:
+
+Field 1 Field 2 Field 3 Field 4 Field 5   Field 6
+[  x  ] [  3  ] [  8  ] [  4  ] [Max 146] [  1  ]
+
+	The total length of a packet without USB padding is: 162 bytes = 1296 bits
+
+where x is the byte padding based on the length of the packet at generation. 
+
+USRP Sample padding:
+
+	The byte padding takes the packet to a length which is modulo 128 samples and 
+	modulo 512 bytes for the USRP USB.
+
+	modulus = 128
+	byte_modulus = least_common_multiple(modulus/8, samples_per_symbol) * bits_per_symbol / samples_per_symbol
+	r = packet_byte_length % byte_modulus
+	if r == 0:
+		return r
+	return byte_modulus - r
+
+	For the purpose of DBPSK (maximum length calculation):
+	modulus = 128
+	packet_byte_length = 162
+	samples_per_symbol = 8
+	bits_per_symbol = 1
+	least_common_multiple(16, 8) = 16
+	byte_modulus = 16 * 1 / 8 = 2
+	r = 162 % 2 = 0
+	Add zero extra padding at maximum packet length, therfore maximum packet length of any packet is 162 bytes.
+
+DBPSK Preamble:
+
+	3 bytes of '\x55' which equates to '0101' in bits
+
+Access Code:
+
+	\xAC\xDD\xA4\xE2\xF2\x8C\x20\xFC
+	8 hexidecimal bytes with no idea as to why they were chosen.
+
+Packet Header:
+
+	
