@@ -26,10 +26,20 @@ if pid == 0:
 	time.sleep(1)
 	while True:
 		s = os.read(fromClient,1024)
-		if s == 'rx':
-			os.write(toClient, str(tb.receive()))
+		if s.count(':') > 0:
+			s = s.split(':')
+			if s[0] == 'rx_filename':
+				tb.set_rx_filename(s[1])
+			elif s[0] == 'tx':
+				os.write(toClient, str(tb.transmit(s[1])))
+			if len(s) == 3:
+				if s[2] == 'rx':
+					os.write(toClient, str(tb.receive()))
 		else:
-			os.write(toClient, str(tb.transmit(s)))
+		#if s == 'rx':
+			#os.write(toClient, str(tb.receive()))
+		#else:
+			#os.write(toClient, str(tb.transmit(s)))
 
 else:
 	class ground_controls(abstractmodel.AbstractModel, threading.Thread):
@@ -63,7 +73,7 @@ else:
 			self.new_timeout = 0
 			#this sets up the transceiver
 			self.tsvr = ''
-			self.set_params()
+			#self.set_params()
 			os.system("touch Settings.dat")
 			self.link_check = autoLinkCheck(self).start()
 			self.update()
@@ -153,7 +163,8 @@ else:
 						self.new_timeout = ''
 				elif cmd.startswith('Go Home'):
 					self.go_home()
-					self.set_params(self.tsvr.scheme != self.modulation)
+					#self.set_params(self.tsvr.scheme != self.modulation)
+					self.set_params(False)
 					self.removeCompletedCommand()
 					self.removeCompletedCommand()
 					self.removeCompletedCommand()
@@ -165,7 +176,8 @@ else:
 				elif cmd.startswith('Keep'):
 					data = 'ka'
 			
-				self.tsvr.set_rx_filename(self.path)
+				#self.tsvr.set_rx_filename(self.path)
+				os.write(toServer, 'rx_filename:' + self.path)
 				rtn = self.send_data(data)
 			
 				#FIXME let the user know that something wasnt properly communicated between the ground and UAV
@@ -201,7 +213,9 @@ else:
 				fd.close()
 		
 			#print "Path: ", self.tsvr.working_directory + self.fname
-			tmp = self.tsvr.transmit(self.fname)
+			os.write(toServer, 'tx:' + self.fname))
+			tmp = os.read(fromServer, 1024)
+			#tmp = self.tsvr.transmit(self.fname)
 			#print tmp
 			if tmp == True or tmp == 'Transmission Complete':
 				#decode the data sent back down
@@ -211,10 +225,10 @@ else:
 						self.freq = str(self.new_freq)
 					if str(self.new_timeout) != self.timeout and str(self.new_timeout) != '':
 						self.timeout = str(self.new_timeout)
-					new_mod = self.new_modulation.lower() != self.modulation.lower()
-					if new_mod:
-						self.modulation = self.new_modulation.lower()
-					self.set_params(new_mod)
+					#new_mod = self.new_modulation.lower() != self.modulation.lower()
+					#if new_mod:
+						#self.modulation = self.new_modulation.lower()
+					self.set_params(False)
 					return True
 			else:
 				self.report_error(tx_rx = 'Receiving', msg = tmp)
@@ -222,8 +236,10 @@ else:
 		
 			if data == "Settings":
 				return
-			self.tsvr.set_rx_filename(self.path)
-			tmp = self.tsvr.receive()
+			#self.tsvr.set_rx_filename(self.path)
+			os.write(toServer, 'rx_filename:' + self.path + ':rx')
+			#tmp = self.tsvr.receive()
+			tmp = os.read(fromServer, 1024)
 			if tmp == True or tmp == 'Transmission Complete':
 				#decode the data sent back down
 				if data == 'GPS':
