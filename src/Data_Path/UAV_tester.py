@@ -83,8 +83,11 @@ def run(pid,fft=False):
 				print 'Transceiver: Closing queues for shutdown.'
 				tb.close_queues()
 			elif s[0] == 'set_frequency':
+				time.sleep(1)
+				print 'Transceiver: Changing Frequency.'
 				tb.set_frequency(s[1])
 			elif s[0] == 'set_timeout':
+				print 'Transceiver: Changing timeout.'
 				tb.set_frame_time_out(s[1])
 			else:
 				print 'Transceiver: Transmitting.'
