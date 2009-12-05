@@ -108,13 +108,13 @@ class txrx_controller():
 				#Transmission Complete Event
 				elif self.event == self.event_list[3]:
 					if self.payload == self.event_list[3]:
-						#print "C : ", self.payload
-						self.write_log("C : " + self.payload)
+						print "C : ", self.payload
+						#self.write_log("C : " + self.payload)
 						self.full_cleanup()
 						return True
 					elif self.payload == self.event_list[5]:
-						#print "C : ", self.payload
-						self.write_log("C : " + self.payload)
+						print "C : ", self.payload
+						#self.write_log("C : " + self.payload)
 						self.full_cleanup()
 						return 'ka'
 					else:
@@ -130,18 +130,20 @@ class txrx_controller():
 					self.event_cleanup()						
 				#Unknown Event
 				else:
-					self.write_log('Unknown Event: ' + self.event)
-					#print "Unknown Event: ", self.event
+					#self.write_log('Unknown Event: ' + self.event)
+					print "Unknown Event: ", self.event
 					self.event_cleanup()
 			#Used to keep the total number of receives to a maximum
 			if self.hand_shaking_count == self.hand_shaking_maximum:
 				self.full_cleanup()
-				self.write_log('Handshaking Maximum Reached')
+				print 'Handshaking Maximum Reached'
+				#self.write_log('Handshaking Maximum Reached')
 				return 'Handshaking Maximum Reached'
 			#Used to give control back to the outside controller
 			if int(time.time() - time_0) >= self.frame_timeout:
 				self.full_cleanup()
-				self.write_log('Timeout')
+				print 'Timeout'
+				#self.write_log('Timeout')
 				return 'Timeout'
 			#Used to fake a frame completion for handshaking
 			if (self.event in self.event_list) and (int(time.time() - time_0) >= 10):
@@ -354,6 +356,7 @@ class txrx_controller():
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
+		print new_name
 		#self.write_log(self.rx_filename)
 
 	def close_queues(self):

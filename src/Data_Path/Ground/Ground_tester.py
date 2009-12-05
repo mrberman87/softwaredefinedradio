@@ -23,14 +23,18 @@ if pid == 0:
 		
 else:
 	time.sleep(3)
-	temp = 'True'
-	while temp == 'True':
-		os.write(toServer, raw_input('Enter Command : '))
-		temp = os.read(fromServer,1024)
-		if temp == 'True':
-			os.write(toServer, 'rx')
+	while True:
+		temp = raw_input('Enter Command : ')
+		if temp != 'kill':
+			os.write(toServer, temp)
 			temp = os.read(fromServer,1024)
-		if raw_input('Kill? : ') == 'y':
+			print 'Client: Return from command is : %s' %temp
+			if temp == 'ka':
+				pass
+			elif temp == 'True':
+				os.write(toServer, 'rx')
+				temp = os.read(fromServer,1024)
+		else:
 			os.write(toServer, 'close')
 			time.sleep(1)
 			os.kill(pid, signal.SIGTERM)
