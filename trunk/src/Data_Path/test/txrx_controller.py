@@ -354,6 +354,7 @@ class txrx_controller():
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
 		#self.write_log(self.rx_filename)
+
 	def close_queues(self):
 		self.txrx_path.msg_queue_in.insert_tail(gr.message(1))
 		self.txrx_path.msg_queue_out.insert_tail(gr.message(1))
