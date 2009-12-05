@@ -8,8 +8,7 @@ from gnuradio import gr
 class txrx_controller():
 
 	def __init__(self, fc, centoff, foffset_tx, foffset_rx, frame_time_out=45, 
-			work_directory = os.getcwd(), 
-			version='bpsk', rx_file='/rx_data'):
+			work_directory = os.getcwd(), version='bpsk', rx_file='/rx_data'):
 		self.event_list = ['N', 'I', 'P', 'C', 'E', 'K']
 		self.version_list = ['bpsk', 'qpsk']
 		self.hand_shaking_maximum = 15
@@ -226,7 +225,7 @@ class txrx_controller():
 ########################################################################################
 	def write_log(self, data):
 		if str(data) != '':
-			fd = open(os.path.expanduser('~') + '/softwaredefinedradio/src/ground_components/log.dat','a')
+			fd = open(os.getcwd() + '/log.dat','a')
 			fd.write(str(data) + '\n')
 			fd.close()
 		
@@ -335,17 +334,17 @@ class txrx_controller():
 				self.txrx_path.usrp_simple_source_x_0.set_frequency(
 					rx_freq, verbose=False)
 			except:
-				self.write_log('Unable to change TX frequency')
+				#self.write_log('Unable to change TX frequency')
 				#print "Unable to change receive frequency. txrx_controller line 328"
 			try:
 				self.txrx_path.usrp_simple_sink_x_0.set_frequency(
 					tx_freq, verbose=False)
 			except:
-				self.write_log('Unable to change RX frequency')
+				#self.write_log('Unable to change RX frequency')
 				#print "Unable to change transmit frequency. txrx_controller line 333"
 		else:
-			self.write_log('Frequency not within FCC regs.')
-			#print "Invalid Fc (Not within bounds: Fc >= 420025000 and Fc <= 449975000). txrx_controller line 335"
+			#self.write_log('Frequency not within FCC regs.')
+			print "Invalid Fc (Not within bounds: Fc >= 420025000 and Fc <= 449975000). txrx_controller line 335"
 
 	def set_rx_path(self, new_path):
 		self.working_directory = new_path
