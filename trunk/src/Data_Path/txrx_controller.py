@@ -334,12 +334,14 @@ class txrx_controller():
 				self.txrx_path.usrp_simple_source_x_0.set_frequency(
 					rx_freq, verbose=False)
 			except:
+				pass
 				#self.write_log('Unable to change TX frequency')
 				#print "Unable to change receive frequency. txrx_controller line 328"
 			try:
 				self.txrx_path.usrp_simple_sink_x_0.set_frequency(
 					tx_freq, verbose=False)
 			except:
+				pass
 				#self.write_log('Unable to change RX frequency')
 				#print "Unable to change transmit frequency. txrx_controller line 333"
 		else:
