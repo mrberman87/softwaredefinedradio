@@ -14,10 +14,10 @@ class Transceiver:
 		self.fft = fft
 		self.fft_fn = fft_fn
 		self.scheme = mod_scheme
-		self.run()
+		self.run_trans()
 
 
-	def run(self):
+	def run_trans(self):
 		if fft == True:
 			print 'Transceiver: Transmitting FFT from previous command.'
 			tb.transmit(self.fft_fn)
