@@ -15,11 +15,11 @@ if __name__ == '__main__':
 	except: 
 		fc = str(440e6)
 	fnull = open(os.devnull, 'w')
-	p = subprocess.Popen('python FFT_data_aq.py %s %s %s' % (real_path, imag_path, fc), stdout=fnull, shell=True)
+	p = subprocess.Popen('python FFT_data_aq.py %s %s %s' % (real_path, imag_path, fc), shell=True)
 	time.sleep(1)
 	p.wait()
 	p = subprocess.Popen("octave", stdin=subprocess.PIPE, shell=True)
-	os.write(p.stdin.fileno(), 'UAV_fft2(\'%s\',\'%s\',\'%s\')\n' % (real_path, imag_path, to_path))
+	os.write(p.stdin.fileno(), 'UAV_fft2(\'%s\',\'%s\',\'%s\')\n' % (real_path, imag_path, to_path), stdout=fnull)
 	time.sleep(1)
 	p.wait()
 
