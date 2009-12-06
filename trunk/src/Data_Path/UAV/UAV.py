@@ -88,13 +88,13 @@ class UAV():
 							junk, tmp_freq = l.split()
 							if tmp_freq != None:
 								self.freq = tmp_freq
-								os.write(self.toTransceiver, 'set_frequency:' + freq)
+								os.write(self.toTransceiver, 'set_frequency:' + self.freq)
 								time.sleep(1)
 						if l.startswith("Timeout:"):
 							junk, tmp_timeout = l.split()
 							if tmp_timeout != None:
 								self.timeout = tmp_timeout
-								os.write(self.toTransceiver, 'set_timeout:' + timeout)
+								os.write(self.toTransceiver, 'set_timeout:' + self.timeout)
 								time.sleep(1)
 					fd.close()
 					self.clear_file(self.rx_filename)
