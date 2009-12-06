@@ -20,9 +20,9 @@ class UAV:
 		self.toTransceiver = toTransceiver
 		self.fromTransceiver = fromTransceiver
 		self.temp = temp()
-		self.run()
+		self.run_UAV()
 
-	def run(self):
+	def run_UAV(self):
 		time.sleep(1.5)
 		while True:
 			temp = self.proc_com('rx:')
