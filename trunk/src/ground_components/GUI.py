@@ -66,7 +66,7 @@ class View(wx.Frame):
 		binds the buttons to the parent given, then returns the gridsizer 
 		with buttons.'''
 		uav_grid= wx.GridSizer(3,2,2,2)
-		labels = ['Image', 'GPS', 'FFT', 'Telemetry', 'Clear', 'Go Home']
+		labels = ['Image', 'GPS', 'Spectrum', 'Telemetry', 'Clear', 'Go Home']
 		for label in labels:
 			b = self.buildOneButton(parent, label, self.controller.onButton)
 			uav_grid.Add(b)
@@ -340,9 +340,10 @@ class Controller(wx.App):
 		freq_txt.SetValue(self.model.timeout)
 
 	def rawDataListener(self):
+		pass
 		"""Load messages from log file as they come. Do not want to keep
 		reading the entire file to add one line, so the log file stays open."""
-		logFile=open("log.dat")
+		'''logFile=open("log.dat")
 		rd_txt_box = self.view.FindWindowByName('dataViewTextBox')
 		new_stuff = logFile.read()
 		#old_stuff = rd_txt_box.GetValue()
@@ -350,7 +351,7 @@ class Controller(wx.App):
 		rd_txt_box.SetValue(new_stuff)
 		rd_txt_box.ShowPosition(rd_txt_box.GetLastPosition())
 		
-		logFile.close()
+		logFile.close()'''
 		
 if __name__ =="__main__":
 	app = Controller()

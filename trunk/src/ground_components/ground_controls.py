@@ -28,8 +28,11 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.gps = GPS_packet("GPSD,P=0 0,A=0,V=0,E=0")
 		self.go_home() #initialize the "GO HOME" type variables
 		#setting up the usb controller
-		self.dev = usb.core.find(idVendor=65534, idProduct=2)
-		self.dev.set_configuration()
+		try:
+			self.dev = usb.core.find(idVendor=65534, idProduct=2)
+			self.dev.set_configuration()
+		except:
+			print 'Unable to setup dev. Line 32 ground_controls.py'
 		self.temperature = '0'
 		self.batt = '0'
 		self.sigPower = '0'
@@ -55,7 +58,10 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 		self.update()
 	
 	def __del__(self):
-		self.dev.reset()
+		try:
+			self.dev.reset()
+		except:
+			pass
 	
 	
 	"""GUI responder methods: These are the only methods that should be
@@ -119,7 +125,7 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 			elif cmd.startswith('Image'):
 				data = 'Image'
 				self.path = self.image
-			elif cmd.startswith('Spectrum'):
+			elif cmd.startswith('Spectrum') or cmd.startswith('FFT'):
 				data = 'FFT'
 				self.path = self.fft
 			elif cmd.startswith('Telemetry'):
@@ -229,12 +235,15 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 	def set_params(self, new_mod=True):
 		if new_mod:
 			self.write_log('Reseting Device changing scheme')
-			del self.tsvr
-			self.dev.reset()
-			time.sleep(2)
-			self.tsvr = txrx_controller(fc=int(self.freq), centoff=self.calc_offset(), foffset_tx=0, foffset_rx=50e3,
-				frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
-			time.sleep(2)
+			try:
+				del self.tsvr
+				self.dev.reset()
+				time.sleep(2)
+				self.tsvr = txrx_controller(fc=int(self.freq), centoff=self.calc_offset(), foffset_tx=0, foffset_rx=50e3,
+					frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
+				time.sleep(2)
+			except:
+				pass
 		else:
 			self.write_log('Reseting Freq/Timeout')
 			self.tsvr.set_frame_time_out(int(self.timeout))
