@@ -2,8 +2,9 @@ from GPS_getter import *
 import os, time, sys, signal
 
 
-class UAV:
+class UAV():
 	def __init__(self, controller, toTransceiver, fromTransceiver):
+		print 'In UAV init.'
 		self.init_files()
 		self.cwd = os.getcwd()
 		self.rtn_list = ['False', 'Timeout',  'Handshaking Maximum Reached', 'Error']
@@ -19,15 +20,14 @@ class UAV:
 		self.rx_filename = '/rx_data'
 		self.toTransceiver = toTransceiver
 		self.fromTransceiver = fromTransceiver
-		self.temp = temp()
+		self.temp = ''
 		self.run_UAV()
 
 	def run_UAV(self):
-		time.sleep(1.5)
 		while True:
 			print 'In definition run_UAV.'
-			temp = self.proc_com('rx:')
-			if temp == 'True':
+			self.temp = self.proc_com('rx:')
+			if self.temp == 'True':
 				self.timeout_counter = 0
 				try:
 					cmd = self.get_command()
@@ -40,20 +40,20 @@ class UAV:
 					time.sleep(1)
 					pic.wait()
 					print 'UAV: Image Done.'
-					temp = self.proc_com(self.image_filename + ':')
+					self.temp = self.proc_com(self.image_filename + ':')
 					print 'UAV: Result of pipe is : %s' % temp
 				elif cmd == 'Close':
-					os.write(toTransceiver, 'close:')
+					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
-					os.kill(pid, signal.SIGTERM)
+					os.kill(controller.pid, signal.SIGTERM)
 					sys.exit(0)
 				elif cmd == 'FFT':
 					print 'UAV: FFT command received.'
-					controller.fft = True
-					os.write(toTransceiver, 'close:')
+					controller.fft = 'True'
+					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
 					print 'UAV: Stopping Transceiver process.'
-					os.kill(pid, signal.SIGTERM)
+					os.kill(controller.pid, signal.SIGTERM)
 					time.sleep(1)
 					p = subprocess.Popen('python get_fft.py', shell=True)
 					time.sleep(1)
@@ -66,7 +66,7 @@ class UAV:
 					fd = open(self.cwd + self.telemetry_filename, 'w')
 					fd.write('87\n12.5')
 					fd.close()
-					temp = self.proc_com(self.telemetry_filename + ':')
+					self.temp = self.proc_com(self.telemetry_filename + ':')
 					print 'UAV: Result of pipe is : %s' % temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'GPS':
@@ -75,7 +75,7 @@ class UAV:
 					fd = open(self.cwd + self.telemetry_filename, 'w')
 					fd.write('GPSD,P=34.241188 -118.529098,A=?,V=0.110,E=? ? ?')
 					fd.close()
-					temp = self.proc_com(self.telemetry_filename + ':')
+					self.temp = self.proc_com(self.telemetry_filename + ':')
 					print 'UAV: Result of pipe is : %s' % temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'Settings':
@@ -86,40 +86,40 @@ class UAV:
 						if l.startswith("Freq:"):
 							junk, tmp_freq = l.split()
 							if tmp_freq != None:
-								freq = tmp_freq
-								os.write(toTransceiver, 'set_frequency:' + freq)
+								self.freq = tmp_freq
+								os.write(self.toTransceiver, 'set_frequency:' + freq)
 								time.sleep(1)
 						if l.startswith("Timeout:"):
 							junk, tmp_timeout = l.split()
 							if tmp_timeout != None:
-								timeout = tmp_timeout
-								os.write(toTransceiver, 'set_timeout:' + timeout)
+								self.timeout = tmp_timeout
+								os.write(self.toTransceiver, 'set_timeout:' + timeout)
 								time.sleep(1)
 					fd.close()
 					self.clear_file(self.rx_filename)
 				else:
 					if cmd.count(':') > 0:
-						temp = self.proc_com(cmd)
+						self.temp = self.proc_com(cmd)
 					else:
-						temp = self.proc_com(cmd + ':')
-			elif temp in rtn_list:
+						self.temp = self.proc_com(cmd + ':')
+			elif self.temp in self.rtn_list:
 				self.timeout_counter += 1
-				print 'UAV: Return from Transceiver Process not True... ', temp
+				print 'UAV: Return from Transceiver Process not True... ', self.temp
 				print 'Incrimenting Go Home Counter : %d' % self.timeout_counter
-			elif temp == 'closing':
+			elif self.temp == 'closing':
 				print 'Transceiver Closing, exiting...'
 				sys.exit(0)
 			else:
-				os.write(toTransceiver, 'close:')
+				os.write(self.toTransceiver, 'close:')
 				time.sleep(1)
 				os.kill(pid, signal.SIGTERM)
 				sys.exit(0)
 
 			if self.timeout_counter == 2:
 				self.go_home()
-				os.write(toTransceiver, 'set_frequency:' + self.default_freq)
+				os.write(self.toTransceiver, 'set_frequency:' + self.default_freq)
 				time.sleep(1)
-				os.write(toTransceiver, 'set_timeout:' + self.default_timeout)
+				os.write(self.toTransceiver, 'set_timeout:' + self.default_timeout)
 				time.sleep(1)
 
 	def retrieve_telemetry(self):
@@ -142,8 +142,8 @@ class UAV:
 		fd.close()
 
 	def proc_com(self, data):
-		os.write(toTransceiver, data)
-		return os.read(fromTransceiver,1024)
+		os.write(self.toTransceiver, data)
+		return os.read(self.fromTransceiver,1024)
 
 	def go_home(self):
 		self.freq = self.default_frequency
