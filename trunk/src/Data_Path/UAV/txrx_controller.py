@@ -356,7 +356,6 @@ class txrx_controller():
 
 	def set_rx_filename(self, new_name):
 		self.rx_filename = new_name
-		print new_name
 		#self.write_log(self.rx_filename)
 
 	def close_queues(self):
