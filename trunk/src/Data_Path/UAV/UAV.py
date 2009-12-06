@@ -147,7 +147,7 @@ class UAV():
 		return os.read(self.fromTransceiver,1024)
 
 	def go_home(self):
-		self.freq = self.default_frequency
+		self.freq = self.default_freq
 		self.timeout = self.default_timeout
 
 	def init_files(self):
