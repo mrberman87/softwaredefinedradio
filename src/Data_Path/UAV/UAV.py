@@ -60,7 +60,7 @@ class UAV():
 					time.sleep(1)
 					p.wait()
 					print 'UAV: Restoring Transceiver to transmit FFT.'
-					controller.forkit()
+					self.controller.forkit()
 				elif cmd == 'Telemetry':
 					print 'UAV: Telemetry command received.'
 					#self.retrieve_telemetry()
