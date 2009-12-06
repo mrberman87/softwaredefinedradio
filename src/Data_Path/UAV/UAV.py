@@ -54,7 +54,7 @@ class UAV():
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
 					print 'UAV: Stopping Transceiver process.'
-					os.kill(controller.pid, signal.SIGTERM)
+					os.kill(self.controller.pid, signal.SIGTERM)
 					time.sleep(1)
 					p = subprocess.Popen('python get_fft.py', shell=True)
 					time.sleep(1)
@@ -113,7 +113,7 @@ class UAV():
 			else:
 				os.write(self.toTransceiver, 'close:')
 				time.sleep(1)
-				os.kill(pid, signal.SIGTERM)
+				os.kill(self.controller.pid, signal.SIGTERM)
 				sys.exit(0)
 
 			if self.timeout_counter == 2:
