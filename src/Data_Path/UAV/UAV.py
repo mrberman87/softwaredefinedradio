@@ -9,7 +9,7 @@ class UAV():
 		self.cwd = os.getcwd()
 		self.rtn_list = ['False', 'Timeout',  'Handshaking Maximum Reached', 'Error']
 		#self.GPS = GPS_getter()
-		self.default_freq = '440000000
+		self.default_freq = '440000000'
 		self.default_timeout = '45'
 		self.freq = self.default_freq
 		self.timeout = self.default_timeout
