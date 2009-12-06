@@ -18,8 +18,9 @@ if __name__ == '__main__':
 	p = subprocess.Popen('python FFT_data_aq.py %s %s %s' % (real_path, imag_path, fc), shell=True)
 	time.sleep(1)
 	p.wait()
-	p = subprocess.Popen("octave", stdin=subprocess.PIPE, shell=True)
-	os.write(p.stdin.fileno(), 'UAV_fft2(\'%s\',\'%s\',\'%s\')\n' % (real_path, imag_path, to_path), stdout=fnull)
+	p = subprocess.Popen("octave", stdin=subprocess.PIPE, stdout = fnull, shell=True)
+	os.write(p.stdin.fileno(), 'UAV_fft2(\'%s\',\'%s\',\'%s\')\n' % (real_path, imag_path, to_path))
 	time.sleep(1)
 	p.wait()
+	fnull.close()
 
