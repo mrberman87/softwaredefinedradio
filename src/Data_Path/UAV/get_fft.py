@@ -15,7 +15,7 @@ if __name__ == '__main__':
 	except: 
 		fc = str(440e6)
 
-	p = subprocess.Popen('python FFT_data_aq.py %s %s %s' % (real_path, imag_path, fc),stdout=open(os.devnull,'w') shell=True)
+	p = subprocess.Popen('python FFT_data_aq.py %s %s %s' % (real_path, imag_path, fc),stdout=open(os.devnull,'w'), shell=True)
 	time.sleep(1)
 	p.wait()
 	p = subprocess.Popen("octave", stdin=subprocess.PIPE, shell=True)
