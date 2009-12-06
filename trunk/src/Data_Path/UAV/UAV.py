@@ -31,10 +31,10 @@ class UAV():
 				try:
 					cmd = self.get_command()
 				except:
-					print 'UAV: Failed to open file'
+					#print 'UAV: Failed to open file'
 					cmd = ''
 				if cmd == 'Image':
-					print 'UAV: Taking Image.'
+					#print 'UAV: Taking Image.'
 					fnull = open(os.devnull, 'w')
 					pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.cwd + self.image_filename), stdout=fnull, shell=True)
 					fnull.close()
@@ -49,7 +49,7 @@ class UAV():
 					os.kill(self.controller.pid, signal.SIGTERM)
 					sys.exit(0)
 				elif cmd == 'FFT':
-					print 'UAV: FFT command received.'
+					#print 'UAV: FFT command received.'
 					self.controller.fft = 'True'
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
@@ -62,7 +62,7 @@ class UAV():
 					#print 'UAV: Restoring Transceiver to transmit FFT.'
 					self.controller.forkit()
 				elif cmd == 'Telemetry':
-					print 'UAV: Telemetry command received.'
+					#print 'UAV: Telemetry command received.'
 					#self.retrieve_telemetry()
 					fd = open(self.cwd + self.telemetry_filename, 'w')
 					fd.write('87\n12.5')
@@ -71,7 +71,7 @@ class UAV():
 					#print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'GPS':
-					print 'UAV: Getting GPS.'
+					#print 'UAV: Getting GPS.'
 					#self.GPS.get_gps('w', cwd + telemetry_filename)
 					fd = open(self.cwd + self.telemetry_filename, 'w')
 					fd.write('GPSD,P=34.241188 -118.529098,A=?,V=0.110,E=? ? ?')
@@ -80,7 +80,7 @@ class UAV():
 					#print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'Settings':
-					self.retrieve_gps()
+					self.retrieve_settings()
 					self.clear_file(self.rx_filename)
 				elif cmd == '':
 					pass
@@ -91,10 +91,10 @@ class UAV():
 						self.temp = self.proc_com(cmd + ':')
 			elif self.temp in self.rtn_list:
 				self.timeout_counter += 1
-				print 'UAV: Return from Transceiver Process not True... ', self.temp
-				print 'Incrimenting Go Home Counter : %d' % self.timeout_counter
+				#print 'UAV: Return from Transceiver Process not True... ', self.temp
+				#print 'Incrimenting Go Home Counter : %d' % self.timeout_counter
 			elif self.temp == 'closing':
-				print 'Transceiver Closing, exiting...'
+				#print 'Transceiver Closing, exiting...'
 				sys.exit(0)
 			else:
 				os.write(self.toTransceiver, 'close:')
@@ -118,7 +118,7 @@ class UAV():
 		time.sleep(1)
 		batt.wait()
 
-	def retrieve_gps(self):
+	def retrieve_settings(self):
 		tmp_freq = None
 		tmp_timeout = None
 		fd = open(self.cwd + self.rx_filename, 'r')

@@ -8,7 +8,7 @@ class Transceiver():
 		try:
 			self.trans = txrx_controller.txrx_controller(fc=440e6, centoff=0, foffset_tx=100e3, foffset_rx=-50e3)
 		except:
-			print 'Error opening USRP, could not open USRP, exiting...'
+			#print 'Error opening USRP, could not open USRP, exiting...'
 			sys.exit(0)
 		time.sleep(1)
 		self.toUAV = toUAV
@@ -46,5 +46,5 @@ class Transceiver():
 				else:
 					#print 'Transceiver: Transmitting.'
 					os.write(self.toUAV, str(self.trans.transmit(s[0])))
-		except KeyboardInterrupt:
+		except:
 			sys.exit(0)
