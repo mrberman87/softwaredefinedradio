@@ -77,7 +77,7 @@ class UAV():
 					fd.write('GPSD,P=34.241188 -118.529098,A=?,V=0.110,E=? ? ?')
 					fd.close()
 					self.temp = self.proc_com(self.telemetry_filename + ':')
-					print 'UAV: Result of pipe is : %s' % temp
+					print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'Settings':
 					tmp_freq = None
