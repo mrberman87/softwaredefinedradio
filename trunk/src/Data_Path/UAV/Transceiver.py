@@ -6,20 +6,16 @@ import txrx_controller
 class Transceiver():
 	def __init__(self, controller, pid, fft_fn, mod_scheme, fft, toUAV, fromUAV):
 		try:
-			print 'Opening txrx_controller.'
 			self.trans = txrx_controller.txrx_controller(fc=440e6, centoff=0, foffset_tx=100e3, foffset_rx=-50e3)
-			print 'Opened controller.'
 		except:
-			print 'Could not open USRP, exiting...'
-			#sys.exit(0)
-		print 'Outside try block.'
+			print 'Error opening USRP, could not open USRP, exiting...'
+			sys.exit(0)
 		time.sleep(1)
 		self.toUAV = toUAV
 		self.fromUAV = fromUAV
 		self.fft = fft
 		self.fft_fn = fft_fn
 		self.scheme = mod_scheme
-		print 'Right before run_trans().'
 		self.run_trans()
 
 

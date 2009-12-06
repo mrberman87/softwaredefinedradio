@@ -41,7 +41,7 @@ class UAV():
 					pic.wait()
 					print 'UAV: Image Done.'
 					self.temp = self.proc_com(self.image_filename + ':')
-					print 'UAV: Result of pipe is : %s' % temp
+					print 'UAV: Result of pipe is : %s' % self.temp
 				elif cmd == 'Close':
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
@@ -67,7 +67,7 @@ class UAV():
 					fd.write('87\n12.5')
 					fd.close()
 					self.temp = self.proc_com(self.telemetry_filename + ':')
-					print 'UAV: Result of pipe is : %s' % temp
+					print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'GPS':
 					print 'UAV: Getting GPS.'
@@ -147,7 +147,7 @@ class UAV():
 
 	def go_home(self):
 		self.freq = self.default_frequency
-		self.timeout = self.dafault_timeout
+		self.timeout = self.default_timeout
 
 	def init_files(self):
 		if(not os.path.exists('image.jpg')):
