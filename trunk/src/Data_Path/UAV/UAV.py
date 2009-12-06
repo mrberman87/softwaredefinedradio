@@ -35,12 +35,12 @@ class UAV():
 					cmd = ''
 				if cmd == 'Image':
 					print 'UAV: Taking Image.'
-					pic = subprocess.Popen('uvccapture -q25 -o%s' % (self.cwd + self.image_filename), shell=True)
+					pic = subprocess.Popen('uvccapture -q25 -o%s' % (self.cwd + self.image_filename), stdout=open(os.devnull, 'w'), shell=True)
 					time.sleep(1)
 					pic.wait()
 					print 'UAV: Image Done.'
 					self.temp = self.proc_com(self.image_filename + ':')
-					print 'UAV: Result of pipe is : %s' % self.temp
+					#print 'UAV: Result of pipe is : %s' % self.temp
 				elif cmd == 'Close':
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
@@ -51,13 +51,13 @@ class UAV():
 					self.controller.fft = 'True'
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
-					print 'UAV: Stopping Transceiver process.'
+					#print 'UAV: Stopping Transceiver process.'
 					os.kill(self.controller.pid, signal.SIGTERM)
 					time.sleep(1)
 					p = subprocess.Popen('python get_fft.py', shell=True)
 					time.sleep(1)
 					p.wait()
-					print 'UAV: Restoring Transceiver to transmit FFT.'
+					#print 'UAV: Restoring Transceiver to transmit FFT.'
 					self.controller.forkit()
 				elif cmd == 'Telemetry':
 					print 'UAV: Telemetry command received.'
@@ -66,7 +66,7 @@ class UAV():
 					fd.write('87\n12.5')
 					fd.close()
 					self.temp = self.proc_com(self.telemetry_filename + ':')
-					print 'UAV: Result of pipe is : %s' % self.temp
+					#print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'GPS':
 					print 'UAV: Getting GPS.'
@@ -75,26 +75,10 @@ class UAV():
 					fd.write('GPSD,P=34.241188 -118.529098,A=?,V=0.110,E=? ? ?')
 					fd.close()
 					self.temp = self.proc_com(self.telemetry_filename + ':')
-					print 'UAV: Result of pipe is : %s' % self.temp
+					#print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'Settings':
-					tmp_freq = None
-					tmp_timeout = None
-					fd = open(self.cwd + self.rx_filename, 'r')
-					for l in fd:
-						if l.startswith("Freq:"):
-							junk, tmp_freq = l.split()
-							if tmp_freq != None:
-								self.freq = tmp_freq
-								os.write(self.toTransceiver, 'set_frequency:' + self.freq)
-								time.sleep(1)
-						if l.startswith("Timeout:"):
-							junk, tmp_timeout = l.split()
-							if tmp_timeout != None:
-								self.timeout = tmp_timeout
-								os.write(self.toTransceiver, 'set_timeout:' + self.timeout)
-								time.sleep(1)
-					fd.close()
+					self.retrieve_gps()
 					self.clear_file(self.rx_filename)
 				elif cmd == '':
 					pass
@@ -131,6 +115,25 @@ class UAV():
 		batt = subprocess.Popen('python batt.py', shell=True)
 		time.sleep(1)
 		batt.wait()
+
+	def retrieve_gps(self):
+		tmp_freq = None
+		tmp_timeout = None
+		fd = open(self.cwd + self.rx_filename, 'r')
+		for l in fd:
+			if l.startswith("Freq:"):
+				junk, tmp_freq = l.split()
+				if tmp_freq != None:
+					self.freq = tmp_freq
+					os.write(self.toTransceiver, 'set_frequency:' + self.freq)
+					time.sleep(1)
+			if l.startswith("Timeout:"):
+				junk, tmp_timeout = l.split()
+				if tmp_timeout != None:
+					self.timeout = tmp_timeout
+					os.write(self.toTransceiver, 'set_timeout:' + self.timeout)
+					time.sleep(1)
+		fd.close()
 
 	def get_command(self):
 		fd = open(self.cwd + self.rx_filename, 'r')
