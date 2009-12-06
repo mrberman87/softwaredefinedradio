@@ -18,6 +18,7 @@ class Transceiver:
 
 
 	def run_trans(self):
+		print 'In definition run_trans.'
 		if fft == True:
 			print 'Transceiver: Transmitting FFT from previous command.'
 			tb.transmit(self.fft_fn)

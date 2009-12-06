@@ -25,6 +25,7 @@ class UAV:
 	def run_UAV(self):
 		time.sleep(1.5)
 		while True:
+			print 'In definition run_UAV.'
 			temp = self.proc_com('rx:')
 			if temp == 'True':
 				self.timeout_counter = 0
