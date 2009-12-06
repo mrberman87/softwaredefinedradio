@@ -4,7 +4,6 @@ import os, time, sys, signal
 
 class UAV():
 	def __init__(self, controller, toTransceiver, fromTransceiver):
-		print 'In UAV init.'
 		self.init_files()
 		self.cwd = os.getcwd()
 		self.rtn_list = ['False', 'Timeout',  'Handshaking Maximum Reached', 'Error']
@@ -26,7 +25,6 @@ class UAV():
 
 	def run_UAV(self):
 		while True:
-			print 'In definition run_UAV.'
 			self.temp = self.proc_com('rx:')
 			if self.temp == 'True':
 				self.timeout_counter = 0
