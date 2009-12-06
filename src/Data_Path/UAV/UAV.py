@@ -40,7 +40,7 @@ class UAV():
 					fnull.close()
 					time.sleep(1)
 					pic.wait()
-					print 'UAV: Image Done.'
+					#print 'UAV: Image Done.'
 					self.temp = self.proc_com(self.image_filename + ':')
 					#print 'UAV: Result of pipe is : %s' % self.temp
 				elif cmd == 'Close':
