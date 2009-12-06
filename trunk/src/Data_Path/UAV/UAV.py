@@ -46,7 +46,7 @@ class UAV():
 				elif cmd == 'Close':
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
-					os.kill(controller.pid, signal.SIGTERM)
+					os.kill(self.controller.pid, signal.SIGTERM)
 					sys.exit(0)
 				elif cmd == 'FFT':
 					print 'UAV: FFT command received.'
