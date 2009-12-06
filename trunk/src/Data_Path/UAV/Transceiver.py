@@ -1,4 +1,4 @@
-import os
+import os, sys
 import signal
 import time
 import txrx_controller
