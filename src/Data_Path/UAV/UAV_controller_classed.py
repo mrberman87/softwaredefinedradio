@@ -17,7 +17,7 @@ class controller():
 		self.fft= False
 		self.pid = os.fork()
 		print 'pid : ', self.pid
-		self.run()
+		self.forkit()
 
 	def forkit(self):
 		self.pid = os.fork()
