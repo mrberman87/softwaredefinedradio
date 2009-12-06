@@ -32,7 +32,7 @@ class UAV():
 					cmd = self.get_command()
 				except:
 					print 'UAV: Failed to open file'
-					cmd = 'UAV: Failed to retreive command from file.:'
+					cmd = ''
 				if cmd == 'Image':
 					print 'UAV: Taking Image.'
 					pic = subprocess.Popen('uvccapture -q25 -o%s' % (self.cwd + self.image_filename), shell=True)
@@ -96,6 +96,8 @@ class UAV():
 								time.sleep(1)
 					fd.close()
 					self.clear_file(self.rx_filename)
+				elif cmd == '':
+					pass
 				else:
 					if cmd.count(':') > 0:
 						self.temp = self.proc_com(cmd)
@@ -120,6 +122,7 @@ class UAV():
 				time.sleep(1)
 				os.write(self.toTransceiver, 'set_timeout:' + self.default_timeout)
 				time.sleep(1)
+				self.timeout_counter = 0
 
 	def retrieve_telemetry(self):
 		temprature = subprocess.Popen('python temp.py', shell=True)

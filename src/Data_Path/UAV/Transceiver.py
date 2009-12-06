@@ -28,24 +28,23 @@ class Transceiver():
 			while True:
 				s = os.read(self.fromUAV,1024)
 				s = s.split(':')
-				print str(s)
+				#print str(s)
 				if s[0] == 'rx':
-					print 'Transceiver: Waiting on receive'
+					#print 'Transceiver: Waiting on receive'
 					os.write(self.toUAV, str(self.trans.receive()))
 				elif s[0] == 'close':
-					print 'Transceiver: Closing queues for shutdown.'
+					#print 'Transceiver: Closing queues for shutdown.'
 					self.trans.close_queues()
 				elif s[0] == 'set_frequency':
-					time.sleep(1)
-					print 'Transceiver: Changing Frequency.'
+					#print 'Transceiver: Changing Frequency.'
 					self.trans.set_frequency(s[1])
 				elif s[0] == 'set_timeout':
-					print 'Transceiver: Changing timeout.'
+					#print 'Transceiver: Changing timeout.'
 					self.trans.set_frame_time_out(s[1])
 				elif s[0] == ':':
 					pass
 				else:
-					print 'Transceiver: Transmitting.'
+					#print 'Transceiver: Transmitting.'
 					os.write(self.toUAV, str(self.trans.transmit(s[0])))
 		except KeyboardInterrupt:
 			sys.exit(0)

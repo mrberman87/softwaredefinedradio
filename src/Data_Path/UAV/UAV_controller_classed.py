@@ -25,22 +25,22 @@ class controller():
 
 	def run(self):
 		if self.pid == 0:
-			#try:
-			self.t = Transceiver.Transceiver(self, self.pid, self.fft_fn, self.mod_scheme, self.fft, toUAV, fromUAV)
-			#except:
-				#print 'Unable to open USRP, closing process : ', str(self.pid)
-				#os.write(toUAV, 'closing')
-				#sys.exit(0)
+			try:
+				self.t = Transceiver.Transceiver(self, self.pid, self.fft_fn, self.mod_scheme, self.fft, toUAV, fromUAV)
+			except:
+				print 'Unable to open USRP, closing process : ', str(self.pid)
+				os.write(toUAV, 'closing')
+				sys.exit(0)
 		
 		else:
-			#try:
-			self.u = UAV.UAV(self, toTransceiver, fromTransceiver)
-			#except:
-				#print 'Exception in UAV.'
-				#os.write(toTransceiver, 'close:')
-				#time.sleep(1)
-				#os.kill(self.pid, signal.SIGTERM)
-				#sys.exit(0)
+			try:
+				self.u = UAV.UAV(self, toTransceiver, fromTransceiver)
+			except:
+				print 'Exception in UAV.'
+				os.write(toTransceiver, 'close:')
+				time.sleep(1)
+				os.kill(self.pid, signal.SIGTERM)
+				sys.exit(0)
 
 if __name__ == '__main__':
 	c = controller()
