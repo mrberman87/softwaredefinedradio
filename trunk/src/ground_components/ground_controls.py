@@ -243,7 +243,9 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 					frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
 				time.sleep(2)
 			except:
-				pass
+				self.tsvr = txrx_controller(fc=int(self.freq), centoff=self.calc_offset(), foffset_tx=0, foffset_rx=50e3,
+					frame_time_out = int(self.timeout), work_directory=self.working_dir, version=self.modulation.lower())
+				time.sleep(2)
 		else:
 			self.write_log('Reseting Freq/Timeout')
 			self.tsvr.set_frame_time_out(int(self.timeout))
