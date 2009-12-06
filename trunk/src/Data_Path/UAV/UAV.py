@@ -20,6 +20,7 @@ class UAV():
 		self.rx_filename = '/rx_data'
 		self.toTransceiver = toTransceiver
 		self.fromTransceiver = fromTransceiver
+		self.controller = controller
 		self.temp = ''
 		self.run_UAV()
 
@@ -49,7 +50,7 @@ class UAV():
 					sys.exit(0)
 				elif cmd == 'FFT':
 					print 'UAV: FFT command received.'
-					controller.fft = 'True'
+					self.controller.fft = 'True'
 					os.write(self.toTransceiver, 'close:')
 					time.sleep(1)
 					print 'UAV: Stopping Transceiver process.'
