@@ -2,6 +2,7 @@
 
 import time
 import os
+import sys
 import signal
 import UAV
 import Transceiver
