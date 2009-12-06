@@ -13,6 +13,7 @@ class Transceiver():
 		time.sleep(1)
 		self.toUAV = toUAV
 		self.fromUAV = fromUAV
+		self.controller = controller
 		self.fft = fft
 		self.fft_fn = fft_fn
 		self.scheme = mod_scheme
@@ -24,7 +25,7 @@ class Transceiver():
 		if self.fft == 'True':
 			print 'Transceiver: Transmitting FFT from previous command.'
 			self.trans.transmit(self.fft_fn)
-			controller.fft = 'False'
+			self.controller.fft = 'False'
 		while True:
 			s = os.read(self.fromUAV,1024)
 			s = s.split(':')
