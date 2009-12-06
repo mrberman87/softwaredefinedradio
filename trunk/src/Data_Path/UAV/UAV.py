@@ -35,7 +35,9 @@ class UAV():
 					cmd = ''
 				if cmd == 'Image':
 					print 'UAV: Taking Image.'
-					pic = subprocess.Popen('uvccapture -q25 -o%s' % (self.cwd + self.image_filename), stdout=open(os.devnull, 'w'), shell=True)
+					fnull = open(os.devnull, 'w')
+					pic = subprocess.Popen('uvccapture -q25 -o%s' % (self.cwd + self.image_filename), stdout=fnull, shell=True)
+					fnull.close()
 					time.sleep(1)
 					pic.wait()
 					print 'UAV: Image Done.'
