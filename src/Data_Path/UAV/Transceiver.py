@@ -4,7 +4,7 @@ import time
 import txrx_controller
 
 class Transceiver:
-	def __init__(self, controller, pid, fft_fn, mod_scheme, fft, toUAV, fromUAV)
+	def __init__(self, controller, pid, fft_fn, mod_scheme, fft, toUAV, fromUAV):
 		try:
 			tb = txrx_controller.txrx_controller(fc=440e6, centoff=0, foffset_tx=100e3, foffset_rx=-50e3)
 			time.sleep(1.5)
