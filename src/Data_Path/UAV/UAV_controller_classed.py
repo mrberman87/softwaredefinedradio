@@ -27,6 +27,8 @@ class controller():
 		if self.pid == 0:
 			try:
 				t = Transceiver.Transceiver(self, self.pid, self.fft_fn, self.mod_scheme, self.fft, toUAV, fromUAV)
+				while True:
+					pass
 			except:
 				print 'Unable to open USRP, closing process : ', str(self.pid)
 				os.write(toUAV, 'closing')
@@ -35,6 +37,8 @@ class controller():
 		else:
 			try:
 				u = UAV.UAV(self, toTransceiver, fromTransceiver)
+				while True:
+					pass	
 			except:
 				os.write(toTransceiver, 'close:')
 				time.sleep(1)
