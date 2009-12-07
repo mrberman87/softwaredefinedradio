@@ -12,6 +12,16 @@ fromTransceiver,toUAV = os.pipe()
 
 class controller():
 	def __init__(self):
+		try:
+			if sys.argv[1] == 'gps':
+				self.GPS_condition = True
+		except:
+			self.GPS_condition = False
+		try:
+			if sys.argv[2] == 'telemetry':
+				self.Telemetry_condition = True
+		except:
+			self.Telemetry_condition = False
 		self.fft_fn = '/fft.png'
 		self.mod_scheme = 'bpsk'
 		self.fft= 'False'
@@ -34,7 +44,7 @@ class controller():
 		
 		else:
 			try:
-				self.u = UAV.UAV(self, toTransceiver, fromTransceiver)
+				self.u = UAV.UAV(self, toTransceiver, fromTransceiver, self.GPS_condition, self.Telemetry_condition)
 			except:
 				print 'Exception in UAV.'
 				os.write(toTransceiver, 'close:')

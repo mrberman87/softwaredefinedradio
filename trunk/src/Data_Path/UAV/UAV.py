@@ -3,11 +3,14 @@ import os, time, sys, signal
 
 
 class UAV():
-	def __init__(self, controller, toTransceiver, fromTransceiver):
+	def __init__(self, controller, toTransceiver, fromTransceiver, GPS=False, Telemetry=False):
 		self.init_files()
 		self.cwd = os.getcwd()
 		self.rtn_list = ['False', 'Timeout',  'Handshaking Maximum Reached', 'Error']
-		#self.GPS = GPS_getter()
+		self.GPS_condition = GPS
+		if self.GPS_condition:
+			self.GPS = GPS_getter()
+		self.Telemetry_condition = Telemetry
 		self.default_freq = '440000000'
 		self.default_timeout = '45'
 		self.freq = self.default_freq
@@ -36,10 +39,10 @@ class UAV():
 				if cmd == 'Image':
 					#print 'UAV: Taking Image.'
 					fnull = open(os.devnull, 'w')
-					pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.cwd + self.image_filename), stdout=fnull, shell=True)
-					fnull.close()
+					pic = subprocess.Popen('uvccapture -q100 -o%s' % (self.cwd + self.image_filename), stdout=fnull, stderr=fnull, shell=True)
 					time.sleep(1)
 					pic.wait()
+					fnull.close()
 					#print 'UAV: Image Done.'
 					self.temp = self.proc_com(self.image_filename + ':')
 					#print 'UAV: Result of pipe is : %s' % self.temp
@@ -63,19 +66,23 @@ class UAV():
 					self.controller.forkit()
 				elif cmd == 'Telemetry':
 					#print 'UAV: Telemetry command received.'
-					#self.retrieve_telemetry()
-					fd = open(self.cwd + self.telemetry_filename, 'w')
-					fd.write('87\n12.5')
-					fd.close()
+					if self.Telemetry_condition:
+						self.retrieve_telemetry()
+					else:
+						fd = open(self.cwd + self.telemetry_filename, 'w')
+						fd.write('00\n00.0')
+						fd.close()
 					self.temp = self.proc_com(self.telemetry_filename + ':')
 					#print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
 				elif cmd == 'GPS':
 					#print 'UAV: Getting GPS.'
-					#self.GPS.get_gps('w', cwd + telemetry_filename)
-					fd = open(self.cwd + self.telemetry_filename, 'w')
-					fd.write('GPSD,P=34.241188 -118.529098,A=?,V=0.110,E=? ? ?')
-					fd.close()
+					if self.GPS_condition:
+						self.GPS.get_gps('w', self.cwd + self.telemetry_filename)
+					else:
+						fd = open(self.cwd + self.telemetry_filename, 'w')
+						fd.write('GPSD,P=0 0,A=0,V=0,E=0 0 0')
+						fd.close()
 					self.temp = self.proc_com(self.telemetry_filename + ':')
 					#print 'UAV: Result of pipe is : %s' % self.temp
 					self.clear_file(self.telemetry_filename)			
