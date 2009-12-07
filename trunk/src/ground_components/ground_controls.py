@@ -135,7 +135,11 @@ class ground_controls(abstractmodel.AbstractModel, threading.Thread):
 				data = 'Settings'
 				tmp  = cmd.split(' ')
 				if tmp[1] != '#':
-					self.new_freq = int(tmp[1])
+					try:
+						self.new_freq = int(tmp[1])
+					except ValueError:
+						self.new_freq = int(tmp[1][:3])
+						self.new_freq = self.new_freq * 1000000
 				else:
 					self.new_freq = ''
 				self.new_modulation = tmp[2].lower()
