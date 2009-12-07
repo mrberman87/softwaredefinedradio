@@ -108,12 +108,12 @@ class txrx_controller():
 				#Transmission Complete Event
 				elif self.event == self.event_list[3]:
 					if self.payload == self.event_list[3]:
-						print "C : ", self.payload
+						#print "C : ", self.payload
 						#self.write_log("C : " + self.payload)
 						self.full_cleanup()
 						return True
 					elif self.payload == self.event_list[5]:
-						print "C : ", self.payload
+						#print "C : ", self.payload
 						#self.write_log("C : " + self.payload)
 						self.full_cleanup()
 						return 'ka'
@@ -136,13 +136,13 @@ class txrx_controller():
 			#Used to keep the total number of receives to a maximum
 			if self.hand_shaking_count == self.hand_shaking_maximum:
 				self.full_cleanup()
-				print 'Handshaking Maximum Reached'
+				#print 'Handshaking Maximum Reached'
 				#self.write_log('Handshaking Maximum Reached')
 				return 'Handshaking Maximum Reached'
 			#Used to give control back to the outside controller
 			if int(time.time() - time_0) >= self.frame_timeout:
 				self.full_cleanup()
-				print 'Timeout'
+				#print 'Timeout'
 				#self.write_log('Timeout')
 				return 'Timeout'
 			#Used to fake a frame completion for handshaking
