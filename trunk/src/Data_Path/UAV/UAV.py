@@ -15,7 +15,6 @@ class UAV():
 		self.default_timeout = '45'
 		self.freq = self.default_freq
 		self.timeout = self.default_timeout
-		self.telemetry_error = False
 		self.timeout_counter = 0
 		self.image_filename = '/image.jpg'
 		self.telemetry_filename = '/misc.dat'
@@ -71,15 +70,11 @@ class UAV():
 						self.retrieve_telemetry()
 					else:
 						fd = open(self.cwd + self.telemetry_filename, 'w')
-						fd.write('00\n00.0')
+						fd.write('00.0\n00.0')
 						fd.close()
-					if self.telemetry_error is False:
-						self.temp = self.proc_com(self.telemetry_filename + ':')
-						#print 'UAV: Result of pipe is : %s' % self.temp
-						self.clear_file(self.telemetry_filename)
-					else:
-						self.temp = self.proc_com('Error' + ':')
-						self.telemetry_error = False
+					self.temp = self.proc_com(self.telemetry_filename + ':')
+					#print 'UAV: Result of pipe is : %s' % self.temp
+					self.clear_file(self.telemetry_filename)
 									
 				elif cmd == 'GPS':
 					#print 'UAV: Getting GPS.'
@@ -124,16 +119,12 @@ class UAV():
 				self.timeout_counter = 0
 
 	def retrieve_telemetry(self):
-		try:
-			temprature = subprocess.Popen('python temp.py', shell=True)
-			time.sleep(1)
-			temprature.wait()
-			batt = subprocess.Popen('python batt.py', shell=True)
-			time.sleep(1)
-			batt.wait()
-			self.telemetry_error = False
-		except:
-			self.telemetry_error = True
+		temprature = subprocess.Popen('python temp.py', shell=True)
+		time.sleep(1)
+		temprature.wait()
+		batt = subprocess.Popen('python batt.py', shell=True)
+		time.sleep(1)
+		batt.wait()
 
 	def retrieve_settings(self):
 		tmp_freq = None
