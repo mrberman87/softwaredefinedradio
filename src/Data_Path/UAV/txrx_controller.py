@@ -45,7 +45,7 @@ class txrx_controller():
 		self.full_cleanup()		
 		if data_source == 'Error':
 			self.make_pkts(4)
-			return True
+			return self.receive()
 		elif data_source.count('/') > 0:
 			try:
 				fo = open(self.working_directory + data_source, 'r')
