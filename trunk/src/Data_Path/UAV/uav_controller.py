@@ -26,7 +26,6 @@ class controller():
 		self.mod_scheme = 'bpsk'
 		self.fft= 'False'
 		self.pid = os.fork()
-		#print 'pid : ', self.pid
 		self.run()
 
 	def forkit(self):

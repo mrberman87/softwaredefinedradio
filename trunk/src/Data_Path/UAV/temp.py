@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	t=timeit.Timer('Temp()', "from __main__ import Temp")
 	#while(True):
 	temp=decode_data(t.timeit(number=1))
-	#time.sleep(1)
+	time.sleep(1)
 #-----------------------------------------------------------------------------------------------
 #Output to file for circuit curve fitting (used only to get equation)
 	fd = open(os.getcwd() + '/misc.dat', 'a')

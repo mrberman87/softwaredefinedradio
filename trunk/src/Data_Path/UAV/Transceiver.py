@@ -24,7 +24,6 @@ class Transceiver():
 		try:
 			if self.fft == 'True':
 				self.trans.transmit(self.fft_fn)
-				self.controller.fft = 'False'
 			while True:
 				s = os.read(self.fromUAV,1024)
 				s = s.split(':')
