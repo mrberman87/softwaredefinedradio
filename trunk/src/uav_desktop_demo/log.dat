@@ -1,0 +1,100 @@
+Fri Dec 11 16:01:31 2009     Starting Up: pid = 13784
+Fri Dec 11 16:02:19 2009     Starting Up: pid = 13891
+Fri Dec 11 16:02:32 2009     Starting Up: pid = 13970
+Fri Dec 11 16:02:43 2009     Starting Up: pid = 14045
+Fri Dec 11 16:03:31 2009     Timeout
+Number of Failed Packets: 0
+Fri Dec 11 16:04:12 2009     Getting FFT Data
+Fri Dec 11 16:04:57 2009     Timeout
+Fri Dec 11 16:05:44 2009     Starting Up: pid = 14156
+Number of Failed Packets: 0
+Fri Dec 11 16:05:57 2009     Getting FFT Data
+Number of Failed Packets: 0
+Fri Dec 11 16:06:21 2009     Getting FFT Data
+Fri Dec 11 16:07:20 2009     Timeout
+Fri Dec 11 16:08:05 2009     Timeout
+Fri Dec 11 16:08:05 2009     Going Home...
+Fri Dec 11 16:08:50 2009     Timeout
+Fri Dec 11 16:09:35 2009     Timeout
+Fri Dec 11 16:09:35 2009     Going Home...
+Fri Dec 11 16:10:20 2009     Timeout
+Fri Dec 11 16:11:05 2009     Timeout
+Fri Dec 11 16:11:05 2009     Going Home...
+Fri Dec 11 16:11:50 2009     Timeout
+Fri Dec 11 16:12:35 2009     Timeout
+Fri Dec 11 16:12:35 2009     Going Home...
+Fri Dec 11 16:13:20 2009     Timeout
+Fri Dec 11 16:14:05 2009     Timeout
+Fri Dec 11 16:14:06 2009     Going Home...
+Mon Dec 14 13:22:33 2009     Starting Up: pid = 20965
+Number of Failed Packets: 0
+Mon Dec 14 13:26:12 2009     Taking Picture
+Number of Failed Packets: 0
+Mon Dec 14 13:26:53 2009     Getting Telemetry Data
+Mon Dec 14 13:29:28 2009     Starting Up: pid = 21407
+Number of Failed Packets: 0
+Mon Dec 14 13:29:37 2009     Getting Telemetry Data
+Mon Dec 14 13:30:07 2009     Starting Up: pid = 21499
+Number of Failed Packets: 0
+Mon Dec 14 13:30:17 2009     Getting Telemetry Data
+Number of Failed Packets: 0
+Mon Dec 14 13:30:26 2009     Getting Telemetry Data
+Number of Failed Packets: 0
+Mon Dec 14 13:30:52 2009     Getting Telemetry Data
+Number of Failed Packets: 0
+Mon Dec 14 13:31:26 2009     Getting FFT Data
+Number of Failed Packets: 0
+Mon Dec 14 13:31:35 2009     Getting FFT Data
+Number of Failed Packets: 0
+Mon Dec 14 13:31:45 2009     Taking Picture
+Number of Failed Packets: 0
+Mon Dec 14 13:32:26 2009     Changing Settings: Freq = 435000000
+Number of Failed Packets: 0
+Mon Dec 14 13:33:26 2009     Changing Settings: Timeout = 30 Modulation Scheme = qpsk
+Mon Dec 14 13:33:56 2009     Timeout
+Mon Dec 14 13:34:26 2009     Timeout
+Mon Dec 14 13:34:27 2009     Going Home...
+Mon Dec 14 13:35:12 2009     Timeout
+Mon Dec 14 13:35:57 2009     Timeout
+Mon Dec 14 13:35:57 2009     Going Home...
+Mon Dec 14 13:36:42 2009     Timeout
+Mon Dec 14 13:37:27 2009     Timeout
+Mon Dec 14 13:37:27 2009     Going Home...
+Mon Dec 14 13:38:12 2009     Timeout
+Mon Dec 14 13:38:57 2009     Timeout
+Mon Dec 14 13:38:57 2009     Going Home...
+Mon Dec 14 13:39:42 2009     Timeout
+Mon Dec 14 13:40:27 2009     Timeout
+Mon Dec 14 13:40:27 2009     Going Home...
+Mon Dec 14 13:41:12 2009     Timeout
+Number of Failed Packets: 0
+Mon Dec 14 13:41:46 2009     Changing Settings: Modulation Scheme = qpsk
+Number of Failed Packets: 0
+Mon Dec 14 13:41:57 2009     Taking Picture
+Number of Failed Packets: 0
+Mon Dec 14 13:42:18 2009     Getting Telemetry Data
+Number of Failed Packets: 0
+Mon Dec 14 13:42:28 2009     Getting FFT Data
+Mon Dec 14 13:43:44 2009     Timeout
+Number of Failed Packets: 0
+Mon Dec 14 13:44:15 2009     Changing Settings: Freq = 435000000 Timeout = 35 Modulation Scheme = bpsk
+Mon Dec 14 13:48:24 2009     Starting Up: pid = 22147
+Number of Failed Packets: 0
+Mon Dec 14 13:49:37 2009     Starting Up: pid = 22240
+Number of Failed Packets: 0
+Number of Failed Packets: 0
+Mon Dec 14 13:50:08 2009     Getting Telemetry Data
+Number of Failed Packets: 0
+Mon Dec 14 13:50:20 2009     Getting FFT Data
+Number of Failed Packets: 0
+Mon Dec 14 13:50:31 2009     Taking Picture
+Number of Failed Packets: 0
+Mon Dec 14 13:50:55 2009     Changing Settings: Freq = 425000000 Timeout = 35 Modulation Scheme = qpsk
+Mon Dec 14 13:52:13 2009     Timeout
+Mon Dec 14 13:52:48 2009     Timeout
+Mon Dec 14 13:52:49 2009     Going Home...
+Mon Dec 14 13:59:34 2009     Timeout
+Number of Failed Packets: 0
+Mon Dec 14 13:59:54 2009     Changing Settings: Modulation Scheme = qpsk
+Number of Failed Packets: 0
+Mon Dec 14 14:00:11 2009     Changing Settings: Modulation Scheme = bpsk
